@@ -1,40 +1,40 @@
 Senior Project Proposal (Replace with Project Name)
 ===================================================
 
-**Student Name(s)**: Ada Lovelace (put your name here, followed by two spaces)  
-**Degree and Major**: B.S. in Cybersecurity (put your name here, followed by two spaces)  
-**Project Advisor Name**: Dr. Faulkner (put your name here, followed by two spaces)  
-**Expected Graduation Date**: May 2040 (put the correct month and day here)
+**Student Name(s)**: Colby Neal    
+**Degree and Major**: B.S. in Cybersecurity   
+**Project Advisor Name**: Dr. Hayes   
+**Expected Graduation Date**: May 2027 
 
 
 Problem Statement
 -----------------
 
-The problem statement goes here.
+As young adults are finishing up school they are expected to understand how to live life in the real world, from working to household management, but they weren’t taught an efficient way to budget for their lifestyle. Imagine jumping into the deep end of the pool with only three limbs working, it’s hard to keep afloat. Pew Research Center states approximately 37% to 47% of young adults have actively created a budget or have received formal financial education. By creating an application to allow young adults to learn how to budget and get real world scenarios, they will have a better understanding on how to budget and not fall into a financial crisis. 
 
 
 Project Description
 -------------------
 
-The project description goes here.
+My senior project consists of taking the current worksheet simulation used by The Financial Department of CSU, which was designed to aid students in their monthly budgeting financial process, and reconstructing it into a web application. This application will create a visual representation for CSU students that provides a better understanding of the concept of budgeting before graduating college. The application will pull updated data from the Bureau of Labor Statistics to create features like moving to a new location, having a baby, taking care of student loans, or getting a raise. I will be recreating this worksheet in a videogame format that the current generation of students, and even generations to come, can better relate to. In the game a leaderboard will display how each student is doing through their financial journey. The game will include tasks that will be completed by the player that will test their ability to budget and include multiple stages that the student will have to get through with positive income. By learning through this familiar format, I believe students will have an easier time implementing financial or budgeting goals in real-life situations.
 
 
 Proposed Implementation Language(s) 
 -----------------------------------
 
-Languages go here.
+JavaScript and html
 
 
 Libraries, Packages, Development Kits, etc., to be used in the proposed implementation language(s)
 --------------------------------------------------------------------------------------------------
 
-The supporting libraries go here.
+Bun, Vue, and Vite
 
 
 Additional Software/Equipment Needed
 ------------------------------------
 
-List any hardware needed and software for planning, development (e.g., your IDE), testing, and deploying/distributing.
+N/A
 
 Alternative Solutions and Rationale 🔍
 --------------------------------------
@@ -69,7 +69,7 @@ Alternative Solutions and Rationale 🔍
 Personal Motivation
 -------------------
 
-Personal motivation goes here.
+Personal motivation will be a little bit of a challenge, but I know that I am excited to see what I can do for this project and will want to work on it all the time and keep trying to make improvements to it. I know that I will have to be reminded a couple of times about the project because life does happen and I can forget about certain things. 
 
 Outline of Future Research Efforts
 ----------------------------------
