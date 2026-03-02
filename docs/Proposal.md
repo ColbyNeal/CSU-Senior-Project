@@ -1,34 +1,42 @@
 Senior Project Proposal (Replace with Project Name)
 ===================================================
 
-**Student Name(s)**: Ada Lovelace (put your name here, followed by two spaces)  
+**Student Name(s)**: Colby Neal  
 **Degree and Major**: B.S. in Cybersecurity (put your name here, followed by two spaces)  
-**Project Advisor Name**: Dr. Faulkner (put your name here, followed by two spaces)  
-**Expected Graduation Date**: May 2040 (put the correct month and day here)
+**Project Advisor Name**: Dr. Hayes    
+**Expected Graduation Date**: May 2027
 
 
 Problem Statement
 -----------------
 
-The problem statement goes here.
+As young adults are finishing up school they are expected to understand how to live life in the real world, from working to household management, but they weren’t taught an efficient way to budget for their lifestyle. Imagine jumping into the deep end of the pool with only three limbs working, it’s hard to keep afloat. Pew Research Center states approximately 37% to 47% of young adults have actively created a budget or have received formal financial education. By creating an application to allow young adults to learn how to budget and get real world scenarios, they will have a better understanding on how to budget and not fall into a financial crisis. 
 
 
 Project Description
 -------------------
 
-The project description goes here.
+My senior project consists of taking the current worksheet simulation used by The Financial Department of CSU, which was designed to aid students in their monthly budgeting financial process, and reconstructing it into a web application. This application will create a visual representation for CSU students that provides a better understanding of the concept of budgeting before graduating college. The application will pull updated data from the Bureau of Labor Statistics to create features like moving to a new location, having a baby, taking care of student loans, or getting a raise. I will be recreating this worksheet in a videogame format that the current generation of students, and even generations to come, can better relate to. In the game a leaderboard will display how each student is doing through their financial journey. The game will include tasks that will be completed by the player that will test their ability to budget and include multiple stages that the student will have to get through with positive income. By learning through this familiar format, I believe students will have an easier time implementing financial or budgeting goals in real-life situations.
+
+Features I would like in this project:
+- A way for the program to interact with the user.
+- Adding in an animated character to motivate the user. 
 
 
 Proposed Implementation Language(s) 
 -----------------------------------
 
-Languages go here.
+- JavaScript  
+- HTML
 
 
 Libraries, Packages, Development Kits, etc., to be used in the proposed implementation language(s)
 --------------------------------------------------------------------------------------------------
 
-The supporting libraries go here.
+- Buns
+  - JavaScript
+- Vue
+
 
 
 Additional Software/Equipment Needed
@@ -42,65 +50,89 @@ Alternative Solutions and Rationale 🔍
 > **Purpose**: Describe at least two alternative solutions or approaches to your project. Compare these with your chosen solution based on relevant criteria (e.g., feasibility, scalability, cost, performance, usability). Explain why you selected your final approach.
 
 ### Alternative 1
+
+*Node.js + Express.js + React*
 - **Description**:  
-  _(Briefly describe this solution or approach.)_
+  A full JavaScript stack where both frontend and backend use the same language. Express handles APIs, React handles the UI, and Node runs the server. 
 - **Pros**:  
-  - _(List strengths or advantages)_
+  - one language across the entire stack
+  - massive ecosystem and community support
+  - tons of tutorials and job market demand
+  - flexible and customizable
+  - easy deployment options
 - **Cons**:  
-  - _(List weaknesses or limitations)_
+  - More steup/config compared to all-in-one frameworks
+  - can become messy without structure
+  - requires more manual configuration
 
 ### Alternative 2
+
+  *FastAPI + Vue.js*
 - **Description**:  
-  _(Briefly describe this solution or approach.)_
+  a Python backend using FastAPI for high-performance APIs, paried with Vue for the frontend. Strong for data-driven or backend-heavy applications. 
 - **Pros**:  
-  - _(List strengths or advantages)_
+  - Very fast backend performance
+  - Automatic API documentation
+  - Clean, modern Python syntax
+  - Great for APIs, data apps, or AI integrations
+  - Strong typing support
 - **Cons**:  
-  - _(List weaknesses or limitations)_
+  - Two different languages (Python + JavaScript)
+  - Smaller ecosystem than Node for frontend-focused apps
+  - Requires managing separate environments
 
 ### Chosen Solution and Rationale
 - **Chosen Solution**:  
-  _(Restate your selected solution.)_
+  Bun + Vue.js
 - **Rationale**:  
-  _(Justify your choice in comparison with the alternatives. Highlight key reasons for its selection.)_
+  Bun and Vue were selected because they provide a fast, streamlined, single-language development experience with minimal configuration overhead. Compared to Node + React, this stack reduces boilerplate and improves runtime performance. Compared to FastAPI + Vue, it avoids cross-language complexity while still delivering strong API capabilities. For the scope and size of this project, Bun + Vue offers the best balance of speed, simplicity, and modern tooling. 
 
-> 💡 *Tip: Consider using a comparison table to evaluate trade-offs across multiple criteria such as feasibility, performance, scalability, cost, and usability.*
+
+
+| Factor              | Bun + Vue     | Node + React   | FastAPI + Vue        |
+|---------------------|--------------|---------------|----------------------|
+| Setup Complexity    | Low          | Medium        | Medium               |
+| Performance         | High         | Good          | High                 |
+| Languages Used      | 1 (JavaScript) | 1 (JavaScript) | 2 (Python + JavaScript) |
+| Development Speed   | Fast         | Moderate      | Moderate             |
+| Best For            | Lean full-stack apps | Large ecosystem projects | API-heavy / data-driven apps |
 
 
 Personal Motivation
 -------------------
 
-Personal motivation goes here.
+All my life I have seen people homeless or don't have money to live comfortably all because they decided to have poor financial responsibility. When I got my first job my father forced me to build a budget so that I wouldn't blow all my money away. 
 
 Outline of Future Research Efforts
 ----------------------------------
 
-(What do you need to learn or figure out to complete this project? What tasks are you going to do the do?)
+I have found an application that will teach me the basics of JavaScript. The application is called boot.dev
 
 Schedule 📅
 -----------
 
 > Update the dates and add your tasks by replacing the examples. Remove this note.
 
-*   Spring 2039 - CSCI 497
+*   Spring 2026 - CSCI 497
     -   January 26 - 
     -   February 9 - 
-    -   February 23 - 
-    -   March 8 - 
+    -   February 23 - Have all the information I need to create the Proposal completely 
+    -   March 6 - Have the rough draft of the proposal finished and graded
     -   March 22 - Send First-Draft of the Requirements Document to advisor for feedback
-    -   April 5 - 
+    -   April 5 - Have the entire Proposal completed with the approval of my advisor 
 
-*   Summer 2040 - Independent/Optional Project Work
-    -   June 1 - 
+*   Summer 2026 - Independent/Optional Project Work
+    -   June 1 - Start the basic foundations of the project
 
-*   Fall 2039 - CSCI 498
-    -   October 20 - 
-    -   October 27 - 
-    -   November 3 - 
-    -   November 10 - 
-    -   November 17 - 
-    -   November 20 - 
+*   Fall 2026 - CSCI 498
+    -   October 20 - I would like 40% of the project complete
+    -   October 27 - I would like 50% of the project complete
+    -   November 3 - I would like 60% of the project complete
+    -   November 10 - I would like 70% of the project complete
+    -   November 17 - I would like 80% of the project complete
+    -   November 20 - Have the Project working with all the features I want included. 
 
-*   Spring 2040 - CSCI 499 (more details will be added here once you are closer)
+*   Spring 2027 - CSCI 499 (more details will be added here once you are closer)
     -   Weeks 1-4 - Implement test plan
     -   Week 5 - Evaluate test results
     -   Week 6-10 - Apply updates and bug fixes based on the results
