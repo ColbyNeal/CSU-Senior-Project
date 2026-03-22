@@ -141,4 +141,4 @@ Schedule 📅
 References 📚
 -------------
 
-> List any references you cited in this proposal.
+Minkin, R., Parker, K., Horowitz, J. M., & Aragão, C. (2024, January 25). Young adults’ financial independence. Pew Research Center. https://www.pewresearch.org/social-trends/2024/01/25/financial-help-and-independence-in-young-adulthood/ 
