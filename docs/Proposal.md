@@ -1,8 +1,8 @@
-Senior Project Proposal (Replace with Project Name)
+Senior Project Proposal  
 ===================================================
 
 **Student Name(s)**: Colby Neal  
-**Degree and Major**: B.S. in Cybersecurity (put your name here, followed by two spaces)  
+**Degree and Major**: B.S. in Cybersecurity    
 **Project Advisor Name**: Dr. Hayes    
 **Expected Graduation Date**: May 2027
 
@@ -34,7 +34,6 @@ Libraries, Packages, Development Kits, etc., to be used in the proposed implemen
 --------------------------------------------------------------------------------------------------
 
 - Buns
-  - JavaScript
 - Vue
 
 
@@ -47,7 +46,6 @@ List any hardware needed and software for planning, development (e.g., your IDE)
 Alternative Solutions and Rationale 🔍
 --------------------------------------
 
-> **Purpose**: Describe at least two alternative solutions or approaches to your project. Compare these with your chosen solution based on relevant criteria (e.g., feasibility, scalability, cost, performance, usability). Explain why you selected your final approach.
 
 ### Alternative 1
 
@@ -101,7 +99,7 @@ Alternative Solutions and Rationale 🔍
 Personal Motivation
 -------------------
 
-All my life I have seen people homeless or don't have money to live comfortably all because they decided to have poor financial responsibility. When I got my first job my father forced me to build a budget so that I wouldn't blow all my money away. 
+People today struggle to budget thier money and creating this program will allow young adults to experience budgeting money without the risk of losing their personal money.
 
 Outline of Future Research Efforts
 ----------------------------------
@@ -125,12 +123,12 @@ Schedule 📅
     -   June 1 - Start the basic foundations of the project
 
 *   Fall 2026 - CSCI 498
-    -   October 20 - I would like 40% of the project complete
-    -   October 27 - I would like 50% of the project complete
-    -   November 3 - I would like 60% of the project complete
-    -   November 10 - I would like 70% of the project complete
-    -   November 17 - I would like 80% of the project complete
-    -   November 20 - Have the Project working with all the features I want included. 
+    -   October 20 - I would like the basic foundation of the project complete.
+    -   October 27 - improve the back end of the program 
+    -   November 3 - improve the front end of the program
+    -   November 10 - start applying features into the program
+    -   November 17 - have all the features included in the program that i want
+    -   November 20 - Have the Project working with little to no bugs 
 
 *   Spring 2027 - CSCI 499 (more details will be added here once you are closer)
     -   Weeks 1-4 - Implement test plan
