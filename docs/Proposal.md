@@ -10,18 +10,36 @@ Senior Project Proposal
 Problem Statement
 -----------------
 
-As young adults are finishing up school they are expected to understand how to live life in the real world, from working to household management, but they weren’t taught an efficient way to budget for their lifestyle. Imagine jumping into the deep end of the pool with only three limbs working, it’s hard to keep afloat. Pew Research Center states approximately 37% to 47% of young adults have actively created a budget or have received formal financial education. By creating an application to allow young adults to learn how to budget and get real world scenarios, they will have a better understanding on how to budget and not fall into a financial crisis. 
-
+As young adults transition from college into independent living, they are expected to manage finances, maintain a household, and make responsible long-term decisions. However, many students are not taught practical budgeting skills before entering the workforce. According to the Pew Research Center, only 37% to 47% of young adults have created a budget or received formal financial education. Without these skills, students often struggle to manage expenses, prepare for emergencies, or avoid financial pitfalls.
+This project aims to address that gap by creating an interactive budgeting application that simulates real-world financial scenarios. By giving students a safe environment to practice budgeting, the application will help them build confidence and avoid financial crises after graduation.
 
 Project Description
 -------------------
 
-My senior project consists of taking the current worksheet simulation used by The Financial Department of CSU, which was designed to aid students in their monthly budgeting financial process, and reconstructing it into a web application. This application will create a visual representation for CSU students that provides a better understanding of the concept of budgeting before graduating college. The application will pull updated data from the Bureau of Labor Statistics to create features like moving to a new location, having a baby, taking care of student loans, or getting a raise. I will be recreating this worksheet in a videogame format that the current generation of students, and even generations to come, can better relate to. In the game a leaderboard will display how each student is doing through their financial journey. The game will include tasks that will be completed by the player that will test their ability to budget and include multiple stages that the student will have to get through with positive income. By learning through this familiar format, I believe students will have an easier time implementing financial or budgeting goals in real-life situations.
+The goal of this project is to transform the existing budgeting worksheet used by the CSU Financial Department into a modern, interactive web application. The new application will provide students with a visual, game-based budgeting experience that is more engaging and intuitive than the current spreadsheet format.
+The application will:
+- pull updated cost-of-living and wage data from the Bureau of Labor Statistics
+- Simulate real-life financial events such as:
+    - Moving to a new city
+    - Having a child
+    - Paying off student loans
+    - Receiving a raise or promotion
+    - Car payments
+    - Paying for groceries
+    - House payments
+- Present budgeting as a video-game-style progression system, where students complete tasks, advance through stages, and maintain positive income
+- Include a leaderboard to compare budgeting performance among students
+- Provide an animated character to motivate and guide users
+- Offer interactive decision-making scenarios that test financial literacy
+By presenting budgeting concepts in a familiar, gameified format, the application will help students better understand financial responsibility and apply these skills in real life.
 
-Features I would like in this project:
-- A way for the program to interact with the user.
-- Adding in an animated character to motivate the user. 
-
+**Features**
+- interactive user interface with real-time feedback
+- Animated character to motivate and guide the user
+- Scenario-based financial challenges
+- Leaderboard for comparing progress
+- Integration with BLS data for realistic financial modeling
+- Multi-stage budgeting "levels" that simulate life progression
 
 Proposed Implementation Language(s) 
 -----------------------------------
@@ -34,18 +52,23 @@ Libraries, Packages, Development Kits, etc., to be used in the proposed implemen
 --------------------------------------------------------------------------------------------------
 
 - Buns
+    - a JavaScript runtime, package manager, and test runner designed as a drop-in replacement for Node.js
 - Vue
+    - a JavaScript framework for building user interfaces.
 
 
 
 Additional Software/Equipment Needed
 ------------------------------------
 
-List any hardware needed and software for planning, development (e.g., your IDE), testing, and deploying/distributing.
+- Codium (IDE)
+- GitHub (version control and collaboration)
+- Standard Development hardware (Windows PC)
+- Browser-based testing tools
+- Deployment platform 
 
 Alternative Solutions and Rationale 🔍
 --------------------------------------
-
 
 ### Alternative 1
 
@@ -59,7 +82,7 @@ Alternative Solutions and Rationale 🔍
   - flexible and customizable
   - easy deployment options
 - **Cons**:  
-  - More steup/config compared to all-in-one frameworks
+  - More setup/config compared to all-in-one frameworks
   - can become messy without structure
   - requires more manual configuration
 
@@ -67,7 +90,7 @@ Alternative Solutions and Rationale 🔍
 
   *FastAPI + Vue.js*
 - **Description**:  
-  a Python backend using FastAPI for high-performance APIs, paried with Vue for the frontend. Strong for data-driven or backend-heavy applications. 
+  a Python backend using FastAPI for high-performance APIs, paired with Vue for the frontend. Strong for data-driven or backend-heavy applications. 
 - **Pros**:  
   - Very fast backend performance
   - Automatic API documentation
@@ -99,43 +122,44 @@ Alternative Solutions and Rationale 🔍
 Personal Motivation
 -------------------
 
-People today struggle to budget thier money and creating this program will allow young adults to experience budgeting money without the risk of losing their personal money.
+Budgeting is a skill many people struggle with, especially young adults who are just beginning to manage their own finances. By creating this application, I hope to give students a safe, engaging way to learn budgeting without risking their real money. Helping others build financial confidence is a meaningful and practical goal that aligns with my interests in cybersecurity, technology, and problem-solving.
 
 Outline of Future Research Efforts
 ----------------------------------
 
-I have found an application that will teach me the basics of JavaScript. The application is called boot.dev
+I plan to continue learning JavaScript through the online platform Boot.dev, which provides structured lessons and hands-on practice. Additional research will include:
+- Reviewing BLS data APIs
+- Studying gamification techniques
+- Learning best practices for Vue and Bun
+- Exploring UI/UX design principles for educational apps
 
 Schedule 📅
 -----------
 
-> Update the dates and add your tasks by replacing the examples. Remove this note.
-
 *   Spring 2026 - CSCI 497
-    -   January 26 - 
-    -   February 9 - 
-    -   February 23 - Have all the information I need to create the Proposal completely 
-    -   March 6 - Have the rough draft of the proposal finished and graded
-    -   March 22 - Send First-Draft of the Requirements Document to advisor for feedback
-    -   April 5 - Have the entire Proposal completed with the approval of my advisor 
+    -   January 26 - Begin initial research
+    -   February 9 - review existing CSU budgeting worksheet
+    -   February 23 - Gather all information needed for the proposal
+    -   March 6 - complete rough draft of proposal
+    -   March 22 - Submit first draft of Requirements Document to advisor
+    -   April 5 - Finalize proposal with advisor approval
 
 *   Summer 2026 - Independent/Optional Project Work
-    -   June 1 - Start the basic foundations of the project
+    -   June 1 - Begin building foundational project structure,
 
 *   Fall 2026 - CSCI 498
-    -   October 20 - I would like the basic foundation of the project complete.
-    -   October 27 - improve the back end of the program 
-    -   November 3 - improve the front end of the program
-    -   November 10 - start applying features into the program
-    -   November 17 - have all the features included in the program that i want
-    -   November 20 - Have the Project working with little to no bugs 
+    -   October 20 - complete basic project foundation.
+    -   October 27 - improve backend functionality
+    -   November 3 - improve frontend interface
+    -   November 10 - begin implementing major features
+    -   November 17 - complete all planned features
+    -   November 20 - achieve a stable, low-bug version of the project 
 
 *   Spring 2027 - CSCI 499 (more details will be added here once you are closer)
     -   Weeks 1-4 - Implement test plan
     -   Week 5 - Evaluate test results
     -   Week 6-10 - Apply updates and bug fixes based on the results
     -   Week 8 - Complete the first 4 chapters of the defense documentation.
-    -   Add the rest…
 
 
 References 📚
