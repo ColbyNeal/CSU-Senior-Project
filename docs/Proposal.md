@@ -148,12 +148,26 @@ Schedule 📅
     -   June 1 - Begin building foundational project structure,
 
 *   Fall 2026 - CSCI 498
-    -   October 20 - complete basic project foundation.
-    -   October 27 - improve backend functionality
-    -   November 3 - improve frontend interface
-    -   November 10 - begin implementing major features
-    -   November 17 - complete all planned features
-    -   November 20 - achieve a stable, low-bug version of the project 
+    ### Fall 2026 - CSCI 498
+* August 24–28 - Set up development environment, GitHub repository, Bun, Vue, and initial project structure.
+* August 31–September 4 - Finalize functional requirements, user flow, system architecture, and project scope.
+* September 7–11 - Create application wireframes and establish the UI/UX design.
+* September 14–18 - Research BLS data APIs and finalize backend, data, and API design.
+* September 21–25 - Build the basic Vue frontend, Bun backend, routing, navigation, and data structures.
+* September 28–October 2 - Implement the core budgeting system, including income, expenses, calculations, and budget summaries.
+* October 5–9 - Implement and test BLS data integration.
+* October 12–13 - Fall Break / project buffer.
+* October 14–20 - Complete and test the basic project foundation.
+* October 21–27 - Improve backend functionality, API endpoints, data handling, validation, and error handling.
+* October 28–November 3 - Improve the frontend interface, navigation, dashboard, and budgeting screens.
+* November 4–10 - Begin implementing major features, including financial scenarios and the budgeting progression system.
+* November 11–17 - Complete all planned major features, including scenarios, leaderboard, animated character, and interactive decision-making.
+* November 18–20 - Stabilize the application, fix critical bugs, test major functionality, and prepare a low-bug version.
+* November 23–27 - Testing, documentation, bug fixes, and project buffer / Thanksgiving Break.
+* November 30–December 4 - Complete final code cleanup, documentation, GitHub updates, screenshots, and project demonstration preparation.
+* December 7 - Complete CSCI 498 project development before the final day of classes.
+* December 8–14 - Complete any required CSCI 498 final presentation, demonstration, report, or submission during the final examination period.
+
 
 *   Spring 2027 - CSCI 499 (more details will be added here once you are closer)
     -   Weeks 1-4 - Implement test plan
