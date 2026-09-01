@@ -148,7 +148,6 @@ Schedule 📅
     -   June 1 - Begin building foundational project structure,
 
 *   Fall 2026 - CSCI 498
-    ### Fall 2026 - CSCI 498
 * August 24–28 - Set up development environment, GitHub repository, Bun, Vue, and initial project structure.
 * August 31–September 4 - Finalize functional requirements, user flow, system architecture, and project scope.
 * September 7–11 - Create application wireframes and establish the UI/UX design.
