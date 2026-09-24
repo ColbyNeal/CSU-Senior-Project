@@ -1,4 +1,6 @@
 import { handleBlsRequest } from "./routes/bls";
+import { handleCareerRequest } from "./routes/careers";
+import { handleCareerDetailsRequest } from "./routes/careerDetails";
 
 const server = Bun.serve({
   port: 3000,
@@ -10,6 +12,18 @@ const server = Bun.serve({
 
     if (blsResponse) {
         return blsResponse;
+    }
+
+    const careerResponse = handleCareerRequest(request);
+
+    if (careerResponse) {
+      return careerResponse;
+    }
+
+    const careerDetailsResponse = handleCareerDetailsRequest(request);
+
+    if (careerDetailsResponse) {
+      return careerDetailsResponse;
     }
 
     if (url.pathname === "/api/health") {
