@@ -1,8 +1,16 @@
+import { handleBlsRequest } from "./routes/bls";
+
 const server = Bun.serve({
   port: 3000,
 
   async fetch(request) {
     const url = new URL(request.url);
+
+    const blsResponse = await handleBlsRequest(request);
+
+    if (blsResponse) {
+        return blsResponse;
+    }
 
     if (url.pathname === "/api/health") {
       return Response.json(

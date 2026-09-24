@@ -294,3 +294,10 @@ code {
     border-right-color: var(--border);
   }
 }
+
+nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
