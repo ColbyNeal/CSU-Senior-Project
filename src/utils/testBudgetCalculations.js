@@ -7,15 +7,21 @@ import {
 const income = [
   {
     id: 1,
-    source: "Salary",
+    source: "Monthly Salary",
     amount: 4000,
     frequency: "monthly",
   },
   {
     id: 2,
-    source: "Other Income",
+    source: "Weekly Income",
     amount: 500,
-    frequency: "monthly",
+    frequency: "weekly",
+  },
+  {
+    id: 3,
+    source: "Yearly Income",
+    amount: 12000,
+    frequency: "yearly",
   },
 ];
 
@@ -34,8 +40,19 @@ const expenses = [
     amount: 500,
     frequency: "monthly",
   },
+  {
+    id: 3,
+    name: "Insurance",
+    category: "Insurance",
+    amount: 1200,
+    frequency: "yearly",
+  },
 ];
 
-console.log("Monthly Income:", calculateMonthlyIncome(income));
-console.log("Monthly Expenses:", calculateMonthlyExpenses(expenses));
-console.log("Remaining Income:", calculateRemainingIncome(income, expenses));
+const monthlyIncome = calculateMonthlyIncome(income);
+const monthlyExpenses = calculateMonthlyExpenses(expenses);
+const remainingIncome = calculateRemainingIncome(income, expenses);
+
+console.log("Monthly Income:", monthlyIncome.toFixed(2));
+console.log("Monthly Expenses:", monthlyExpenses.toFixed(2));
+console.log("Remaining Income:", remainingIncome.toFixed(2));
