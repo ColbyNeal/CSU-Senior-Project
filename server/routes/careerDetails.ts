@@ -35,6 +35,9 @@ export function handleCareerDetailsRequest(request: Request) {
         SELECT
           c.soc_code,
           c.title,
+          c.education_level,
+          c.data_source,
+          c.mapping_type,
           b.occupation_title,
           b.data_year,
           b.data_period,

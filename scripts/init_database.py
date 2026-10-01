@@ -13,10 +13,13 @@ cursor = connection.cursor()
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS careers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    soc_code TEXT NOT NULL UNIQUE,
+    soc_code TEXT,
     title TEXT NOT NULL,
     description TEXT,
-    data_source TEXT DEFAULT 'BLS OEWS'
+    data_source TEXT DEFAULT 'BLS OEWS',
+    education_level TEXT NOT NULL,
+    bls_title TEXT,
+    mapping_type TEXT NOT NULL DEFAULT 'direct'
 )
 """)
 

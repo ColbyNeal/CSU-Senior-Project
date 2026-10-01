@@ -2,16 +2,23 @@
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { getCareerDetails } from "../utils/careerDetailsApi";
+import { calculateMonthlyIncomeBreakdown } from "../utils/budgetCalculations";
 
 const route = useRoute();
 
 const career = ref(null);
 const loading = ref(true);
 const error = ref("");
+const incomeBreakdown = ref(null);
 
 onMounted(async () => {
   try {
     career.value = await getCareerDetails(route.params.socCode);
+    if (career.value?.mean_annual_wage) {
+      incomeBreakdown.value = calculateMonthlyIncomeBreakdown(
+        career.value.mean_annual_wage
+  );
+}
   } catch (err) {
     error.value = err.message || "Unable to load career details.";
   } finally {
@@ -40,6 +47,59 @@ onMounted(async () => {
 
     <div v-else-if="career">
       <h3>{{ career.title }}</h3>
+
+            <h4>Monthly Income Breakdown</h4>
+
+      <div v-if="incomeBreakdown">
+        <p>
+          <strong>BLS Annual Salary:</strong>
+          ${{ career.mean_annual_wage.toLocaleString() }}
+        </p>
+
+        <p>
+          <strong>Monthly Gross Income:</strong>
+          ${{incomeBreakdown.monthlyGrossIncome.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>Federal Income Tax:</strong>
+          ${{incomeBreakdown.monthlyFederalTax.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>Social Security:</strong>
+          ${{incomeBreakdown.monthlySocialSecurityTax.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>Medicare:</strong>
+          ${{incomeBreakdown.monthlyMedicareTax.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>South Carolina Income Tax:</strong>
+          ${{incomeBreakdown.monthlySouthCarolinaTax.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>Net After Taxes:</strong>
+          ${{incomeBreakdown.monthlyNetAfterTaxes.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>Tithe:</strong>
+          ${{incomeBreakdown.monthlyTithe.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>Monthly Spendable Income:</strong>
+          ${{incomeBreakdown.monthlySpendableIncome.toFixed(2) }}
+        </p>
+      </div>
+
+      <p v-else>
+        BLS annual wage data is not available for this career.
+      </p>
 
       <p>
         <strong>SOC Code:</strong>

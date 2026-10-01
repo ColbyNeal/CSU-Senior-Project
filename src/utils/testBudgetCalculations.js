@@ -2,6 +2,7 @@ import {
   calculateMonthlyIncome,
   calculateMonthlyExpenses,
   calculateRemainingIncome,
+  calculateMonthlyIncomeBreakdown,
 } from "./budgetCalculations.js";
 
 const income = [
@@ -56,3 +57,49 @@ const remainingIncome = calculateRemainingIncome(income, expenses);
 console.log("Monthly Income:", monthlyIncome.toFixed(2));
 console.log("Monthly Expenses:", monthlyExpenses.toFixed(2));
 console.log("Remaining Income:", remainingIncome.toFixed(2));
+
+const testSalary = 60000;
+
+const incomeBreakdown = calculateMonthlyIncomeBreakdown(testSalary);
+
+console.log("\n--- Income Breakdown Test ---");
+console.log(
+  "Annual Gross Income:",
+  incomeBreakdown.monthlyGrossIncome * 12
+);
+console.log(
+  "Monthly Gross Income:",
+  incomeBreakdown.monthlyGrossIncome.toFixed(2)
+);
+console.log(
+  "Federal Tax:",
+  incomeBreakdown.monthlyFederalTax.toFixed(2)
+);
+console.log(
+  "Social Security:",
+  incomeBreakdown.monthlySocialSecurityTax.toFixed(2)
+);
+console.log(
+  "Medicare:",
+  incomeBreakdown.monthlyMedicareTax.toFixed(2)
+);
+console.log(
+  "South Carolina Tax:",
+  incomeBreakdown.monthlySouthCarolinaTax.toFixed(2)
+);
+console.log(
+  "Total Taxes:",
+  incomeBreakdown.monthlyTotalTaxes.toFixed(2)
+);
+console.log(
+  "Net After Taxes:",
+  incomeBreakdown.monthlyNetAfterTaxes.toFixed(2)
+);
+console.log(
+  "Tithe:",
+  incomeBreakdown.monthlyTithe.toFixed(2)
+);
+console.log(
+  "Monthly Spendable Income:",
+  incomeBreakdown.monthlySpendableIncome.toFixed(2)
+);

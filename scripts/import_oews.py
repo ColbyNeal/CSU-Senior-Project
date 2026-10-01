@@ -49,6 +49,17 @@ def import_career_data():
 
         row = matching_rows.iloc[0]
 
+        def to_float(value):
+            if pd.isna(value) or value == "*":
+                return None
+            return float(value)
+
+
+        def to_int(value):
+            if pd.isna(value) or value == "*":
+                return None
+            return int(float(value))
+
         cursor.execute(
             """
             INSERT INTO bls_occupation_snapshots (
@@ -86,14 +97,14 @@ def import_career_data():
                 row["OCC_TITLE"],
                 2025,
                 "May",
-                int(row["TOT_EMP"]),
-                float(row["H_MEAN"]),
-                float(row["A_MEAN"]),
-                float(row["A_MEDIAN"]),
-                float(row["A_PCT10"]),
-                float(row["A_PCT25"]),
-                float(row["A_PCT75"]),
-                float(row["A_PCT90"]),
+                to_int(row["TOT_EMP"]),
+                to_float(row["H_MEAN"]),
+                to_float(row["A_MEAN"]),
+                to_float(row["A_MEDIAN"]),
+                to_float(row["A_PCT10"]),
+                to_float(row["A_PCT25"]),
+                to_float(row["A_PCT75"]),
+                to_float(row["A_PCT90"]),
                 "BLS OEWS May 2025 National",
                 datetime.now(timezone.utc).isoformat(),
             ),
