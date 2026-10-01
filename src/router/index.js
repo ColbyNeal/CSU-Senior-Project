@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
-import Budget from "../views/Budget.vue";
+import Game from "../views/Game.vue";
 import CareerDetails from "../views/CareerDetails.vue";
+import JoinGame from "../views/JoinGame.vue";
 
 const routes = [
   {
@@ -10,14 +11,19 @@ const routes = [
     component: Home,
   },
   {
-    path: "/budget",
-    name: "budget",
-    component: Budget,
+    path: "/game",
+    name: "game",
+    component: Game,
   },
   {
     path: "/careers/:socCode",
     name: "career-details",
     component: CareerDetails,
+  },
+  {
+    path: "/join",
+    name: "join",
+    component: JoinGame,
   },
 ];
 

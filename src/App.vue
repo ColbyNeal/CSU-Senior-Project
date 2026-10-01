@@ -1,15 +1,16 @@
 <template>
   <div class="app">
-    <header class="app-header">
-      <h1>CSU Senior Project</h1>
+    <header class="site-header">
+      <h1>Center for Personal Financial Management</h1>
 
-      <nav>
+      <nav class="main-navigation">
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/budget">Budget</RouterLink>
+        <RouterLink to="/game">Game</RouterLink>
+        <RouterLink to="/info">Info</RouterLink>
       </nav>
     </header>
 
-    <main>
+    <main class="site-content">
       <RouterView />
     </main>
   </div>
