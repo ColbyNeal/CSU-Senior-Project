@@ -114,56 +114,80 @@ onMounted(async () => {
             <div class="income-card">
               <span>Gross Monthly Income</span>
               <strong>
-                ${{ incomeBreakdown.monthlyGrossIncome.toFixed(2) }}
+                ${{ incomeBreakdown.monthlyGrossIncome.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 
             <div class="income-card deduction">
               <span>Federal Income Tax</span>
               <strong>
-                ${{ incomeBreakdown.monthlyFederalTax.toFixed(2) }}
+                -${{ incomeBreakdown.monthlyFederalTax.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 
             <div class="income-card deduction">
               <span>Social Security</span>
               <strong>
-                ${{ incomeBreakdown.monthlySocialSecurityTax.toFixed(2) }}
+                -${{ incomeBreakdown.monthlySocialSecurityTax.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 
             <div class="income-card deduction">
               <span>Medicare</span>
               <strong>
-                ${{ incomeBreakdown.monthlyMedicareTax.toFixed(2) }}
+                -${{ incomeBreakdown.monthlyMedicareTax.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 
             <div class="income-card deduction">
               <span>South Carolina Income Tax</span>
               <strong>
-                ${{ incomeBreakdown.monthlySouthCarolinaTax.toFixed(2) }}
+                -${{ incomeBreakdown.monthlySouthCarolinaTax.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 
             <div class="income-card">
               <span>Net After Taxes</span>
               <strong>
-                ${{ incomeBreakdown.monthlyNetAfterTaxes.toFixed(2) }}
+                ${{ incomeBreakdown.monthlyNetAfterTaxes.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 
             <div class="income-card">
               <span>Tithe</span>
               <strong>
-                ${{ incomeBreakdown.monthlyTithe.toFixed(2) }}
+                -${{ incomeBreakdown.monthlyTithe.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 
             <div class="income-card spendable">
               <span>Monthly Spendable Income</span>
               <strong>
-                ${{ incomeBreakdown.monthlySpendableIncome.toFixed(2) }}
+                ${{ incomeBreakdown.monthlySpendableIncome.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) }}
               </strong>
             </div>
 

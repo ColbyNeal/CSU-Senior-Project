@@ -121,10 +121,12 @@ export function calculateAnnualIncomeBreakdown(annualSalary) {
   const salary = Math.max(Number(annualSalary || 0), 0);
 
   const federalTax = calculateFederalIncomeTax(salary);
+
   const socialSecurityTax = calculateSocialSecurityTax(salary);
+
   const medicareTax = calculateMedicareTax(salary);
+
   const southCarolinaTax = calculateSouthCarolinaTax(salary);
-  const tithe = calculateTithe(salary);
 
   const totalTaxes =
     federalTax +
@@ -133,6 +135,9 @@ export function calculateAnnualIncomeBreakdown(annualSalary) {
     southCarolinaTax;
 
   const netAfterTaxes = salary - totalTaxes;
+
+  // Tithe is calculated from net income after taxes.
+  const tithe = calculateTithe(netAfterTaxes);
 
   const spendableIncome = netAfterTaxes - tithe;
 
@@ -155,16 +160,30 @@ export function calculateAnnualIncomeBreakdown(annualSalary) {
 export function calculateMonthlyIncomeBreakdown(annualSalary) {
   const annual = calculateAnnualIncomeBreakdown(annualSalary);
 
+  const monthlyGrossIncome = annual.annualGrossIncome / 12;
+  const monthlyFederalTax = annual.annualFederalTax / 12;
+  const monthlySocialSecurityTax =
+    annual.annualSocialSecurityTax / 12;
+  const monthlyMedicareTax = annual.annualMedicareTax / 12;
+  const monthlySouthCarolinaTax =
+    annual.annualSouthCarolinaTax / 12;
+  const monthlyTotalTaxes = annual.annualTotalTaxes / 12;
+  const monthlyNetAfterTaxes = annual.annualNetAfterTaxes / 12;
+
+  const monthlyTithe = monthlyNetAfterTaxes * 0.10;
+  const monthlySpendableIncome =
+    monthlyNetAfterTaxes - monthlyTithe;
+
   return {
-    monthlyGrossIncome: annual.annualGrossIncome / 12,
-    monthlyFederalTax: annual.annualFederalTax / 12,
-    monthlySocialSecurityTax: annual.annualSocialSecurityTax / 12,
-    monthlyMedicareTax: annual.annualMedicareTax / 12,
-    monthlySouthCarolinaTax: annual.annualSouthCarolinaTax / 12,
-    monthlyTotalTaxes: annual.annualTotalTaxes / 12,
-    monthlyNetAfterTaxes: annual.annualNetAfterTaxes / 12,
-    monthlyTithe: annual.annualTithe / 12,
-    monthlySpendableIncome: annual.annualSpendableIncome / 12,
+    monthlyGrossIncome,
+    monthlyFederalTax,
+    monthlySocialSecurityTax,
+    monthlyMedicareTax,
+    monthlySouthCarolinaTax,
+    monthlyTotalTaxes,
+    monthlyNetAfterTaxes,
+    monthlyTithe,
+    monthlySpendableIncome,
   };
 }
 
