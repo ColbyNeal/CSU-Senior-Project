@@ -3,6 +3,7 @@ import Home from "../views/Home.vue";
 import Game from "../views/Game.vue";
 import CareerDetails from "../views/CareerDetails.vue";
 import JoinGame from "../views/JoinGame.vue";
+import Careers from "../views/Careers.vue";
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: "/join",
     name: "join",
     component: JoinGame,
+  },
+  {
+    path: "/careers",
+    name: "careers",
+    component: Careers,
   },
 ];
 
