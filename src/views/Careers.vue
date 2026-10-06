@@ -10,7 +10,7 @@ async function loadCareers() {
     const response = await fetch("http://localhost:3000/api/careers");
 
     if (!response.ok) {
-      throw new Error("Unable to load careers.");
+      throw new Error("Unable to laod careers.");
     }
 
     const data = await response.json();
@@ -34,37 +34,76 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="careers-page">
-    <div class="careers-container">
-      <h1>Career Explorer</h1>
+  <section class="bg-light min-vh-100 py-5">
+    <div class="container">
 
-      <p class="careers-intro">
-        Select a career to view its available BLS information.
-      </p>
+      <!-- PAGE HEADER -->
+      <div class="mb-4">
+        <h1 class="fw-bold text-primary">
+          Career Explorer
+        </h1>
 
-      <div v-if="loading" class="careers-message">
-        Loading careers...
+        <p class="lead text-secondary mb-0">
+          Select a career to view its available BLS information.
+        </p>
       </div>
 
-      <div v-else-if="error" class="careers-message error">
+      <!-- LOADING -->
+      <div
+        v-if="loading"
+        class="text-center py-5"
+      >
+        <div
+          class="spinner-border text-primary"
+          role="status"
+        >
+          <span class="visually-hidden">
+            Loading careers...
+          </span>
+        </div>
+
+        <p class="mt-3 text-secondary">
+          Loading careers...
+        </p>
+      </div>
+
+      <!-- ERROR -->
+      <div
+        v-else-if="error"
+        class="alert alert-danger"
+        role="alert"
+      >
         {{ error }}
       </div>
 
-      <div v-else class="careers-table-container">
-        <table class="careers-table">
-          <thead>
+      <!-- CAREER TABLE -->
+      <div
+        v-else
+        class="table-responsive shadow-sm rounded"
+      >
+        <table class="table table-hover table-striped mb-0">
+
+          <thead class="table-dark">
             <tr>
-              <th>Career</th>
-              <th>SOC Code</th>
+              <th scope="col">
+                Career
+              </th>
+
+              <th scope="col">
+                SOC Code
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            <tr v-for="career in careers" :key="career.soc_code">
+            <tr
+              v-for="career in careers"
+              :key="career.soc_code"
+            >
               <td>
                 <RouterLink
                   :to="`/careers/${encodeURIComponent(career.soc_code)}`"
-                  class="career-link"
+                  class="fw-bold text-decoration-none"
                 >
                   {{ career.title }}
                 </RouterLink>
@@ -75,86 +114,10 @@ onMounted(() => {
               </td>
             </tr>
           </tbody>
+
         </table>
       </div>
+
     </div>
   </section>
 </template>
-
-<style scoped>
-.careers-page {
-  min-height: calc(100vh - 150px);
-  padding: 3rem 2rem;
-  background: #ffffff;
-}
-
-.careers-container {
-  width: min(1200px, 100%);
-  margin: 0 auto;
-}
-
-.careers-container h1 {
-  margin: 0;
-  color: #123f73;
-  font-size: 3rem;
-  font-weight: 900;
-}
-
-.careers-intro {
-  margin: 0.75rem 0 2rem;
-  color: #555;
-  font-size: 1.2rem;
-}
-
-.careers-table-container {
-  overflow-x: auto;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
-}
-
-.careers-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.careers-table th {
-  padding: 1rem 1.25rem;
-  background: #123f73;
-  color: #ffffff;
-  text-align: left;
-  font-size: 1.1rem;
-}
-
-.careers-table td {
-  padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid #ddd;
-  color: #333;
-}
-
-.careers-table tbody tr:hover {
-  background: #f5f8fb;
-}
-
-.career-link {
-  color: #123f73;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.career-link:hover {
-  color: #b88922;
-  text-decoration: underline;
-}
-
-.careers-message {
-  padding: 2rem;
-  text-align: center;
-  color: #123f73;
-  font-size: 1.2rem;
-}
-
-.careers-message.error {
-  color: #b00020;
-}
-</style>

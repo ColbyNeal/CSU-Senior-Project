@@ -2,6 +2,7 @@
 import { ref } from "vue";
 
 const gameCreated = ref(false);
+const gameStarted = ref(false);
 const gameCode = ref("");
 const players = ref([]);
 let socket = null;
@@ -42,6 +43,10 @@ async function createGame() {
       if (message.type === "players-updated") {
         players.value = message.players;
       }
+
+      if (message.type === "game-started") {
+        gameStarted.value = true;
+      }
     });
 
     socket.addEventListener("close", () => {
@@ -72,37 +77,63 @@ function startGame() {
 </script>
 
 <template>
-  <section class="game-page">
-    <div class="game-stage">
+  <section class="container-fluid py-4">
+    <div
+      class="position-relative mx-auto"
+      style="max-width: 1600px;"
+    >
       <img
         src="/game-hero.png"
         alt="So, You Think You're Broke?"
-        class="game-image"
+        class="img-fluid w-100"
       />
 
       <!-- HOST GAME -->
-      <div v-if="!gameCreated" class="game-panel">
-        <h2>HOST GAME</h2>
+      <div
+        v-if="!gameCreated"
+        class="position-absolute top-50 translate-middle-y text-center rounded-4 shadow"
+        style="
+          right: 7%;
+          width: 32%;
+          max-width: 500px;
+          padding: 3%;
+          background: rgba(255, 255, 255, 0.96);
+        "
+      >
+        <h2 class="game-heading">
+          HOST GAME
+        </h2>
 
         <div class="game-divider"></div>
 
-        <p>
+        <p class="game-description">
           Create a new game to begin.
         </p>
 
         <button
           type="button"
-          class="create-game-button"
+          class="w-100 game-button"
           @click="createGame"
         >
           CREATE GAME
-          <span>▶</span>
         </button>
       </div>
 
       <!-- GAME LOBBY -->
-      <div v-else class="game-panel lobby-panel">
-        <h2>GAME LOBBY</h2>
+      <div
+        v-else
+        class="position-absolute top-50 translate-middle-y text-center rounded-4 shadow"
+        style="
+          right: 7%;
+          width: 32%;
+          max-width: 500px;
+          padding: 3%;
+          background: rgba(255, 255, 255, 0.96);
+        "
+      >
+        <h2 class="game-heading">
+          GAME LOBBY
+        </h2>
 
         <div class="game-divider"></div>
 
@@ -114,30 +145,36 @@ function startGame() {
           {{ gameCode }}
         </div>
 
-        <div v-if="players.length === 0" class="waiting-message">
-            Waiting for players to join...
+        <div
+          v-if="players.length === 0"
+          class="waiting-message"
+        >
+          Waiting for players to join...
         </div>
 
-        <div v-else class="players-list">
-            <p class="players-heading">PLAYERS</p>
+        <div
+          v-else
+          class="mb-4"
+        >
+          <p class="players-heading">
+            PLAYERS
+          </p>
 
-            <div
-                v-for="player in players"
-                    :key="player.id"
-                    class="player-item"
-                >
-                {{ player.name }}
-            </div>
+          <div
+            v-for="player in players"
+            :key="player.id"
+            class="player-item"
+          >
+            {{ player.name }}
+          </div>
         </div>
 
-        <!-- START GAME -->
         <button
           type="button"
-          class="create-game-button"
+          class="w-100 game-button"
           @click="startGame"
         >
           START GAME
-          <span>▶</span>
         </button>
       </div>
     </div>

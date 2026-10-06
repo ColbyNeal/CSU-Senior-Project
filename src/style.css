@@ -149,31 +149,10 @@ body {
   display: block;
 }
 
-/* Host Game box follows the image */
-.game-panel {
-  position: absolute;
+/* Game Page */
 
-  right: 7%;
-  top: 60%;
-
-  transform: translateY(-50%);
-
-  width: 32%;
-  max-width: 500px;
-
-  padding: 3%;
-
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 18px;
-
-  text-align: center;
-
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-}
-
-.game-panel h2 {
+.game-heading {
   margin: 0;
-
   color: #123f73;
   font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 900;
@@ -182,101 +161,64 @@ body {
 .game-divider {
   width: 120px;
   height: 8px;
-
   margin: 1.25rem auto 2rem;
-
   background: #d6a84f;
 }
 
-.game-panel p {
+.game-description {
   margin: 0 0 2rem;
-
   color: #123f73;
   font-size: clamp(1rem, 2vw, 1.4rem);
 }
 
-.create-game-button {
-  width: 100%;
-
+.game-button {
   padding: clamp(1rem, 2vw, 1.5rem);
-
   border: 3px solid #b88922;
   border-radius: 12px;
-
-  background: #d6a84f;
+  background-color: #d6a84f;
   color: #123f73;
-
   font-size: clamp(1.2rem, 2.2vw, 1.7rem);
-  font-weight: 900;
-
-  cursor: pointer;
-
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
 
-.create-game-button span {
-  margin-left: 1rem;
-}
-
-.create-game-button:hover {
-  background: #e2b961;
+.game-button:hover {
+  background-color: #e2b961;
+  border-color: #b88922;
+  color: #123f73;
   transform: translateY(-2px);
 }
 
-/* Game Lobby */
-
-.lobby-panel {
-  width: 40%;
-  max-width: 650px;
-
-  top: 65%;
-}
-
 .code-instruction {
-  margin: 0 0 1.25rem;
-
+  margin-bottom: 1.25rem;
   color: #123f73;
   font-size: clamp(1rem, 1.8vw, 1.35rem);
   font-weight: 500;
 }
 
-/* Large game code */
-
 .game-code {
   width: 100%;
-
-  padding: .7rem 1.5rem;
+  padding: 0.7rem 1.5rem;
   margin: 0 auto 1rem;
-
   background: #d6a84f;
   border: 3px solid #b88922;
   border-radius: 12px;
-
   color: #123f73;
-
   font-size: clamp(2rem, 3.2vw, 3.2rem);
   font-weight: 900;
   letter-spacing: 0.1em;
   line-height: 1;
-
   text-align: center;
-
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .waiting-message {
-  margin: 0 0 1.5rem;
-
+  margin-bottom: 1.5rem;
   color: #123f73;
   font-size: clamp(1rem, 1.8vw, 1.35rem);
 }
 
-.players-list {
-  margin: 0 0 1.5rem;
-}
-
 .players-heading {
-  margin: 0 0 0.75rem;
+  margin-bottom: 0.75rem;
   color: #123f73;
   font-size: 1.1rem;
   font-weight: 900;
@@ -285,11 +227,9 @@ body {
 .player-item {
   margin: 0.4rem 0;
   padding: 0.6rem 1rem;
-
   background: #f3f3f3;
   border: 2px solid #d6a84f;
   border-radius: 8px;
-
   color: #123f73;
   font-size: 1.1rem;
   font-weight: 700;

@@ -29,21 +29,42 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="career-details-page">
-    <div class="career-details-container">
+  <section class="bg-light min-vh-100 py-4 py-md-5">
+    <div class="container">
 
-      <!-- BACK TO HOME -->
-      <RouterLink to="/careers" class="back-link">
+      <!-- BACK TO CAREERS -->
+      <RouterLink
+        to="/careers"
+        class="text-primary fw-bold text-decoration-none d-inline-block mb-4"
+      >
         ← Back to Careers
       </RouterLink>
 
       <!-- LOADING -->
-      <div v-if="loading" class="status-card">
-        Loading career details...
+      <div
+        v-if="loading"
+        class="card border-0 shadow-sm text-center p-5"
+      >
+        <div
+          class="spinner-border text-primary mx-auto"
+          role="status"
+        >
+          <span class="visually-hidden">
+            Loading career details...
+          </span>
+        </div>
+
+        <p class="mt-3 mb-0 text-secondary">
+          Loading career details...
+        </p>
       </div>
 
       <!-- ERROR -->
-      <div v-else-if="error" class="status-card error-card">
+      <div
+        v-else-if="error"
+        class="alert alert-danger"
+        role="alert"
+      >
         Error: {{ error }}
       </div>
 
@@ -51,225 +72,414 @@ onMounted(async () => {
       <div v-else-if="career">
 
         <!-- CAREER HEADER -->
-        <div class="career-header">
-          <p class="section-label">CAREER EXPLORER</p>
+        <div
+          class="text-center text-white rounded-4 shadow p-4 p-md-5 mb-4"
+          style="background-color: #123f73;"
+        >
+          <p class="text-uppercase fw-bold mb-2" style="color: #d6a84f;">
+            Career Explorer
+          </p>
 
-          <h1>{{ career.title }}</h1>
+          <h1 class="display-5 fw-bold mb-3">
+            {{ career.title }}
+          </h1>
 
-          <div class="gold-divider"></div>
+          <div
+            class="mx-auto mb-3"
+            style="width: 120px; height: 7px; background-color: #d6a84f;"
+          ></div>
 
-          <p class="soc-code">
+          <p class="mb-0">
             SOC Code: {{ career.soc_code }}
           </p>
         </div>
 
-        <!-- KEY CAREER INFORMATION -->
-        <div class="information-section">
-          <h2>Career Information</h2>
+        <!-- CAREER INFORMATION -->
+        <section class="mb-4">
+          <h2 class="text-primary fw-bold mb-3">
+            Career Information
+          </h2>
 
-          <div class="information-grid">
+          <div class="row g-3">
 
-            <div class="information-card">
-              <span class="information-label">Employment</span>
-              <strong>
-                {{ career.employment.toLocaleString() }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Employment
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    {{ career.employment.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="information-card">
-              <span class="information-label">Median Annual Wage</span>
-              <strong>
-                ${{ career.median_annual_wage.toLocaleString() }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Median Annual Wage
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    ${{ career.median_annual_wage.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="information-card">
-              <span class="information-label">Mean Annual Wage</span>
-              <strong>
-                ${{ career.mean_annual_wage.toLocaleString() }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Mean Annual Wage
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    ${{ career.mean_annual_wage.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="information-card">
-              <span class="information-label">Mean Hourly Wage</span>
-              <strong>
-                ${{ career.mean_hourly_wage.toFixed(2) }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Mean Hourly Wage
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    ${{ career.mean_hourly_wage.toFixed(2) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
           </div>
-        </div>
+        </section>
 
         <!-- MONTHLY INCOME -->
-        <div class="income-section">
-          <div class="section-heading">
-            <div>
-              <p class="section-label">FINANCIAL BREAKDOWN</p>
-              <h2>Monthly Income Breakdown</h2>
-            </div>
+        <section class="mb-4">
+          <div class="mb-3">
+            <p
+              class="text-uppercase fw-bold mb-1"
+              style="color: #b88922;"
+            >
+              Financial Breakdown
+            </p>
+
+            <h2 class="text-primary fw-bold mb-0">
+              Monthly Income Breakdown
+            </h2>
           </div>
 
-          <div v-if="incomeBreakdown" class="income-grid">
+          <div
+            v-if="incomeBreakdown"
+            class="row g-3"
+          >
 
-            <div class="income-card">
-              <span>Gross Monthly Income</span>
-              <strong>
-                ${{ incomeBreakdown.monthlyGrossIncome.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- GROSS -->
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Gross Monthly Income
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    ${{ Number(incomeBreakdown.monthlyGrossIncome).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="income-card deduction">
-              <span>Federal Income Tax</span>
-              <strong>
-                -${{ incomeBreakdown.monthlyFederalTax.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- FEDERAL TAX -->
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Federal Income Tax
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    -${{ Number(incomeBreakdown.monthlyFederalTax).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="income-card deduction">
-              <span>Social Security</span>
-              <strong>
-                -${{ incomeBreakdown.monthlySocialSecurityTax.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- SOCIAL SECURITY -->
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Social Security
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    -${{ Number(incomeBreakdown.monthlySocialSecurityTax).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="income-card deduction">
-              <span>Medicare</span>
-              <strong>
-                -${{ incomeBreakdown.monthlyMedicareTax.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- MEDICARE -->
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Medicare
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    -${{ Number(incomeBreakdown.monthlyMedicareTax).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="income-card deduction">
-              <span>South Carolina Income Tax</span>
-              <strong>
-                -${{ incomeBreakdown.monthlySouthCarolinaTax.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- SOUTH CAROLINA -->
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    South Carolina Income Tax
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    -${{ Number(incomeBreakdown.monthlySouthCarolinaTax).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="income-card">
-              <span>Net After Taxes</span>
-              <strong>
-                ${{ incomeBreakdown.monthlyNetAfterTaxes.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- NET -->
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Net After Taxes
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    ${{ Number(incomeBreakdown.monthlyNetAfterTaxes).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="income-card">
-              <span>Tithe</span>
-              <strong>
-                -${{ incomeBreakdown.monthlyTithe.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- TITHE -->
+            <div class="col-12 col-sm-6 col-lg-3">
+              <div class="card border-0 border-top border-5 shadow-sm h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Tithe
+                  </span>
+
+                  <strong class="d-block text-primary fs-4 mt-2">
+                    -${{ Number(incomeBreakdown.monthlyTithe).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="income-card spendable">
-              <span>Monthly Spendable Income</span>
-              <strong>
-                ${{ incomeBreakdown.monthlySpendableIncome.toLocaleString("en-US", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }) }}
-              </strong>
+            <!-- SPENDABLE -->
+            <div class="col-12 col-lg-6">
+              <div
+                class="card border-0 shadow-sm h-100 text-white"
+                style="background-color: #123f73;"
+              >
+                <div class="card-body">
+                  <span class="small fw-bold">
+                    Monthly Spendable Income
+                  </span>
+
+                  <strong class="d-block fs-2 mt-2">
+                    ${{ Number(incomeBreakdown.monthlySpendableIncome).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }) }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
           </div>
 
-          <div v-else class="status-card">
+          <div
+            v-else
+            class="alert alert-secondary"
+          >
             BLS annual wage data is not available for this career.
           </div>
-        </div>
+        </section>
 
         <!-- WAGE DISTRIBUTION -->
-        <div class="wage-section">
-          <p class="section-label">BLS WAGE DATA</p>
-          <h2>Wage Distribution</h2>
+        <section class="mb-4">
+          <p
+            class="text-uppercase fw-bold mb-1"
+            style="color: #b88922;"
+          >
+            BLS Wage Data
+          </p>
 
-          <div class="wage-grid">
+          <h2 class="text-primary fw-bold mb-3">
+            Wage Distribution
+          </h2>
 
-            <div class="wage-card">
-              <span>10th Percentile</span>
-              <strong>
-                ${{ career.wage_10th_percentile.toLocaleString() }}
-              </strong>
+          <div class="row g-3">
+
+            <div class="col-12 col-sm-6 col-lg">
+              <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    10th Percentile
+                  </span>
+
+                  <strong class="d-block text-primary fs-5 mt-2">
+                    ${{ career.wage_10th_percentile.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="wage-card">
-              <span>25th Percentile</span>
-              <strong>
-                ${{ career.wage_25th_percentile.toLocaleString() }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg">
+              <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    25th Percentile
+                  </span>
+
+                  <strong class="d-block text-primary fs-5 mt-2">
+                    ${{ career.wage_25th_percentile.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="wage-card">
-              <span>Median</span>
-              <strong>
-                ${{ career.median_annual_wage.toLocaleString() }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg">
+              <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    Median
+                  </span>
+
+                  <strong class="d-block text-primary fs-5 mt-2">
+                    ${{ career.median_annual_wage.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="wage-card">
-              <span>75th Percentile</span>
-              <strong>
-                ${{ career.wage_75th_percentile.toLocaleString() }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg">
+              <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    75th Percentile
+                  </span>
+
+                  <strong class="d-block text-primary fs-5 mt-2">
+                    ${{ career.wage_75th_percentile.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
-            <div class="wage-card">
-              <span>90th Percentile</span>
-              <strong>
-                ${{ career.wage_90th_percentile.toLocaleString() }}
-              </strong>
+            <div class="col-12 col-sm-6 col-lg">
+              <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                  <span class="text-secondary small fw-bold">
+                    90th Percentile
+                  </span>
+
+                  <strong class="d-block text-primary fs-5 mt-2">
+                    ${{ career.wage_90th_percentile.toLocaleString() }}
+                  </strong>
+                </div>
+              </div>
             </div>
 
           </div>
-        </div>
+        </section>
 
         <!-- DATA SOURCE -->
-        <div class="source-section">
-          <p class="section-label">DATA SOURCE</p>
+        <section class="mb-4">
+          <p
+            class="text-uppercase fw-bold mb-1"
+            style="color: #b88922;"
+          >
+            Data Source
+          </p>
 
-          <div class="source-card">
-            <div>
-              <span>Data Period</span>
-              <strong>
-                {{ career.data_period }} {{ career.data_year }}
-              </strong>
-            </div>
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="row g-3">
 
-            <div>
-              <span>Source</span>
-              <strong>{{ career.source }}</strong>
-            </div>
+                <div class="col-12 col-md-4">
+                  <span class="text-secondary small fw-bold d-block">
+                    Data Period
+                  </span>
 
-            <div>
-              <span>SOC Code</span>
-              <strong>{{ career.soc_code }}</strong>
+                  <strong class="text-primary">
+                    {{ career.data_period }} {{ career.data_year }}
+                  </strong>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <span class="text-secondary small fw-bold d-block">
+                    Source
+                  </span>
+
+                  <strong class="text-primary">
+                    {{ career.source }}
+                  </strong>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <span class="text-secondary small fw-bold d-block">
+                    SOC Code
+                  </span>
+
+                  <strong class="text-primary">
+                    {{ career.soc_code }}
+                  </strong>
+                </div>
+
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- RETURN HOME -->
-        <div class="bottom-navigation">
-          <RouterLink to="/careers" class="home-button">
+        <!-- RETURN TO CAREERS -->
+        <div class="text-center py-3">
+          <RouterLink
+            to="/careers"
+            class="btn btn-warning btn-lg fw-bold px-4"
+          >
             ← Return to Careers
           </RouterLink>
         </div>
@@ -278,243 +488,3 @@ onMounted(async () => {
     </div>
   </section>
 </template>
-
-<style scoped>
-.career-details-page {
-  min-height: calc(100vh - 150px);
-  background: #f5f7fa;
-  padding: 2rem;
-}
-
-.career-details-container {
-  width: min(1200px, 100%);
-  margin: 0 auto;
-}
-
-.back-link {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  color: #123f73;
-  font-size: 1rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.back-link:hover {
-  color: #b88922;
-  text-decoration: underline;
-}
-
-.career-header {
-  padding: 3rem 2rem;
-  background: #123f73;
-  border-radius: 18px;
-  color: #ffffff;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.section-label {
-  margin: 0 0 0.5rem;
-  color: #d6a84f;
-  font-size: 0.9rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-}
-
-.career-header h1 {
-  margin: 0;
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 900;
-}
-
-.gold-divider {
-  width: 120px;
-  height: 7px;
-  margin: 1.25rem auto;
-  background: #d6a84f;
-}
-
-.soc-code {
-  margin: 0;
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.information-section,
-.income-section,
-.wage-section,
-.source-section {
-  margin-top: 2rem;
-}
-
-.information-section h2,
-.income-section h2,
-.wage-section h2 {
-  margin: 0 0 1.25rem;
-  color: #123f73;
-  font-size: 2rem;
-  font-weight: 900;
-}
-
-.information-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-}
-
-.information-card,
-.income-card,
-.wage-card {
-  padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 14px;
-  border-top: 5px solid #d6a84f;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.information-card span,
-.income-card span,
-.wage-card span,
-.source-card span {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #666;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.information-card strong,
-.income-card strong,
-.wage-card strong {
-  display: block;
-  color: #123f73;
-  font-size: 1.5rem;
-  font-weight: 900;
-}
-
-.income-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-}
-
-.income-card.deduction {
-  border-top-color: #999;
-}
-
-.income-card.spendable {
-  grid-column: span 2;
-  background: #123f73;
-  border-top-color: #d6a84f;
-}
-
-.income-card.spendable span,
-.income-card.spendable strong {
-  color: #ffffff;
-}
-
-.wage-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1rem;
-}
-
-.wage-card {
-  text-align: center;
-}
-
-.source-card {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.source-card strong {
-  display: block;
-  color: #123f73;
-  font-size: 1.05rem;
-}
-
-.bottom-navigation {
-  margin: 2.5rem 0;
-  text-align: center;
-}
-
-.home-button {
-  display: inline-block;
-  padding: 1rem 2rem;
-  border: 3px solid #b88922;
-  border-radius: 12px;
-  background: #d6a84f;
-  color: #123f73;
-  font-size: 1.1rem;
-  font-weight: 900;
-  text-decoration: none;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
-
-.home-button:hover {
-  background: #e2b961;
-  transform: translateY(-2px);
-}
-
-.status-card {
-  padding: 3rem;
-  background: #ffffff;
-  border-radius: 16px;
-  color: #123f73;
-  text-align: center;
-  font-size: 1.2rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-}
-
-.error-card {
-  color: #b00020;
-}
-
-/* TABLET */
-@media (max-width: 1000px) {
-  .information-grid,
-  .income-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .wage-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* PHONE */
-@media (max-width: 650px) {
-  .career-details-page {
-    padding: 1rem;
-  }
-
-  .career-header {
-    padding: 2rem 1rem;
-  }
-
-  .information-grid,
-  .income-grid,
-  .wage-grid,
-  .source-card {
-    grid-template-columns: 1fr;
-  }
-
-  .income-card.spendable {
-    grid-column: span 1;
-  }
-
-  .information-card strong,
-  .income-card strong,
-  .wage-card strong {
-    font-size: 1.3rem;
-  }
-}
-</style>

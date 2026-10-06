@@ -18,7 +18,6 @@ async function joinGame() {
     const code = gameCode.value.trim().toUpperCase();
     const name = playerName.value.trim();
 
-    // First verify that the game exists
     const response = await fetch(
       `http://localhost:3000/api/games/${code}`,
     );
@@ -28,7 +27,6 @@ async function joinGame() {
       return;
     }
 
-    // Connect this player to the game's WebSocket
     socket = new WebSocket(
       `ws://localhost:3000/ws?gameCode=${code}&role=player`,
     );
@@ -49,22 +47,17 @@ async function joinGame() {
     });
 
     socket.addEventListener("message", (event) => {
-        const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data);
 
-        console.log("Message from server:", data);
+      console.log("Message from server:", data);
 
-        if (data.type === "joined") {
-            console.log("Player ID:", data.playerId);
-        }
-        if (data.type === "game-started") {
-            gameStarted.value = true;
-        }
+      if (data.type === "joined") {
+        console.log("Player ID:", data.playerId);
+      }
 
-        if (data.type === "game-started") {
-            console.log("The game has started!");
-        }
-
-        
+      if (data.type === "game-started") {
+        gameStarted.value = true;
+      }
     });
 
     socket.addEventListener("close", () => {
@@ -84,257 +77,343 @@ async function joinGame() {
 </script>
 
 <template>
-  <section class="join-page">
-    <div class="join-stage">
-      <img
-        src="/game-hero.png"
-        alt="So, You Think You're Broke?"
-        class="join-image"
-      />
+  <section class="join-page min-vh-100 py-4 py-md-5">
+    <div class="container join-content">
 
-      <!-- JOIN FORM -->
-      <div v-if="!joined" class="join-panel">
-        <h1>JOIN GAME</h1>
+      <!-- GAME TITLE -->
+      <div class="text-center mb-4">
 
-        <div class="join-divider"></div>
+        <h1 class="game-title">
+          SO, YOU THINK
+          <span>YOU'RE BROKE?</span>
+        </h1>
 
-        <p>
-          Enter the game code shown on the host screen.
-        </p>
+        <div class="game-title-divider"></div>
 
-        <div class="join-field">
-          <label for="game-code">GAME CODE</label>
-          <input
-            id="game-code"
-            v-model="gameCode"
-            type="text"
-            maxlength="6"
-            placeholder="ABC123"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="join-field">
-          <label for="player-name">YOUR NAME</label>
-          <input
-            id="player-name"
-            v-model="playerName"
-            type="text"
-            maxlength="20"
-            placeholder="Enter your name"
-            autocomplete="off"
-          />
-        </div>
-
-        <button
-          type="button"
-          class="join-game-button"
-          @click="joinGame"
-        >
-          JOIN GAME
-          <span>▶</span>
-        </button>
       </div>
 
-      <!-- WAITING ROOM -->
-      <div v-else class="join-panel waiting-panel">
-        <div v-if="!gameStarted">
-          <h1>YOU'RE IN!</h1>
+      <div class="row justify-content-center">
 
-          <div class="join-divider"></div>
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
 
-          <p>
-            Welcome, <strong>{{ playerName }}</strong>.
-          </p>
+          <!-- JOIN FORM -->
+          <div
+            v-if="!joined"
+            class="card border-0 shadow-lg rounded-4"
+          >
 
-          <p>
-            Waiting for the host to start the game...
-          </p>
+            <div class="card-body p-4 p-md-5">
 
-          <div class="connection-status">
-            {{ connectionStatus }}
+              <div class="text-center mb-4">
+
+                <p
+                  class="text-uppercase fw-bold mb-2"
+                  style="color: #b88922;"
+                >
+                  Multiplayer Game
+                </p>
+
+                <h2 class="display-6 fw-bold text-primary mb-3">
+                  JOIN GAME
+                </h2>
+
+                <p class="text-secondary mb-0">
+                  Enter the game code shown on the host screen.
+                </p>
+
+              </div>
+
+              <!-- GAME CODE -->
+              <div class="mb-4">
+
+                <label
+                  for="game-code"
+                  class="form-label fw-bold text-primary"
+                >
+                  GAME CODE
+                </label>
+
+                <input
+                  id="game-code"
+                  v-model="gameCode"
+                  type="text"
+                  maxlength="6"
+                  placeholder="ABC123"
+                  autocomplete="off"
+                  class="form-control form-control-lg text-center text-uppercase fw-bold"
+                />
+
+              </div>
+
+              <!-- PLAYER NAME -->
+              <div class="mb-4">
+
+                <label
+                  for="player-name"
+                  class="form-label fw-bold text-primary"
+                >
+                  YOUR NAME
+                </label>
+
+                <input
+                  id="player-name"
+                  v-model="playerName"
+                  type="text"
+                  maxlength="20"
+                  placeholder="Enter your name"
+                  autocomplete="off"
+                  class="form-control form-control-lg text-center"
+                />
+
+              </div>
+
+              <!-- JOIN BUTTON -->
+              <button
+                type="button"
+                class="btn btn-warning btn-lg w-100 fw-bold py-3"
+                @click="joinGame"
+              >
+                JOIN GAME
+              </button>
+
+            </div>
+
           </div>
+
+
+          <!-- WAITING ROOM -->
+          <div
+            v-else
+            class="card border-0 shadow-lg rounded-4"
+          >
+
+            <div class="card-body p-4 p-md-5 text-center">
+
+              <!-- WAITING -->
+              <div v-if="!gameStarted">
+
+                <p
+                  class="text-uppercase fw-bold mb-2"
+                  style="color: #b88922;"
+                >
+                  Multiplayer Game
+                </p>
+
+                <h2 class="display-6 fw-bold text-primary mb-3">
+                  YOU'RE IN!
+                </h2>
+
+                <div class="game-title-divider small-divider"></div>
+
+                <p class="lead text-secondary">
+                  Welcome,
+                  <strong class="text-primary">
+                    {{ playerName }}
+                  </strong>.
+                </p>
+
+                <p class="text-secondary">
+                  Waiting for the host to start the game...
+                </p>
+
+                <div
+                  class="alert alert-light border mt-4 mb-0"
+                  role="status"
+                >
+                  <strong>{{ connectionStatus }}</strong>
+                </div>
+
+              </div>
+
+
+              <!-- GAME STARTED -->
+              <div v-else>
+
+                <p
+                  class="text-uppercase fw-bold mb-2"
+                  style="color: #b88922;"
+                >
+                  The Game Has Begun
+                </p>
+
+                <h2 class="display-6 fw-bold text-primary mb-3">
+                  GAME STARTED!
+                </h2>
+
+                <div class="game-title-divider small-divider"></div>
+
+                <p class="lead text-secondary">
+                  Get ready,
+                  <strong class="text-primary">
+                    {{ playerName }}
+                  </strong>!
+                </p>
+
+                <p class="text-secondary mb-0">
+                  The host has started the game.
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
 
-        <!-- GAME STARTED -->
-        <div v-else>
-          <h1>GAME STARTED!</h1>
-
-          <div class="join-divider"></div>
-
-          <p>
-            Get ready, <strong>{{ playerName }}</strong>!
-          </p>
-
-          <p>
-            The host has started the game.
-          </p>
-        </div>
       </div>
+
     </div>
   </section>
 </template>
 
 <style scoped>
 .join-page {
-  width: 100%;
-  min-height: calc(100vh - 150px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #ffffff;
-  overflow: hidden;
-}
-
-.join-stage {
   position: relative;
-  width: min(100%, 1600px);
-  height: calc(100vh - 150px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  min-height: calc(100vh - 150px);
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(199, 147, 43, 0.18),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(214, 168, 79, 0.14),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #ffffff 5%,
+      #123f73 50%,
+      #0a315a 100%
+    );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.join-image {
+.join-content {
+  position: relative;
+  z-index: 2;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  display: block;
 }
 
-.join-panel {
+.join-page::before {
+  content: "";
   position: absolute;
-  right: 7%;
-  top: 62%;
-  transform: translateY(-50%);
-  width: 34%;
-  max-width: 540px;
-  padding: 2.5%;
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 18px;
-  text-align: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  width: 500px;
+  height: 500px;
+  top: -250px;
+  left: -250px;
+  border: 3px solid rgba(214, 168, 79, 0.65);
+  border-radius: 50%;
+
+  pointer-events: none;
 }
 
-.join-panel h1 {
+.join-page::after {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  right: -350px;
+  bottom: -350px;
+  border: 3px solid rgba(214, 168, 80, 0.65);
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   GAME TITLE
+   ========================================= */
+
+.game-title {
   margin: 0;
-  color: #123f73;
-  font-size: clamp(2rem, 4vw, 3.5rem);
+  color: #ffffff;
+  font-family:
+    Impact,
+    Haettenschweiler,
+    "Arial Narrow Bold",
+    sans-serif;
+  font-size: clamp(2.5rem, 7vw, 6rem);
   font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.join-divider {
-  width: 120px;
-  height: 8px;
-  margin: 1.25rem auto 2rem;
-  background: #d6a84f;
-}
-
-.join-panel p {
-  margin: 0 0 1.5rem;
-  color: #123f73;
-  font-size: clamp(1rem, 1.8vw, 1.35rem);
-}
-
-.join-field {
-  margin-bottom: 1.25rem;
-  text-align: left;
-}
-
-.join-field label {
+.game-title span {
   display: block;
-  margin-bottom: 0.5rem;
-  color: #123f73;
-  font-size: 1rem;
-  font-weight: 900;
+  color: #ffffff;
 }
 
-.join-field input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.9rem 1rem;
-  border: 3px solid #d6a84f;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #123f73;
-  font-size: 1.2rem;
-  font-weight: 700;
-  outline: none;
+
+/* GOLD ACCENT */
+.game-title-divider {
+  width: min(420px, 70%);
+  height: 8px;
+  margin: 1.5rem auto 0;
+  background-color: #d6a84f;
+  border-radius: 4px;
 }
 
-.join-field input:focus {
+.small-divider {
+  width: 100px;
+  height: 6px;
+  margin: 1rem auto 1.5rem;
+}
+
+
+/* =========================================
+   FORM
+   ========================================= */
+
+.form-control {
+  border: 2px solid #d6a84f;
+}
+
+.form-control:focus {
   border-color: #123f73;
-  box-shadow: 0 0 0 3px rgba(18, 63, 115, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(18, 63, 115, 0.15);
 }
 
-.join-field input::placeholder {
-  color: #888;
-  font-weight: 400;
-}
 
-.join-game-button {
-  width: 100%;
-  padding: clamp(1rem, 2vw, 1.5rem);
-  border: 3px solid #b88922;
-  border-radius: 12px;
-  background: #d6a84f;
+/* =========================================
+   JOIN BUTTON
+   ========================================= */
+
+.btn-warning {
+  background-color: #d6a84f;
+  border-color: #b88922;
   color: #123f73;
-  font-size: clamp(1.2rem, 2.2vw, 1.7rem);
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
 
-.join-game-button span {
-  margin-left: 1rem;
+.btn-warning:hover {
+  background-color: #e2b961;
+  border-color: #b88922;
+  color: #123f73;
 }
 
-.join-game-button:hover {
-  background: #e2b961;
-  transform: translateY(-2px);
-}
 
-.waiting-panel {
-  top: 65%;
-}
+/* =========================================
+   MOBILE
+   ========================================= */
 
-.connection-status {
-  margin-top: 1.5rem;
-  color: #666;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-/* PHONE / SMALL SCREEN */
-@media (max-width: 900px) {
-  .join-page {
-    min-height: calc(100vh - 120px);
-    overflow-y: auto;
+@media (max-width: 576px) {
+  .game-title {
+    font-size: clamp(2.3rem, 12vw, 4rem);
   }
 
-  .join-stage {
-    width: 100%;
-    height: auto;
-    min-height: calc(100vh - 120px);
-  }
-
-  .join-image {
-    min-height: calc(100vh - 120px);
-    object-fit: cover;
-  }
-
-  .join-panel {
-    right: 5%;
-    left: 5%;
-    top: 50%;
-    width: auto;
-    max-width: none;
-    padding: 2rem;
-  }
-
-  .waiting-panel {
-    top: 50%;
+  .game-title-divider {
+    height: 6px;
+    margin-top: 1.25rem;
   }
 }
 </style>
