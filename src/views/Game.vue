@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import JoinGame from "./JoinGame.vue";
 
 const gameCreated = ref(false);
 const gameStarted = ref(false);
@@ -110,6 +111,7 @@ function startGame() {
           Create a new game to begin.
         </p>
 
+        <div class="d-grid gap-3">
         <button
           type="button"
           class="w-100 game-button"
@@ -117,6 +119,14 @@ function startGame() {
         >
           CREATE GAME
         </button>
+
+        <RouterLink
+          to="/join"
+          class="w-100 game-button text-decoration-none d-block"
+        >
+          JOIN GAME
+        </RouterLink>
+        </div>
       </div>
 
       <!-- GAME LOBBY -->

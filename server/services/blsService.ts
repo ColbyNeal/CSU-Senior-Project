@@ -42,5 +42,11 @@ export async function getLatestSeries(seriesId: string) {
     );
   }
 
-  return data.Results?.series?.[0] ?? null;
+ const series = data.Results?.series?.[0];
+
+ if (!series || !Array.isArray(series.data) || series.data.length === 0) {
+  throw new Error("No data returned for the requested BLS series.");
+ }
+
+ return series;
 }
