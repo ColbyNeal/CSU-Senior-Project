@@ -56,13 +56,16 @@ body {
 }
 
 .site-header h1 {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto 1rem;
+  padding: 0 1rem;
   color: #fafafa;
-  font-size: clamp(1.5rem, 3.5vw, 3rem);
+  font-size: clamp(1.4rem, 3.2vw, 3rem);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.2;
   text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .site-header h1::after {

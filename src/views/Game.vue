@@ -277,9 +277,10 @@ function startGame() {
 .game-hero-image {
   display: block;
   width: 100%;
-  height: clamp(480px, 56vw, 720px);
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   object-position: center;
+  border-radius: inherit;
 }
 
 .game-panel {
