@@ -170,9 +170,8 @@ export function calculateMonthlyIncomeBreakdown(annualSalary) {
   const monthlyTotalTaxes = annual.annualTotalTaxes / 12;
   const monthlyNetAfterTaxes = annual.annualNetAfterTaxes / 12;
 
-  const monthlyTithe = monthlyNetAfterTaxes * 0.10;
-  const monthlySpendableIncome =
-    monthlyNetAfterTaxes - monthlyTithe;
+  const monthlyTithe = monthlyGrossIncome * 0.10;
+  const monthlySpendableIncome = monthlyGrossIncome - monthlyTotalTaxes - monthlyTithe;
 
   return {
     monthlyGrossIncome,

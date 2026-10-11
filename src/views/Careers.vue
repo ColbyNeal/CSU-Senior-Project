@@ -64,7 +64,7 @@ onMounted(() => {
 
 
 <template>
-  <section class="bg-light min-vh-100 py-5">
+  <section class="min-vh-100 py-5">
     <div class="container">
 
       <!-- PAGE HEADER -->
@@ -73,7 +73,7 @@ onMounted(() => {
           Career Explorer
         </h1>
 
-        <p class="lead text-secondary mb-0">
+        <p class="lead text-light mb-0">
           Select a career to view its available BLS information.
         </p>
       </div>
@@ -140,7 +140,7 @@ onMounted(() => {
               </button>
             </div>
 
-            <small id="searchHelp" class="form-text text-secondary">
+            <small id="searchHelp" class="form-text text-light">
               Search by career title or SOC code.
             </small>
           </div>
