@@ -3,7 +3,7 @@
 // IMPORTS
 // Vue reactivity and the Join Game component
 // ============================================
-import { ref } from "vue";
+import { inject, onMounted, ref, watch } from "vue";
 import JoinGame from "./JoinGame.vue";
 
 // ============================================
@@ -14,7 +14,25 @@ const gameCreated = ref(false);
 const gameStarted = ref(false);
 const gameCode = ref("");
 const players = ref([]);
+const careers = ref([]);
+const selectedCareer = ref("");
+const careerConfirmed = ref(false);
+const careersLoading = ref(false);
+const careersError = ref("");
+const careerSelectionStarted = ref(false);
+const allCareersConfirmed = ref(false);
+
 let socket = null;
+
+const setFullScreenGame = inject("setFullScreenGame");
+
+watch(
+  [careerSelectionStarted, gameStarted],
+  ([careerSelection, started]) => {
+    setFullScreenGame?.(careerSelection || started);
+  },
+  { immediate: true }
+);
 
 // ============================================
 // CREATE GAME
@@ -55,11 +73,22 @@ async function createGame() {
 
       console.log("Message from server:", message);
 
+      if (message.type === "career-selection-started") {
+        console.log("Entering career selection");
+        careerSelectionStarted.value = true;
+        console.log("careerSelectionStarted:", careerSelectionStarted.value);
+      }
+
       if (message.type === "players-updated") {
         players.value = message.players;
       }
 
+      if (message.type === "all-careers-confirmed") {
+        allCareersConfirmed.value = true;
+      }
+
       if (message.type === "game-started") {
+        console.log("Received game-started from server");
         gameStarted.value = true;
       }
     });
@@ -80,19 +109,52 @@ async function createGame() {
 // START GAME
 // Sends the start-game message to the server
 // ============================================
-function startGame() {
-// Keep your existing startGame function here.
-  if (!socket) {
+function startCareerSelection() {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return;
+
+  socket.send(JSON.stringify({ type: "start-game" }));
+}
+
+function launchGame() {
+  if (
+    !socket ||
+    socket.readyState !== WebSocket.OPEN ||
+    !allCareersConfirmed.value
+  ) {
     return;
   }
 
-  socket.send(
-    JSON.stringify({
-      type: "start-game",
-    }),
-  );
+  socket.send(JSON.stringify({ type: "launch-game" }));
+}
 
-  console.log("Start game requested.");
+async function loadCareers() {
+  careersLoading.value = true;
+  careersError.value = "";
+
+  try {
+    const response = await fetch("http://localhost:3000/api/careers");
+
+    if (!response.ok) {
+      throw new Error("Unable to load careers.");
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || "Unable to load careers.");
+    }
+
+    // Only expose the fields needed for selection.
+    careers.value = data.careers.map((career) => ({
+      soc_code: career.soc_code,
+      title: career.title,
+    }));
+  } catch (error) {
+    console.error("Career loading error:", error);
+    careersError.value = "Unable to load careers. Please try again.";
+  } finally {
+    careersLoading.value = false;
+  }
 }
 </script>
 
@@ -101,164 +163,284 @@ function startGame() {
     MAIN PAGE WRAPPER
     Controls the overall home page spacing
     ======================================== -->
-  <main class="game-home">
+  <main class="game-home"
+    :class="{ 'career-lobby-active': careerSelectionStarted }"
+    >
+    <template v-if="!careerSelectionStarted && !gameStarted">
+      <!-- ======================================
+          HERO SECTION
+          Contains the banner image and game panel
+          ====================================== -->
+      <section class="game-hero">
+        <img
+          src="/game-hero.png"
+          alt="So, You Think You're Broke?"
+          class="game-hero-image"
+        />
 
-    <!-- ======================================
-         HERO SECTION
-         Contains the banner image and game panel
-         ====================================== -->
-    <section class="game-hero">
-      <img
-        src="/game-hero.png"
-        alt="So, You Think You're Broke?"
-        class="game-hero-image"
-      />
+        <div class="game-panel">
+          <!-- HOST GAME -->
+          <template v-if="!gameCreated">
+            <p class="panel-eyebrow">PERSONAL FINANCIAL MANAGEMENT</p>
 
-      <div class="game-panel">
-        <!-- HOST GAME -->
-        <template v-if="!gameCreated">
-          <p class="panel-eyebrow">PERSONAL FINANCIAL MANAGEMENT</p>
+            <h2 class="game-heading">HOST GAME</h2>
 
-          <h2 class="game-heading">HOST GAME</h2>
+            <div class="game-divider"></div>
 
-          <div class="game-divider"></div>
+            <p class="game-description">
+              Bring your friends together and put your financial skills to the
+              test.
+            </p>
 
-          <p class="game-description">
-            Bring your friends together and put your financial skills to the
-            test.
-          </p>
+            <div class="game-actions">
+              <button
+                type="button"
+                class="game-button game-button-primary"
+                @click="createGame"
+              >
+                Create Game
+              </button>
 
-          <div class="game-actions">
+              <RouterLink
+                to="/join"
+                class="game-button game-button-secondary"
+              >
+                Join Game
+              </RouterLink>
+            </div>
+
+            <p class="panel-footer">Learn. Play. Make smarter money moves.</p>
+          </template>
+
+          <!-- GAME LOBBY -->
+          <template v-else-if="!gameStarted">
+            <p class="panel-eyebrow">YOUR GAME IS READY</p>
+
+            <h2 class="game-heading">GAME LOBBY</h2>
+
+            <div class="game-divider"></div>
+
+            <p class="code-instruction">Share this code with your players</p>
+
+            <div class="game-code">{{ gameCode }}</div>
+
+            <div v-if="players.length === 0" class="waiting-message">
+              Waiting for players to join...
+            </div>
+
+            <div v-else class="players-section">
+              <p class="players-heading">
+                PLAYERS JOINED ({{ players.length }})
+              </p>
+
+              <div
+                v-for="player in players"
+                :key="player.id"
+                class="player-item"
+              >
+                {{ player.name }}
+              </div>
+            </div>
+
             <button
               type="button"
               class="game-button game-button-primary"
-              @click="createGame"
+              :disabled="players.length === 0"
+              @click="startCareerSelection"
             >
-              Create Game
+              Start Game
             </button>
+          </template>
+        </div>
+      </section>
 
-            <RouterLink
-              to="/join"
-              class="game-button game-button-secondary"
-            >
-              Join Game
-            </RouterLink>
+      <!-- ========================================
+          WHAT YOU'LL LEARN
+          Introductory financial education content
+          ======================================== -->
+      <section class="learning-section container py-5">
+        <div class="text-center mb-4">
+          <p class="learning-eyebrow">BEYOND THE GAME</p>
+          <h2 class="learning-title">Build Skills for Real Life</h2>
+          <p class="learning-intro">
+            Explore the financial decisions that shape your future.
+          </p>
+        </div>
+
+        <!-- Three responsive learning cards -->
+        <div class="row g-4">
+          <!-- Budgeting card -->
+          <div class="col-12 col-md-4">
+            <article class="learning-card h-100">
+              <div class="learning-icon" aria-hidden="true">
+                <span>💰</span>
+              </div>
+              <h3>Budgeting</h3>
+              <p>
+                Understand income, expenses, and everyday spending choices.
+              </p>
+            </article>
           </div>
 
-          <p class="panel-footer">Learn. Play. Make smarter money moves.</p>
-        </template>
-
-        <!-- GAME LOBBY -->
-        <template v-else>
-          <p class="panel-eyebrow">YOUR GAME IS READY</p>
-
-          <h2 class="game-heading">GAME LOBBY</h2>
-
-          <div class="game-divider"></div>
-
-          <p class="code-instruction">Share this code with your players</p>
-
-          <div class="game-code">{{ gameCode }}</div>
-
-          <div v-if="players.length === 0" class="waiting-message">
-            Waiting for players to join...
+          <!-- Career planning card -->
+          <div class="col-12 col-md-4">
+            <article class="learning-card h-100">
+              <div class="learning-icon" aria-hidden="true">
+                <span>🎓</span>
+              </div>
+              <h3>Career Planning</h3>
+              <p>
+                Explore careers and compare available wage information.
+              </p>
+              <RouterLink to="/careers" class="learning-link">
+                Explore Careers <span aria-hidden="true">→</span>
+              </RouterLink>
+            </article>
           </div>
 
-          <div v-else class="players-section">
-            <p class="players-heading">
-              PLAYERS JOINED ({{ players.length }})
-            </p>
-
-            <div
-              v-for="player in players"
-              :key="player.id"
-              class="player-item"
-            >
-              {{ player.name }}
-            </div>
+          <!-- Financial decisions card -->
+          <div class="col-12 col-md-4">
+            <article class="learning-card h-100">
+              <div class="learning-icon" aria-hidden="true">
+                <span>🎯</span>
+              </div>
+              <h3>Smart Choices</h3>
+              <p>
+                Learn to evaluate options and make informed financial decisions.
+              </p>
+            </article>
           </div>
+        </div>
+      </section>
+    </template>
 
-          <button
-            type="button"
-            class="game-button game-button-primary"
-            :disabled="players.length === 0"
-            @click="startGame"
+    <!-- FULL-SCREEN CAREER LOBBY -->
+    <section
+      v-if="careerSelectionStarted && !gameStarted"
+      class="career-lobby"
+    >
+      <p class="panel-eyebrow">LET'S GET STARTED</p>
+
+      <h1 class="game-heading">CHOOSE YOUR CAREER</h1>
+
+      <div class="game-divider"></div>
+
+      <p class="game-description">
+        Waiting for every player to confirm their career.
+      </p>
+
+      <div class="host-player-list">
+        <div
+          v-for="player in players"
+          :key="player.id"
+          class="host-player-row"
+        >
+          <span>{{ player.name }}</span>
+
+          <span
+            :class="player.careerConfirmed
+              ? 'career-status-confirmed'
+              : 'career-status-pending'"
           >
-            Start Game
-          </button>
-        </template>
+            {{ player.careerConfirmed
+              ? 'Career confirmed'
+              : 'Choosing career' }}
+          </span>
+        </div>
       </div>
-    
+
+      <button
+        v-if="allCareersConfirmed && players.length > 0"
+        type="button"
+        class="game-button game-button-primary"
+        @click="launchGame"
+      >
+        Start Game
+      </button>
+
+      <p v-else class="game-description">
+        The second Start Game button will appear when everyone confirms.
+      </p>
     </section>
 
-    <!-- ========================================
-         WHAT YOU'LL LEARN
-         Introductory financial education content
-         ======================================== -->
-    <section class="learning-section container py-5">
-      <div class="text-center mb-4">
-        <p class="learning-eyebrow">BEYOND THE GAME</p>
-        <h2 class="learning-title">Build Skills for Real Life</h2>
-        <p class="learning-intro">
-          Explore the financial decisions that shape your future.
-        </p>
-      </div>
-
-      <!-- Three responsive learning cards -->
-      <div class="row g-4">
-        <!-- Budgeting card -->
-        <div class="col-12 col-md-4">
-          <article class="learning-card h-100">
-            <div class="learning-icon" aria-hidden="true">
-              <span>💰</span>
-            </div>
-            <h3>Budgeting</h3>
-            <p>
-              Understand income, expenses, and everyday spending choices.
-            </p>
-          </article>
-        </div>
-
-        <!-- Career planning card -->
-        <div class="col-12 col-md-4">
-          <article class="learning-card h-100">
-            <div class="learning-icon" aria-hidden="true">
-              <span>🎓</span>
-            </div>
-            <h3>Career Planning</h3>
-            <p>
-              Explore careers and compare available wage information.
-            </p>
-            <RouterLink to="/careers" class="learning-link">
-              Explore Careers <span aria-hidden="true">→</span>
-            </RouterLink>
-          </article>
-        </div>
-
-        <!-- Financial decisions card -->
-        <div class="col-12 col-md-4">
-          <article class="learning-card h-100">
-            <div class="learning-icon" aria-hidden="true">
-              <span>🎯</span>
-            </div>
-            <h3>Smart Choices</h3>
-            <p>
-              Learn to evaluate options and make informed financial decisions.
-            </p>
-          </article>
-        </div>
-      </div>
+    <!-- GAMEPLAY PLACEHOLDER -->
+    <section v-if="gameStarted" class="career-lobby">
+      <p class="panel-eyebrow">LET'S PLAY</p>
+      <h1 class="game-heading">THE GAME HAS BEGUN</h1>
+      <div class="game-divider"></div>
+      <p class="game-description">
+        Your financial journey starts here.
+      </p>
     </section>
   </main>
 </template>
 
-
-
 <style scoped>
+
 .game-home {
   padding: 1rem 1.5rem 0;
   background: transparent;
   min-height: 0;
+}
+
+.game-home.career-lobby-active {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+}
+
+.career-lobby {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 5%;
+  text-align: center;
+}
+
+.host-player-list {
+  width: min(700px, 100%);
+  margin: 2rem auto;
+  text-align: left;
+}
+
+.host-player-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  background: #fff;
+  color: #123f73;
+}
+
+.career-status-pending {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.career-status-confirmed {
+  color: #15803d;
+  font-weight: 700;
+}
+
+@media (max-width: 576px) {
+  .career-lobby {
+    padding: 2rem 1rem;
+  }
+
+  .host-player-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 .game-hero {

@@ -96,7 +96,7 @@ onMounted(async () => {
       <!-- BACK TO CAREERS -->
       <RouterLink
         to="/careers"
-        class="text-primary fw-bold text-decoration-none d-inline-block mb-4"
+        class="text-white fw-bold text-decoration-none d-inline-block mb-4"
       >
         ← Back to Careers
       </RouterLink>
@@ -134,8 +134,7 @@ onMounted(async () => {
 
         <!-- CAREER HEADER -->
         <div
-          class="text-center text-white rounded-4 shadow p-4 p-md-5 mb-4"
-          style="background-color: #123f73;"
+          class="career-explorer-banner text-center text-white rounded-4 shadow p-4 p-md-5 mb-4"
         >
           <p class="text-uppercase fw-bold mb-2" style="color: #d6a84f;">
             Career Explorer
@@ -157,7 +156,7 @@ onMounted(async () => {
 
         <!-- CAREER INFORMATION -->
         <section class="mb-4">
-          <h2 class="text-primary fw-bold mb-3">
+          <h2 class="text-white fw-bold mb-3">
             Career Information
           </h2>
 
@@ -835,6 +834,16 @@ onMounted(async () => {
 
 
 <style scoped>
+.career-explorer-banner {
+  background: linear-gradient(
+    135deg,
+    #123f73 0%,
+    #0b2444 55%,
+    #07172b 100%
+  );
+  border: 1px solid rgba(214, 168, 79, 0.55);
+  border-radius: 1rem;
+}
 .money-donut {
   width: 100%;
   max-width: 280px;

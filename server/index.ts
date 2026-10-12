@@ -13,12 +13,15 @@ type Player = {
   id: string;
   name: string;
   socket?: ServerWebSocket<SocketData>;
+  careerConfirmed: boolean;
+  careerSocCode?: string;
 };
 
 type Game = {
   code: string;
   players: Player[];
   host?: ServerWebSocket<SocketData>;
+  phase: "lobby" | "career-selection" | "playing";
 };
 
 const games = new Map<string, Game>();
@@ -39,6 +42,30 @@ function generateGameCode() {
   } while (games.has(code));
 
   return code;
+}
+
+function getPublicPlayers(game: Game) {
+  return game.players.map((player) => ({
+    id: player.id,
+    name: player.name,
+    careerConfirmed: player.careerConfirmed,
+  }));
+}
+
+function sendPlayersUpdated(game: Game) {
+  game.host?.send(
+    JSON.stringify({
+      type: "players-updated",
+      players: getPublicPlayers(game),
+    }),
+  );
+}
+
+function allPlayersConfirmed(game: Game) {
+  return (
+    game.players.length > 0 &&
+    game.players.every((player) => player.careerConfirmed)
+  );
 }
 
 const server = Bun.serve<SocketData>({
@@ -127,6 +154,7 @@ const server = Bun.serve<SocketData>({
       const game: Game = {
         code,
         players: [],
+        phase: "lobby",
       };
 
       games.set(code, game);
@@ -257,31 +285,107 @@ const server = Bun.serve<SocketData>({
       }
     },
 
+  
   message(ws, message) {
-    console.log("WebSocket message received:", message.toString());
-    
     try {
       const data = JSON.parse(message.toString());
+      const game = games.get(ws.data.gameCode);
 
+      if (!game) {
+        ws.close();
+        return;
+      }
+
+      // Only the host can start either phase.
       if (data.type === "start-game") {
-        const game = games.get(ws.data.gameCode);
-
-        console.log(
-          "Starting game:",
-          ws.data.gameCode,
-          "Role:",
-          ws.data.role,
-          "Game exists:",
-          !!game,
-          "Host exists:",
-          !!game?.host,
-        );
-
-        if (!game || !game.host) {
+        if (ws.data.role !== "host" || game.phase !== "lobby") {
           return;
         }
 
-        game.host.send(
+        game.phase = "career-selection";
+
+        ws.send(
+          JSON.stringify({
+            type: "career-selection-started",
+          }),
+        );
+
+        for (const player of game.players) {
+          player.socket?.send(
+            JSON.stringify({
+              type: "career-selection-started",
+            }),
+          );
+        }
+
+        return;
+      }
+
+      // A player can confirm a career only once.
+      if (data.type === "confirm-career") {
+        if (
+          ws.data.role !== "player" ||
+          game.phase !== "career-selection" ||
+          !ws.data.playerId ||
+          typeof data.socCode !== "string"
+        ) {
+          return;
+        }
+
+        const player = game.players.find(
+          (item) => item.id === ws.data.playerId,
+        );
+
+        if (!player || player.careerConfirmed) {
+          return;
+        }
+
+        const socCode = data.socCode.trim();
+
+        if (!socCode) {
+          return;
+        }
+
+        player.careerSocCode = socCode;
+        player.careerConfirmed = true;
+
+        // Tell this player their choice was accepted.
+        ws.send(
+          JSON.stringify({
+            type: "career-confirmed",
+            socCode,
+          }),
+        );
+
+        // Update the host's player list.
+        sendPlayersUpdated(game);
+
+        // Tell the host when every player has confirmed.
+        if (allPlayersConfirmed(game)) {
+          game.host?.send(
+            JSON.stringify({
+              type: "all-careers-confirmed",
+            }),
+          );
+        }
+
+        return;
+      }
+
+      // Only the host can launch gameplay, and only after
+      // every joined player has confirmed a career.
+      if (data.type === "launch-game") {
+        if (
+          ws.data.role !== "host" ||
+          game.phase !== "career-selection" ||
+          !allPlayersConfirmed(game)
+        ) {
+          return;
+        }
+
+        game.phase = "playing";
+
+        ws.send(
           JSON.stringify({
             type: "game-started",
           }),
@@ -298,54 +402,44 @@ const server = Bun.serve<SocketData>({
         return;
       }
 
-    if (data.type !== "join") {
-      return;
-    }
+      // Players can join only while the game is in the lobby.
+      if (data.type === "join") {
+        if (
+          ws.data.role !== "player" ||
+          game.phase !== "lobby" ||
+          typeof data.name !== "string" ||
+          !data.name.trim()
+        ) {
+          ws.close();
+          return;
+        }
 
-      const game = games.get(ws.data.gameCode);
+        const playerId = crypto.randomUUID();
 
-      if (!game) {
-        ws.close();
-        return;
-      }
+        const player: Player = {
+          id: playerId,
+          name: data.name.trim().slice(0, 20),
+          socket: ws,
+          careerConfirmed: false,
+        };
 
-      const playerId = crypto.randomUUID();
+        game.players.push(player);
+        ws.data.playerId = playerId;
 
-      const player: Player = {
-        id: playerId,
-        name: data.name,
-        socket: ws,
-      };
-
-      game.players.push(player);
-
-      ws.data.playerId = playerId;
-
-      console.log(
-        `Player joined game ${game.code}: ${player.name}`,
-      );
-
-      if (game.host) {
-        game.host.send(
+        ws.send(
           JSON.stringify({
-            type: "players-updated",
-            players: game.players,
+            type: "joined",
+            playerId,
+            gameCode: game.code,
           }),
         );
-      }
 
-      ws.send(
-        JSON.stringify({
-          type: "joined",
-          playerId,
-          gameCode: game.code,
-        }),
-      );
+        sendPlayersUpdated(game);
+      }
     } catch (error) {
-        console.error("Invalid WebSocket message:", error);
+      console.error("Invalid WebSocket message:", error);
     }
   },
-
     close(ws) {
       console.log(
         `WebSocket disconnected: ${ws.data.role} - ${ws.data.gameCode}`,

@@ -1,16 +1,25 @@
 <script setup>
-import { ref } from "vue";
+
+import { computed, ref } from "vue";
 
 const gameCode = ref("");
 const playerName = ref("");
 const joined = ref(false);
+const careerSelectionStarted = ref(false);
 const gameStarted = ref(false);
 const connectionStatus = ref("");
+
+const careers = ref([]);
+const selectedCareer = ref("");
+const careerConfirmed = ref(false);
+const careersLoading = ref(false);
+const careersError = ref("");
+const careerSearch = ref("");
 
 let socket = null;
 
 async function joinGame() {
-  if (!gameCode.value || !playerName.value) {
+  if (!gameCode.value.trim() || !playerName.value.trim()) {
     return;
   }
 
@@ -32,16 +41,10 @@ async function joinGame() {
     );
 
     socket.addEventListener("open", () => {
-      console.log("Connected to game:", code);
-
-      socket.send(
-        JSON.stringify({
-          type: "join",
-          name,
-        }),
-      );
+      socket.send(JSON.stringify({ type: "join", name }));
 
       gameCode.value = code;
+      playerName.value = name;
       joined.value = true;
       connectionStatus.value = "Connected to game";
     });
@@ -55,13 +58,21 @@ async function joinGame() {
         console.log("Player ID:", data.playerId);
       }
 
+      if (data.type === "career-selection-started") {
+        careerSelectionStarted.value = true;
+        loadCareers();
+      }
+
+      if (data.type === "career-confirmed") {
+        careerConfirmed.value = true;
+      }
+
       if (data.type === "game-started") {
         gameStarted.value = true;
       }
     });
 
     socket.addEventListener("close", () => {
-      console.log("Disconnected from game");
       connectionStatus.value = "Disconnected";
     });
 
@@ -73,6 +84,80 @@ async function joinGame() {
     console.error("Error joining game:", error);
     alert("Unable to connect to the game server.");
   }
+}
+
+async function loadCareers() {
+  careersLoading.value = true;
+  careersError.value = "";
+
+  try {
+    const response = await fetch("http://localhost:3000/api/careers");
+
+    if (!response.ok) {
+      throw new Error("Unable to load careers.");
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || "Unable to load careers.");
+    }
+
+    // Keep only the fields needed for career selection.
+    const uniqueCareers = new Map();
+
+    for (const career of data.careers) {
+      const socCode = String(career.soc_code ?? "").trim();
+
+      if (socCode && !uniqueCareers.has(socCode)) {
+        uniqueCareers.set(socCode, {
+          soc_code: socCode,
+          title: career.title,
+        });
+      }
+    }
+
+    careers.value = [...uniqueCareers.values()];
+  } catch (error) {
+    console.error("Career loading error:", error);
+    careersError.value = "Unable to load careers. Please try again.";
+  } finally {
+    careersLoading.value = false;
+  }
+}
+
+const filteredCareers = computed(() => {
+  const query = careerSearch.value.trim().toLowerCase();
+
+  return careers.value.filter((career) =>
+    career.title.toLowerCase().includes(query)
+  );
+});
+
+function confirmCareer() {
+  if (!selectedCareer.value || careerConfirmed.value) {
+    return;
+  }
+
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    careersError.value = "Not connected to the game server.";
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "Are you sure you want this career? You cannot change it after confirming.",
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  socket.send(
+    JSON.stringify({
+      type: "confirm-career",
+      socCode: selectedCareer.value,
+    }),
+  );
 }
 </script>
 
@@ -190,7 +275,7 @@ async function joinGame() {
             <div class="card-body p-4 p-md-5 text-center">
 
               <!-- WAITING -->
-              <div v-if="!gameStarted">
+              <div v-if="!careerSelectionStarted">
 
                 <p
                   class="text-uppercase fw-bold mb-2"
@@ -225,34 +310,159 @@ async function joinGame() {
 
               </div>
 
+              <!-- GAME STARTED / CAREER SELECTION -->
+              <div v-else-if="!gameStarted">
+                <template v-if="!careerConfirmed">
+                  <p
+                    class="text-uppercase fw-bold mb-2"
+                    style="color: #b88922;"
+                  >
+                    The Game Has Begun
+                  </p>
 
-              <!-- GAME STARTED -->
+                  <h2 class="display-6 fw-bold text-primary mb-3">
+                    CHOOSE YOUR CAREER
+                  </h2>
+
+                  <div class="game-title-divider small-divider"></div>
+
+                  <p class="text-secondary">
+                    Welcome, <strong>{{ playerName }}</strong>.
+                    Choose carefully. You can change your selection until you confirm.
+                  </p>
+
+                  <div v-if="careersLoading" class="alert alert-light border">
+                    Loading careers...
+                  </div>
+
+                  <div v-else-if="careersError" class="alert alert-danger">
+                    {{ careersError }}
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger mt-2"
+                      @click="loadCareers"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+
+                  <template v-else>
+                    <!-- CAREER SEARCH -->
+                    <div class="mb-3 text-start">
+                      <label
+                        for="career-search"
+                        class="form-label fw-bold text-primary"
+                      >
+                        SEARCH CAREERS
+                      </label>
+
+                      <input
+                        id="career-search"
+                        v-model="careerSearch"
+                        type="search"
+                        class="form-control form-control-lg"
+                        placeholder="Search by career title..."
+                        autocomplete="off"
+                      />
+                    </div>
+
+                    <!-- FILTERED CAREER LIST -->
+                    <div class="career-list text-start">
+                      <button
+                        v-for="career in filteredCareers"
+                        :key="career.soc_code"
+                        type="button"
+                        class="career-option"
+                        :class="{
+                          'career-option-selected':
+                            selectedCareer === career.soc_code
+                        }"
+                        @click="selectedCareer = career.soc_code"
+                      >
+                        <span>{{ career.title }}</span>
+
+                        <span v-if="selectedCareer === career.soc_code">
+                          ✓ Selected
+                        </span>
+                      </button>
+                    </div>
+
+                    <p
+                      v-if="filteredCareers.length === 0"
+                      class="text-secondary mt-3"
+                    >
+                      No matching careers found. Try another search.
+                    </p>
+
+                    <button
+                      type="button"
+                      class="btn btn-warning btn-lg w-100 fw-bold py-3 mt-4"
+                      :disabled="!selectedCareer"
+                      @click="confirmCareer"
+                    >
+                      CONFIRM CAREER
+                    </button>
+                  </template>
+                </template>
+
+                <template v-else>
+                  <p
+                    class="text-uppercase fw-bold mb-2"
+                    style="color: #b88922;"
+                  >
+                    Career Confirmed
+                  </p>
+
+                  <h2 class="display-6 fw-bold text-primary mb-3">
+                    YOU'RE COMMITTED!
+                  </h2>
+
+                  <div class="game-title-divider small-divider"></div>
+
+                  <h3 class="text-primary">
+                    {{
+                      careers.find(
+                        career => career.soc_code === selectedCareer
+                      )?.title
+                    }}
+                  </h3>
+
+                  <p class="text-secondary">
+                    Your career is locked in for this game.
+                  </p>
+
+                  <p class="text-secondary mb-0">
+                    Your career details will be revealed next.
+                  </p>
+                </template>
+              </div>
+              <!-- GAMEPLAY -->
               <div v-else>
-
                 <p
                   class="text-uppercase fw-bold mb-2"
                   style="color: #b88922;"
                 >
-                  The Game Has Begun
+                  Let's Play
                 </p>
 
                 <h2 class="display-6 fw-bold text-primary mb-3">
-                  GAME STARTED!
+                  THE GAME HAS BEGUN
                 </h2>
 
                 <div class="game-title-divider small-divider"></div>
 
-                <p class="lead text-secondary">
-                  Get ready,
-                  <strong class="text-primary">
-                    {{ playerName }}
-                  </strong>!
+                <p class="text-secondary">
+                  Welcome, <strong>{{ playerName }}</strong>!
                 </p>
 
-                <p class="text-secondary mb-0">
-                  The host has started the game.
-                </p>
+                <h3 class="text-primary">
+                  {{ careers.find(career => career.soc_code === selectedCareer)?.title }}
+                </h3>
 
+                <p class="text-secondary">
+                  Your financial journey starts here.
+                </p>
               </div>
 
             </div>
@@ -415,5 +625,52 @@ async function joinGame() {
     height: 6px;
     margin-top: 1.25rem;
   }
+}
+
+.career-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 1.25rem;
+  padding: 2px;
+}
+
+.career-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 0.65rem;
+  background: #fff;
+  color: #123f73;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.career-option:hover {
+  border-color: #b88922;
+}
+
+.career-option-selected {
+  border-color: #b88922;
+  background-color: #fff6df;
+}
+
+.career-option:focus-visible {
+  outline: 3px solid #123f73;
+  outline-offset: 2px;
+}
+
+.career-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 </style>
