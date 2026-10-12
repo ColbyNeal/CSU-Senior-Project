@@ -124,7 +124,7 @@ onMounted(() => {
                 v-model="searchQuery"
                 type="search"
                 class="form-control"
-                placeholder="Enter a career or SOC code..."
+                placeholder="Enter a career or career code..."
                 aria-describedby="searchHelp"
               />
 
@@ -140,7 +140,7 @@ onMounted(() => {
             </div>
 
             <small id="searchHelp" class="form-text text-light">
-              Search by career title or SOC code.
+              Search by career title or career code.
             </small>
           </div>
         </div>
@@ -151,7 +151,7 @@ onMounted(() => {
             <thead class="table-dark">
               <tr>
                 <th scope="col">Career</th>
-                <th scope="col">SOC Code</th>
+                <th scope="col">Career Code</th>
               </tr>
             </thead>
 

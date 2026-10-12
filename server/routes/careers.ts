@@ -25,7 +25,8 @@ export function handleCareerRequest(request: Request) {
       .query(`
         SELECT
           soc_code,
-          title
+          title,
+          education_level
         FROM careers
         ORDER BY title
       `)

@@ -50,10 +50,19 @@ export function handleCareerDetailsRequest(request: Request) {
           b.wage_75th_percentile,
           b.wage_90th_percentile,
           b.source,
-          b.retrieved_at
+          b.retrieved_at,
+          m.pay_grade,
+          m.service_assumption,
+          m.monthly_basic_pay,
+          m.annual_basic_pay,
+          m.pay_year,
+          m.source AS military_pay_source,
+          m.notes AS military_pay_notes
         FROM careers c
         LEFT JOIN bls_occupation_snapshots b
           ON c.soc_code = b.soc_code
+        LEFT JOIN military_pay m
+          ON c.soc_code = m.soc_code
         WHERE c.soc_code = ?
         ORDER BY b.data_year DESC, b.data_period DESC
         LIMIT 1

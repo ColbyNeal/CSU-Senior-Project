@@ -17,19 +17,36 @@ const careerConfirmed = ref(false);
 const careersLoading = ref(false);
 const careersError = ref("");
 const careerSearch = ref("");
+const selectedEducationLevel = ref("");
 
 const careerDetails = ref(null);
 const detailsLoading = ref(false);
 const detailsError = ref("");
+const monthlyIncome = ref(null);
 
-const monthlyIncome = computed(() => {
-  const salary = careerDetails.value?.mean_annual_wage;
+const educationLevels = computed(() => {
+  return [
+    ...new Set(
+      careers.value
+        .map((career) => career.education_level?.trim())
+        .filter(Boolean),
+    ),
+  ].sort();
+});
 
-  if (salary == null || !Number.isFinite(Number(salary))) {
-    return null;
-  }
+const filteredCareers = computed(() => {
+  const query = careerSearch.value.trim().toLowerCase();
 
-  return calculateMonthlyIncomeBreakdown(Number(salary));
+  return careers.value.filter((career) => {
+    const matchesEducation =
+      !selectedEducationLevel.value ||
+      career.education_level === selectedEducationLevel.value;
+
+    const matchesSearch =
+      career.title.toLowerCase().includes(query);
+
+    return matchesEducation && matchesSearch;
+  });
 });
 
 let socket = null;
@@ -131,6 +148,7 @@ async function loadCareers() {
         uniqueCareers.set(socCode, {
           soc_code: socCode,
           title: career.title,
+          education_level: career.education_level,
         });
       }
     }
@@ -148,6 +166,7 @@ async function loadCareerDetails(socCode) {
   detailsLoading.value = true;
   detailsError.value = "";
   careerDetails.value = null;
+  monthlyIncome.value = null;
 
   try {
     const response = await fetch(
@@ -165,6 +184,18 @@ async function loadCareerDetails(socCode) {
     }
 
     careerDetails.value = data.career;
+
+    const annualWage = Number(data.career.mean_annual_wage);
+
+    if (
+      data.career.mean_annual_wage != null &&
+      Number.isFinite(annualWage) &&
+      annualWage > 0
+    ) {
+      monthlyIncome.value = calculateMonthlyIncomeBreakdown(annualWage);
+    } else {
+      monthlyIncome.value = null;
+    }
   } catch (error) {
     console.error("Career details error:", error);
     detailsError.value =
@@ -173,14 +204,6 @@ async function loadCareerDetails(socCode) {
     detailsLoading.value = false;
   }
 }
-
-const filteredCareers = computed(() => {
-  const query = careerSearch.value.trim().toLowerCase();
-
-  return careers.value.filter((career) =>
-    career.title.toLowerCase().includes(query)
-  );
-});
 
 function confirmCareer() {
   if (!selectedCareer.value || careerConfirmed.value) {
@@ -394,10 +417,35 @@ function confirmCareer() {
                       Try Again
                     </button>
                   </div>
-
                   <template v-else>
-                    <!-- CAREER SEARCH -->
+                    <!-- EDUCATION LEVEL FILTER -->
                     <div class="mb-3 text-start">
+                      <label
+                        for="education-filter"
+                        class="form-label fw-bold text-primary"
+                      >
+                        FILTER BY EDUCATION LEVEL
+                      </label>
+
+                      <select
+                        id="education-filter"
+                        v-model="selectedEducationLevel"
+                        class="form-select form-select-lg"
+                      >
+                        <option value="">All Education Levels</option>
+
+                        <option
+                          v-for="level in educationLevels"
+                          :key="level"
+                          :value="level"
+                        >
+                          {{ level }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- CAREER SEARCH -->
+                    <div v-if="!selectedEducationLevel" class="mb-3 text-start">
                       <label
                         for="career-search"
                         class="form-label fw-bold text-primary"
@@ -416,7 +464,13 @@ function confirmCareer() {
                     </div>
 
                     <!-- FILTERED CAREER LIST -->
-                    <div class="career-list text-start">
+                    <div
+                      class="career-list text-start mt-4 pt-3 border-top"
+                      style="max-height: 300px; overflow-y: auto;"
+                    >
+                      <div class="small text-secondary fw-bold mb-2">
+                        AVAILABLE CAREERS
+                      </div>
                       <button
                         v-for="career in filteredCareers"
                         :key="career.soc_code"
@@ -435,7 +489,6 @@ function confirmCareer() {
                         </span>
                       </button>
                     </div>
-
                     <p
                       v-if="filteredCareers.length === 0"
                       class="text-secondary mt-3"

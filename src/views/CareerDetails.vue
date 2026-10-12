@@ -11,6 +11,31 @@ const loading = ref(true);
 const error = ref("");
 const incomeBreakdown = ref(null);
 
+
+const isMilitaryCareer = computed(() =>
+  ["MIL-ENLISTED", "MIL-OFFICER"].includes(
+    career.value?.soc_code,
+  ),
+);
+
+const displayedAnnualPay = computed(() => {
+  if (isMilitaryCareer.value) {
+    return career.value?.annual_basic_pay ?? null;
+  }
+
+  return career.value?.mean_annual_wage ?? null;
+});
+
+const displayedMonthlyPay = computed(() => {
+  if (isMilitaryCareer.value) {
+    return career.value?.monthly_basic_pay ?? null;
+  }
+
+  return displayedAnnualPay.value == null
+    ? null
+    : displayedAnnualPay.value / 12;
+});
+
 const circumference = 2 * Math.PI * 78;
 
 const formatMoney = (value) =>
@@ -76,7 +101,7 @@ onMounted(async () => {
   try {
     career.value = await getCareerDetails(route.params.socCode);
 
-    if (career.value?.mean_annual_wage) {
+    if (!isMilitaryCareer.value && career.value?.mean_annual_wage) {
       incomeBreakdown.value = calculateMonthlyIncomeBreakdown(
         career.value.mean_annual_wage,
       );
@@ -159,86 +184,161 @@ onMounted(async () => {
           <h2 class="text-white fw-bold mb-3">
             Career Information
           </h2>
-
           <div class="row g-3">
-
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="card border-0 border-top border-5 shadow-sm h-100">
-                <div class="card-body">
-                  <span class="text-secondary small fw-bold">
-                    People Employed
-                  </span>
-
-                  <strong class="d-block text-primary fs-4 mt-2">
-                    {{ career.employment.toLocaleString() }}
-                  </strong>
-
-                  <p class="text-secondary small mb-0 mt-2">
-                    Estimated total.
-                  </p>
+            <template v-if="isMilitaryCareer">
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">Pay Grade</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ career.pay_grade }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">
+                      Starting-pay assumption.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="card border-0 border-top border-5 shadow-sm h-100">
-                <div class="card-body">
-                  <span class="text-secondary small fw-bold">
-                    Typical Yearly Pay
-                  </span>
-
-                  <strong class="d-block text-primary fs-4 mt-2">
-                    ${{ career.median_annual_wage.toLocaleString() }}
-                  </strong>
-
-                  <p class="text-secondary small mb-0 mt-2">
-                    Half of workers earn more, and half earn less.
-                  </p>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">Monthly Basic Pay</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ formatMoney(career.monthly_basic_pay) }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">
+                      Before deductions and allowances.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="card border-0 border-top border-5 shadow-sm h-100">
-                <div class="card-body">
-                  <span class="text-secondary small fw-bold">
-                    Average Yearly Pay
-                  </span>
-
-                  <strong class="d-block text-primary fs-4 mt-2">
-                    ${{ career.mean_annual_wage.toLocaleString() }}
-                  </strong>
-
-                  <p class="text-secondary small mb-0 mt-2">
-                    Average earnings per year across workers.
-                  </p>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">Annual Basic Pay</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ formatMoney(career.annual_basic_pay) }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">
+                      Annualized from monthly basic pay.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="col-12 col-sm-6 col-lg-3">
-              <div class="card border-0 border-top border-5 shadow-sm h-100">
-                <div class="card-body">
-                  <span class="text-secondary small fw-bold">
-                    Average Hourly Pay
-                  </span>
-
-                  <strong class="d-block text-primary fs-4 mt-2">
-                    ${{ career.mean_hourly_wage.toFixed(2) }}
-                  </strong>
-
-                  <p class="text-secondary small mb-0 mt-2">
-                    Average earnings for each hour worked.
-                  </p>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">Pay Table Year</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ career.pay_year }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">
+                      {{ career.military_pay_source }}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
+              <div class="col-12">
+                <div class="alert alert-info mb-0">
+                  <strong>Service assumption:</strong>
+                  {{ career.service_assumption }}.
+                  {{ career.military_pay_notes }}
+                </div>
+              </div>
+            </template>
+
+            <template v-else>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">People Employed</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ (career.employment ?? 0).toLocaleString() }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">Estimated total.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">Typical Yearly Pay</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ formatMoney(career.median_annual_wage) }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">
+                      Half of workers earn more, and half earn less.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">Average Yearly Pay</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ formatMoney(career.mean_annual_wage) }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">
+                      Average earnings per year across workers.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 border-top border-5 shadow-sm h-100">
+                  <div class="card-body">
+                    <span class="text-secondary small fw-bold">Average Hourly Pay</span>
+                    <strong class="d-block text-primary fs-4 mt-2">
+                      {{ career.mean_hourly_wage == null
+                        ? "Not available"
+                        : formatMoney(career.mean_hourly_wage) }}
+                    </strong>
+                    <p class="text-secondary small mb-0 mt-2">
+                      Average earnings for each hour worked.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </section>
 
         <!-- MONTHLY INCOME -->
         <section class="mb-4">
+          <template v-if="isMilitaryCareer">
+            <div class="mb-3">
+              <p class="text-uppercase fw-bold mb-1" style="color: #d6a84f;">
+                YOUR MONTHLY MONEY
+              </p>
+              <h2 class="text-white fw-bold mb-2">Military Basic Pay</h2>
+              <p class="text-light mb-0">
+                Starting basic pay before deductions, allowances, or bonuses.
+              </p>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-lg p-4">
+              <span class="text-secondary small fw-bold">Monthly Basic Pay</span>
+              <strong class="text-primary fs-2 mt-2">
+                {{ formatMoney(career.monthly_basic_pay) }}
+              </strong>
+              <p class="text-secondary mb-0 mt-2">
+                {{ career.pay_grade }} · {{ career.pay_year }} pay table
+              </p>
+              <p class="text-secondary small mb-0 mt-2">
+                {{ career.service_assumption }}
+              </p>
+            </div>
+          </template>
+
+          <template v-else>
           <div class="mb-3">
             <p
               class="text-uppercase fw-bold mb-1"
@@ -635,10 +735,11 @@ onMounted(async () => {
           >
             BLS annual wage data is not available for this career.
           </div>
+          </template>
         </section>
 
         <!-- WAGE DISTRIBUTION -->
-        <section class="mb-4">
+        <section v-if="!isMilitaryCareer" class="mb-4">
           <p
             class="text-uppercase fw-bold mb-1"
             style="color: #d6a84f;"
