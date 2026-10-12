@@ -137,7 +137,7 @@ export function calculateAnnualIncomeBreakdown(annualSalary) {
   const netAfterTaxes = salary - totalTaxes;
 
   // Tithe is calculated from net income after taxes.
-  const tithe = calculateTithe(netAfterTaxes);
+  const tithe = calculateTithe(salary);
 
   const spendableIncome = netAfterTaxes - tithe;
 
@@ -170,8 +170,9 @@ export function calculateMonthlyIncomeBreakdown(annualSalary) {
   const monthlyTotalTaxes = annual.annualTotalTaxes / 12;
   const monthlyNetAfterTaxes = annual.annualNetAfterTaxes / 12;
 
+  // Tithe is calculated from gross income before taxes.
   const monthlyTithe = monthlyGrossIncome * 0.10;
-  const monthlySpendableIncome = monthlyGrossIncome - monthlyTotalTaxes - monthlyTithe;
+  const monthlySpendableIncome = monthlyNetAfterTaxes - monthlyTithe;
 
   return {
     monthlyGrossIncome,

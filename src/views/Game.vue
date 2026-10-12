@@ -74,9 +74,7 @@ async function createGame() {
       console.log("Message from server:", message);
 
       if (message.type === "career-selection-started") {
-        console.log("Entering career selection");
         careerSelectionStarted.value = true;
-        console.log("careerSelectionStarted:", careerSelectionStarted.value);
       }
 
       if (message.type === "players-updated") {
@@ -88,7 +86,6 @@ async function createGame() {
       }
 
       if (message.type === "game-started") {
-        console.log("Received game-started from server");
         gameStarted.value = true;
       }
     });

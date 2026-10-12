@@ -1,7 +1,9 @@
 <script setup>
 
-import { computed, ref } from "vue";
+import { computed, ref, inject } from "vue";
+import { calculateMonthlyIncomeBreakdown } from "../utils/budgetCalculations.js";
 
+const setFullScreenGame = inject("setFullScreenGame");
 const gameCode = ref("");
 const playerName = ref("");
 const joined = ref(false);
@@ -15,6 +17,20 @@ const careerConfirmed = ref(false);
 const careersLoading = ref(false);
 const careersError = ref("");
 const careerSearch = ref("");
+
+const careerDetails = ref(null);
+const detailsLoading = ref(false);
+const detailsError = ref("");
+
+const monthlyIncome = computed(() => {
+  const salary = careerDetails.value?.mean_annual_wage;
+
+  if (salary == null || !Number.isFinite(Number(salary))) {
+    return null;
+  }
+
+  return calculateMonthlyIncomeBreakdown(Number(salary));
+});
 
 let socket = null;
 
@@ -46,6 +62,7 @@ async function joinGame() {
       gameCode.value = code;
       playerName.value = name;
       joined.value = true;
+      setFullScreenGame?.(true);
       connectionStatus.value = "Connected to game";
     });
 
@@ -65,6 +82,7 @@ async function joinGame() {
 
       if (data.type === "career-confirmed") {
         careerConfirmed.value = true;
+        loadCareerDetails(data.socCode);
       }
 
       if (data.type === "game-started") {
@@ -123,6 +141,36 @@ async function loadCareers() {
     careersError.value = "Unable to load careers. Please try again.";
   } finally {
     careersLoading.value = false;
+  }
+}
+
+async function loadCareerDetails(socCode) {
+  detailsLoading.value = true;
+  detailsError.value = "";
+  careerDetails.value = null;
+
+  try {
+    const response = await fetch(
+      `http://localhost:3000/api/careers/details?socCode=${encodeURIComponent(socCode)}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Unable to load career details.");
+    }
+
+    const data = await response.json();
+
+    if (!data.success || !data.career) {
+      throw new Error(data.error || "Career details not found.");
+    }
+
+    careerDetails.value = data.career;
+  } catch (error) {
+    console.error("Career details error:", error);
+    detailsError.value =
+      "Unable to load salary information. Please try again.";
+  } finally {
+    detailsLoading.value = false;
   }
 }
 
@@ -420,21 +468,130 @@ function confirmCareer() {
 
                   <div class="game-title-divider small-divider"></div>
 
-                  <h3 class="text-primary">
-                    {{
-                      careers.find(
-                        career => career.soc_code === selectedCareer
-                      )?.title
-                    }}
-                  </h3>
+                  <div v-if="detailsLoading" class="alert alert-light border">
+                    Loading your career details...
+                  </div>
 
-                  <p class="text-secondary">
-                    Your career is locked in for this game.
-                  </p>
+                  <div v-else-if="detailsError" class="alert alert-danger">
+                    {{ detailsError }}
 
-                  <p class="text-secondary mb-0">
-                    Your career details will be revealed next.
-                  </p>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger mt-2"
+                      @click="loadCareerDetails(selectedCareer)"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+
+                  <div v-else-if="careerDetails" class="text-start">
+                    <h3 class="text-primary text-center mb-4">
+                      {{ careerDetails.occupation_title || careerDetails.title }}
+                    </h3>
+
+                    <div class="card border-0 bg-light mb-3">
+                      <div class="card-body text-center">
+                        <p class="text-secondary mb-1">Mean Annual Salary</p>
+                        <h3 class="text-primary fw-bold">
+                          {{
+                            careerDetails.mean_annual_wage != null
+                              ? Number(careerDetails.mean_annual_wage).toLocaleString(
+                                  "en-US",
+                                  { style: "currency", currency: "USD", maximumFractionDigits: 0 }
+                                )
+                              : "Not available"
+                          }}
+                        </h3>
+
+                        <p class="text-secondary mb-0">
+                          Mean Monthly Gross Income:
+                          <strong>
+                            {{
+                              careerDetails.mean_annual_wage != null
+                                ? (Number(careerDetails.mean_annual_wage) / 12).toLocaleString(
+                                    "en-US",
+                                    { style: "currency", currency: "USD", maximumFractionDigits: 0 }
+                                  )
+                                : "Not available"
+                            }}
+                          </strong>
+                        </p>
+                      </div>
+                      <div v-if="monthlyIncome" class="card border-0 bg-light mb-3">
+                        <div class="card-body text-start">
+                          <h4 class="text-primary fw-bold mb-3">
+                            Monthly Income Breakdown
+                          </h4>
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Gross income</span>
+                            <strong>{{ monthlyIncome.monthlyGrossIncome.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</strong>
+                          </div>
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Federal income tax</span>
+                            <span>{{ monthlyIncome.monthlyFederalTax.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</span>
+                          </div>
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Social Security</span>
+                            <span>{{ monthlyIncome.monthlySocialSecurityTax.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</span>
+                          </div>
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Medicare</span>
+                            <span>{{ monthlyIncome.monthlyMedicareTax.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</span>
+                          </div>
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>South Carolina income tax</span>
+                            <span>{{ monthlyIncome.monthlySouthCarolinaTax.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</span>
+                          </div>
+
+                          <hr />
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Total estimated taxes</span>
+                            <strong>{{ monthlyIncome.monthlyTotalTaxes.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</strong>
+                          </div>
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Net income after taxes</span>
+                            <strong>{{ monthlyIncome.monthlyNetAfterTaxes.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</strong>
+                          </div>
+
+                          <div class="d-flex justify-content-between mb-2">
+                            <span>Tithe (10% of gross)</span>
+                            <span>{{ monthlyIncome.monthlyTithe.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</span>
+                          </div>
+
+                          <hr />
+
+                          <div class="d-flex justify-content-between text-success">
+                            <strong>Monthly spendable income</strong>
+                            <strong>{{ monthlyIncome.monthlySpendableIncome.toLocaleString("en-US", { style: "currency", currency: "USD" }) }}</strong>
+                          </div>
+
+                          <p class="text-secondary small mt-3 mb-0">
+                            Estimated figures for gameplay. Actual taxes may vary.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p class="text-secondary small">
+                      Wage data:
+                      {{ careerDetails.data_year || "Year unavailable" }}
+                      {{ careerDetails.data_period || "" }}
+                      <br />
+                      Source: {{ careerDetails.source || careerDetails.data_source || "BLS data" }}
+                    </p>
+
+                    <p class="text-secondary text-center mb-0">
+                      Your career is locked in. You can review these details while waiting for
+                      the host to start gameplay.
+                    </p>
+                  </div>
                 </template>
               </div>
               <!-- GAMEPLAY -->
