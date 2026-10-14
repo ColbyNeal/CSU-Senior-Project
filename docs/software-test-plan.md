@@ -84,12 +84,12 @@ After changes to career selection, filtering, salary data, income calculations, 
 | # | OBJECTIVE | INPUT | EXPECTED RESULTS | OBSERVED |
 |---|---|---|---|---|
 | RT-01 | Verify career list loads. | Open career selection with frontend and backend running. | Available careers display without a blocking error. | Not run; record after execution. |
-| RT-02 | Verify education filter. | Select an education level. | Only matching careers appear. | Not run; record after execution. |
-| RT-03 | Verify all-levels option. | Select “All Education Levels.” | Full available list returns. | Not run; record after execution. |
-| RT-04 | Verify career search. | Enter a full or partial career title. | Matching titles appear; nonmatching titles are excluded. | Not run; record after execution. |
-| RT-05 | Verify career list presentation. | Scroll the list and select a career. | List scrolls; selected career is visibly identified. | Not run; record after execution. |
-| RT-06 | Verify career confirmation. | Select and confirm a career. | Confirmation screen shows the selected career and available details. | Not run; record after execution. |
-| RT-07 | Verify income breakdown. | Confirm a career with valid annual wage data. | Gross income, taxes, net income, tithe, and spendable income display using the correct calculation. | Not run; record after execution. |
+| RT-02 | Verify education filter. | Select an education level. | Only matching careers appear. | Informally observed working during development; formal test date, specific input, and evidence not recorded. |
+| RT-03 | Verify all-levels option. | Select “All Education Levels.” | Full available list returns. | Informally observed working during development; formal test date and evidence not recorded. |
+| RT-04 | Verify career search. | Enter a full or partial career title. | Matching titles appear; nonmatching titles are excluded. | Informally observed working during development; formal test date and evidence not recorded. |
+| RT-05 | Verify career list presentation. | Scroll the list and select a career. | List scrolls; selected career is visibly identified. | Informally observed working during development; formal test date and evidence not recorded. |
+| RT-06 | Verify career confirmation. | Select and confirm a career. | Confirmation screen shows the selected career and available details. | Informally observed working during development; formal test date and evidence not recorded. |
+| RT-07 | Verify income breakdown. | Confirm a career with valid annual wage data. | Gross income, taxes, net income, tithe, and spendable income display using the correct calculation. | Observed working after connecting `calculateMonthlyIncomeBreakdown()` to the annual wage in `loadCareerDetails()`. Exact tax amounts and spendable-income values have not been independently verified; formal calculation test remains outstanding. |
 | RT-08 | Verify missing wage data. | Open a career with unavailable wage information. | Missing data is communicated; stale figures from another career are not displayed. | Not run; record after execution. |
 | RT-09 | Verify retry behavior. | Cause or simulate a details request failure and select retry. | Error is shown and retry attempts to load the selected career again. | Not run; record after execution. |
 | RT-10 | Verify game workflow after UI changes. | Join a test game, confirm a career, and proceed through the supported flow. | Career selection remains compatible with lobby and gameplay. | Not run; record after execution. |
