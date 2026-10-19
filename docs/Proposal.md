@@ -157,10 +157,10 @@ Schedule 📅
     - October 5–9 - Implement and test BLS data integration.
     - October 12–13 - Fall Break / project buffer.
     - October 14–20 - Complete and test the basic project foundation.
-    - October 21–27 - Improve backend functionality, API endpoints, data handling, validation, and error handling.
-    - October 28–November 3 - Improve the frontend interface, navigation, dashboard, and budgeting screens.
+    - October 21–27 - Create the playable game with basic surprise events.
+    - October 28–November 3 - 
     - November 4–10 - Begin implementing major features, including financial scenarios and the budgeting progression system.
-    - November 11–17 - Complete all planned major features, including scenarios, leaderboard, animated character, and interactive decision-making.
+    - November 11–17 - Complete all planned major features, including scenarios and interactive decision-making.
     - November 18–20 - Stabilize the application, fix critical bugs, test major functionality, and prepare a low-bug version.
     - November 23–27 - Testing, documentation, bug fixes, and project buffer / Thanksgiving Break.
     - November 30–December 4 - Complete final code cleanup, documentation, GitHub updates, screenshots, and project demonstration preparation.
