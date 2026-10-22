@@ -5,6 +5,9 @@
 // ============================================
 import { inject, onMounted, ref, watch } from "vue";
 import JoinGame from "./JoinGame.vue";
+import apartmentImage from "../assets/questions/apartment.png";
+import houseImage from "../assets/questions/house.jpeg";
+import townhouseImage from "../assets/questions/townhouse.jpeg";
 
 // ============================================
 // GAME STATE
@@ -22,6 +25,16 @@ const careersError = ref("");
 const careerSelectionStarted = ref(false);
 const allCareersConfirmed = ref(false);
 
+// Host-controlled gameplay state
+const gamePhase = ref("lobby");
+const currentQuestion = ref(null);
+const currentQuestionNumber = ref(1);
+const answeredCount = ref(0);
+const playerCount = ref(0);
+const lastEvent = ref(null);
+const eventNumber = ref(null);
+const eventFlipCount = ref(0);
+
 let socket = null;
 
 const setFullScreenGame = inject("setFullScreenGame");
@@ -33,6 +46,45 @@ watch(
   },
   { immediate: true }
 );
+
+const housingOptions = [
+  {
+    id: "apartment",
+    title: "APARTMENT",
+    image: apartmentImage,
+    expense: 1200,
+    utilities: 250,
+    details: [
+      "Lower monthly cost",
+      "More flexibility",
+      "Less space"
+    ]
+  },
+  {
+    id: "townhouse",
+    title: "TOWNHOUSE",
+    image: townhouseImage,
+    expense: 1800,
+    utilities: 320,
+    details: [
+      "More space",
+      "Additional amenities",
+      "Moderate cost"
+    ]
+  },
+  {
+    id: "house",
+    title: "SINGLE FAMILY HOUSE",
+    image: houseImage,
+    expense: 2500,
+    utilities: 400,
+    details: [
+      "Most space",
+      "Long-term stability",
+      "Higher cost"
+    ]
+  }
+];
 
 // ============================================
 // CREATE GAME
@@ -72,6 +124,27 @@ async function createGame() {
       const message = JSON.parse(event.data);
 
       console.log("Message from server:", message);
+            if (message.type === "game-state") {
+        gamePhase.value = message.phase;
+        currentQuestion.value = message.currentQuestion;
+        currentQuestionNumber.value = message.currentQuestionNumber;
+        answeredCount.value = message.answeredCount;
+        playerCount.value = message.playerCount;
+        lastEvent.value = message.lastEvent;
+        eventNumber.value = message.eventNumber;
+        eventFlipCount.value = message.eventFlipCount ?? 0;
+        players.value = message.players;
+
+        if (
+          message.phase === "question" ||
+          message.phase === "leaderboard" ||
+          message.phase === "coinflip" ||
+          message.phase === "finished"
+        ) {
+          gameStarted.value = true;
+          careerSelectionStarted.value = false;
+        }
+      }
 
       if (message.type === "career-selection-started") {
         careerSelectionStarted.value = true;
@@ -152,6 +225,18 @@ async function loadCareers() {
   } finally {
     careersLoading.value = false;
   }
+}
+
+function nextQuestion() {
+  if (
+    !socket ||
+    socket.readyState !== WebSocket.OPEN ||
+    gamePhase.value !== "leaderboard"
+  ) {
+    return;
+  }
+
+  socket.send(JSON.stringify({ type: "next-question" }));
 }
 </script>
 
@@ -360,15 +445,205 @@ async function loadCareers() {
       </p>
     </section>
 
-    <!-- GAMEPLAY PLACEHOLDER -->
-    <section v-if="gameStarted" class="career-lobby">
-      <p class="panel-eyebrow">LET'S PLAY</p>
-      <h1 class="game-heading">THE GAME HAS BEGUN</h1>
-      <div class="game-divider"></div>
-      <p class="game-description">
-        Your financial journey starts here.
-      </p>
-    </section>
+      <!-- HOST GAMEPLAY -->
+      <section v-if="gameStarted" class="host-game-screen">
+        <p class="panel-eyebrow">SO, YOU THINK YOU'RE BROKE?</p>
+
+        <template v-if="gamePhase === 'question' && currentQuestion">
+          <h1 class="game-heading">
+            Question {{ currentQuestionNumber }}
+          </h1>
+
+          <div class="game-divider"></div>
+
+          <h2 class="host-question">
+            {{ currentQuestion.text || currentQuestion.title || currentQuestion.question || "Question text unavailable" }}
+          </h2>
+
+          <p class="game-description">
+            Players answered: {{ answeredCount }} / {{ playerCount }}
+          </p>
+
+          <div
+            v-if="currentQuestionNumber !== 1"
+            class="host-options"
+          >
+            <div
+              v-for="option in currentQuestion.options"
+              :key="option.id"
+              class="host-option"
+            >
+              {{ option.text || option.label || option.title || "Option text unavailable" }}
+            </div>
+          </div>
+
+          <!-- HOUSING IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 1"
+            class="housing-image-grid"
+          >
+            <article
+              v-for="option in housingOptions"
+              :key="option.id"
+              class="housing-image-card"
+            >
+              <img
+                :src="option.image"
+                :alt="option.title"
+                class="housing-image"
+              />
+
+              <h3>{{ option.title }}</h3>
+
+              <div class="housing-expense">
+                ${{ option.expense.toLocaleString() }} rent
+                + ${{ option.utilities.toLocaleString() }} utilities
+              </div>
+
+              <ul>
+                <li
+                  v-for="detail in option.details"
+                  :key="detail"
+                >
+                  {{ detail }}
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <p class="game-description">
+            Waiting for every player to submit an answer.
+          </p>
+        </template>
+        
+        <template v-else-if="gamePhase === 'coinflip'">
+          <h1 class="game-heading">UNFORESEEN EVENT</h1>
+
+          <div class="game-divider"></div>
+
+          <p class="game-description">
+            Event #{{ eventNumber }} — Each player must flip their coin
+            to reveal their individual outcome.
+          </p>
+
+          <h2 class="host-question">
+            Players who have flipped:
+            {{ eventFlipCount }} / {{ playerCount }}
+          </h2>
+
+          <div class="host-leaderboard">
+            <div
+              v-for="player in players"
+              :key="player.id"
+              class="host-leaderboard-row"
+            >
+              <strong>{{ player.name }}</strong>
+
+              <span
+                :class="player.eventFlipped
+                  ? 'career-status-confirmed'
+                  : 'career-status-pending'"
+              >
+                {{ player.eventFlipped ? 'Coin flipped' : 'Waiting to flip' }}
+              </span>
+            </div>
+          </div>
+
+          <p class="game-description">
+            The leaderboard will appear automatically after everyone flips.
+          </p>
+        </template>
+
+        <template v-else-if="gamePhase === 'leaderboard'">
+          <h1 class="game-heading">LEADERBOARD</h1>
+          <div class="game-divider"></div>
+
+          <p class="game-description">
+            Review the standings before continuing.
+          </p>
+
+          <div class="host-leaderboard">
+            <div
+              v-for="(player, index) in [...players].sort(
+                (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
+              )"
+              :key="player.id"
+              class="host-leaderboard-row"
+            >
+              <strong>{{ index + 1 }}. {{ player.name }}</strong>                
+                <span
+                  class="financial-outcome"
+                  :class="{
+                    'outcome-positive': (player.balance ?? 0) > 0,
+                    'outcome-negative': (player.balance ?? 0) < 0,
+                    'outcome-neutral': (player.balance ?? 0) === 0
+                  }"
+                >
+                  {{
+                    (player.balance ?? 0).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 0
+                    })
+                  }}
+                </span>
+            </div>
+          </div>
+
+          <p v-if="lastEvent" class="game-description">
+            {{ lastEvent }}
+          </p>
+
+          <button
+            type="button"
+            class="game-button game-button-primary"
+            @click="nextQuestion"
+          >
+            {{
+              currentQuestionNumber >= 8
+                ? "View Final Results"
+                : "Next Question"
+            }}
+          </button>
+        </template>
+
+        <template v-else-if="gamePhase === 'finished'">
+          <h1 class="game-heading">FINAL RESULTS</h1>
+          <div class="game-divider"></div>
+
+          <p class="game-description">
+            The game is complete! Here are the final standings.
+          </p>
+
+          <div class="host-leaderboard">
+            <div
+              v-for="(player, index) in [...players].sort(
+                (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
+              )"
+              :key="player.id"
+              class="host-leaderboard-row"
+            >
+              <strong>{{ index + 1 }}. {{ player.name }}</strong> 
+                <span
+                  class="financial-outcome"
+                  :class="{
+                    'outcome-positive': (player.balance ?? 0) > 0,
+                    'outcome-negative': (player.balance ?? 0) < 0,
+                    'outcome-neutral': (player.balance ?? 0) === 0
+                  }"
+                >
+                  {{
+                    (player.balance ?? 0).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 0
+                    })
+                  }}
+                </span>
+            </div>
+          </div>
+        </template>
+      </section>
   </main>
 </template>
 
@@ -693,7 +968,6 @@ async function loadCareers() {
   }
 }
 
-
 /* ============================================
    WHAT YOU'LL LEARN SECTION
    Fills the space below the game hero
@@ -813,5 +1087,167 @@ async function loadCareers() {
     transform: none;
   }
 }
+.host-game-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 3rem 5%;
+  text-align: center;
+}
 
+.host-question {
+  max-width: 1000px;
+  margin: 1rem 0 2rem;
+  color: #153f70;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 800;
+}
+
+.host-options,
+.host-leaderboard {
+  width: min(850px, 100%);
+  margin: 1rem auto 2rem;
+}
+
+.host-option,
+.host-leaderboard-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e1e7ef;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #153f70;
+  text-align: left;
+}
+
+.host-option {
+  justify-content: flex-start;
+  font-size: 1.1rem;
+}
+
+.host-leaderboard-row {
+  font-size: 1.1rem;
+}
+
+.housing-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 32px auto 0;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.housing-image-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+  background: #fffaf0;
+  border: 2px solid #d9a441;
+  border-radius: 16px;
+  color: #102b50;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.housing-image {
+  display: block;
+  width: 100%;
+  height: clamp(240px, 30vh, 380px);
+  object-fit: cover;
+}
+
+.housing-image-card h3 {
+  margin: 0;
+  padding: 16px 10px;
+  background: #073b70;
+  color: white;
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+.housing-image-card ul {
+  flex: 1;
+  margin: 0;
+  padding: 16px 20px 20px 40px;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 800px) {
+  .housing-image-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+
+  .housing-image {
+    height: 260px;
+  }
+}
+
+.housing-expense {
+  padding: 12px 8px;
+  text-align: center;
+  color: #073b70;
+  font-size: 2rem;
+  font-weight: 800;
+  background: #f3e5c3;
+  border-bottom: 1px solid #d9a441;
+}
+
+.housing-expense span {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.financial-outcome {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.outcome-positive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.outcome-negative {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.outcome-neutral {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.financial-outcome {
+  font-size: 1.25rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.outcome-positive {
+  color: #15803d;
+}
+
+.outcome-negative {
+  color: #dc2626;
+}
+
+.outcome-neutral {
+  color: #64748b;
+}
 </style>

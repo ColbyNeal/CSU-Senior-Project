@@ -1,5 +1,5 @@
 <script setup>
-
+import GamePlay from "./GamePlay.vue";
 import { computed, ref, inject } from "vue";
 import { calculateMonthlyIncomeBreakdown } from "../utils/budgetCalculations.js";
 
@@ -10,6 +10,22 @@ const joined = ref(false);
 const careerSelectionStarted = ref(false);
 const gameStarted = ref(false);
 const connectionStatus = ref("");
+
+// Multiplayer question state
+const gamePhase = ref("lobby");
+const currentQuestion = ref(null);
+const currentQuestionNumber = ref(1);
+const answeredCount = ref(0);
+const playerCount = ref(0);
+const lastEvent = ref(null);
+const selectedAnswers = ref([]);
+const answerSubmitted = ref(false);
+const answerError = ref("");
+
+// Unforeseen event coin-flip state
+const eventNumber = ref(null);
+const coinFlipResult = ref("");
+const hasFlipped = ref(false);
 
 const careers = ref([]);
 const selectedCareer = ref("");
@@ -104,6 +120,64 @@ async function joinGame() {
 
       if (data.type === "game-started") {
         gameStarted.value = true;
+      }
+
+      if (data.type === "game-state") {
+        const questionChanged =
+          data.phase === "question" &&
+          (
+            gamePhase.value !== "question" ||
+            currentQuestionNumber.value !== data.currentQuestionNumber
+          );
+        const incomingPhase = data.phase;
+
+        if (
+          incomingPhase !== "leaderboard" ||
+          gamePhase.value !== "coinflip"
+        ) {
+          gamePhase.value = incomingPhase;
+        }
+        currentQuestion.value = data.currentQuestion;
+        currentQuestionNumber.value = data.currentQuestionNumber;
+        answeredCount.value = data.answeredCount;
+        playerCount.value = data.playerCount;
+        lastEvent.value = data.lastEvent;
+
+        // Track the active unforeseen event.
+        if (
+          data.phase === "coinflip" &&
+          data.eventNumber !== eventNumber.value
+        ) {
+          eventNumber.value = data.eventNumber;
+          coinFlipResult.value = "";
+          hasFlipped.value = false;
+        }
+
+        if (
+          data.phase === "question" ||
+          data.phase === "leaderboard" ||
+          data.phase === "finished"
+        ) {
+          gameStarted.value = true;
+        }
+
+        if (questionChanged) {
+          selectedAnswers.value = [];
+          answerSubmitted.value = false;
+          answerError.value = "";
+        }
+      }
+
+      if (data.type === "answer-received") {
+        answerSubmitted.value = true;
+        answerError.value = "";
+      }
+
+      // Receive this player's private coin-flip result.
+      if (data.type === "coin-flip-result") {
+        eventNumber.value = data.eventNumber;
+        coinFlipResult.value = data.result;
+        hasFlipped.value = true;
       }
     });
 
@@ -205,7 +279,7 @@ async function loadCareerDetails(socCode) {
   }
 }
 
-function confirmCareer() {
+async function confirmCareer() {
   if (!selectedCareer.value || careerConfirmed.value) {
     return;
   }
@@ -223,10 +297,120 @@ function confirmCareer() {
     return;
   }
 
+  careersError.value = "";
+
+  try {
+    const response = await fetch(
+      `http://localhost:3000/api/careers/details?socCode=${encodeURIComponent(selectedCareer.value)}`,
+    );
+
+    if (!response.ok) {
+      throw new Error("Unable to retrieve career salary.");
+    }
+
+    const data = await response.json();
+
+    const annualWage = Number(data.career?.mean_annual_wage);
+
+    if (
+      !data.success ||
+      !data.career ||
+      !Number.isFinite(annualWage) ||
+      annualWage <= 0
+    ) {
+      throw new Error("Salary information is unavailable for this career.");
+    }
+
+    const incomeBreakdown =
+      calculateMonthlyIncomeBreakdown(annualWage);
+
+    socket.send(
+      JSON.stringify({
+        type: "confirm-career",
+        socCode: selectedCareer.value,
+        monthlySpendableIncome:
+          incomeBreakdown.monthlySpendableIncome,
+      }),
+    );
+  } catch (error) {
+    console.error("Career confirmation error:", error);
+    careersError.value =
+      error instanceof Error
+        ? error.message
+        : "Unable to confirm your career. Please try again.";
+  }
+}
+
+function toggleAnswer(optionId) {
+  if (answerSubmitted.value) return;
+
+  const question = currentQuestion.value;
+
+  if (!question) return;
+
+  // Future Preparedness requires exactly two different choices.
+  if (currentQuestionNumber.value === 8) {
+    const alreadySelected = selectedAnswers.value.includes(optionId);
+
+    if (alreadySelected) {
+      selectedAnswers.value = selectedAnswers.value.filter(
+        (id) => id !== optionId
+      );
+    } else if (selectedAnswers.value.length < 2) {
+      selectedAnswers.value = [...selectedAnswers.value, optionId];
+    }
+
+    return;
+  }
+
+  selectedAnswers.value = [optionId];
+}
+
+function submitAnswer() {
+  if (
+    !socket ||
+    socket.readyState !== WebSocket.OPEN ||
+    answerSubmitted.value ||
+    !currentQuestion.value
+  ) {
+    return;
+  }
+
+  const isMultiSelect = currentQuestionNumber.value === 8;
+
+  if (
+    selectedAnswers.value.length === 0 ||
+    (isMultiSelect && selectedAnswers.value.length !== 2)
+  ) {
+    answerError.value = isMultiSelect
+      ? "Choose exactly two different options."
+      : "Please select an answer.";
+    return;
+  }
+
   socket.send(
     JSON.stringify({
-      type: "confirm-career",
-      socCode: selectedCareer.value,
+      type: "submit-answer",
+      ...(isMultiSelect
+        ? { optionIds: selectedAnswers.value }
+        : { optionId: selectedAnswers.value[0] }),
+    }),
+  );
+}
+
+function flipCoin() {
+  if (
+    !socket ||
+    socket.readyState !== WebSocket.OPEN ||
+    gamePhase.value !== "coinflip" ||
+    hasFlipped.value
+  ) {
+    return;
+  }
+
+  socket.send(
+    JSON.stringify({
+      type: "flip-coin",
     }),
   );
 }
@@ -647,34 +831,145 @@ function confirmCareer() {
                   </div>
                 </template>
               </div>
-              <!-- GAMEPLAY -->
-              <div v-else>
-                <p
-                  class="text-uppercase fw-bold mb-2"
-                  style="color: #b88922;"
-                >
-                  Let's Play
-                </p>
+              
+              <!-- MULTIPLAYER GAMEPLAY -->
+              <div v-else class="text-start">
+                <template v-if="gamePhase === 'question' && currentQuestion">
+                  <p class="text-uppercase fw-bold mb-2 text-center"
+                    style="color: #b88922;">
+                    Question {{ currentQuestionNumber }}
+                  </p>
 
-                <h2 class="display-6 fw-bold text-primary mb-3">
-                  THE GAME HAS BEGUN
-                </h2>
+                  <h2 class="text-primary fw-bold text-center mb-4">
+                    {{ currentQuestion.text || currentQuestion.title || currentQuestion.question || "Question text unavailable" }}
+                  </h2>
 
-                <div class="game-title-divider small-divider"></div>
+                  <p v-if="currentQuestionNumber === 8"
+                    class="text-secondary text-center">
+                    Select exactly two different options.
+                  </p>
 
-                <p class="text-secondary">
-                  Welcome, <strong>{{ playerName }}</strong>!
-                </p>
+                  <div class="d-grid gap-3">
+                    <button
+                      v-for="option in currentQuestion.options"
+                      :key="option.id"
+                      type="button"
+                      class="player-answer-option"
+                      :class="{
+                        'player-answer-selected':
+                          selectedAnswers.includes(option.id)
+                      }"
+                      :disabled="answerSubmitted"
+                      @click="toggleAnswer(option.id)"
+                    >
+                      {{ option.text || option.label || option.title || "Option text unavailable" }}
+                      <span v-if="selectedAnswers.includes(option.id)"> ✓</span>
+                    </button>
+                  </div>
 
-                <h3 class="text-primary">
-                  {{ careers.find(career => career.soc_code === selectedCareer)?.title }}
-                </h3>
+                  <p v-if="answerError"
+                    class="text-danger text-center mt-3">
+                    {{ answerError }}
+                  </p>
 
-                <p class="text-secondary">
-                  Your financial journey starts here.
-                </p>
+                  <button
+                    v-if="!answerSubmitted"
+                    type="button"
+                    class="btn btn-warning btn-lg w-100 fw-bold py-3 mt-4"
+                    @click="submitAnswer"
+                  >
+                    SUBMIT ANSWER
+                  </button>
+
+                  <div v-else class="alert alert-success mt-4 text-center">
+                    Answer submitted! Waiting for the other players and the host.
+                  </div>
+                </template>
+
+                <!-- UNFORESEEN EVENT COIN FLIP -->
+                <template v-else-if="gamePhase === 'coinflip'">
+                  <div class="text-center py-4">
+                    <p
+                      class="text-uppercase fw-bold mb-2"
+                      style="color: #b88922;"
+                    >
+                      UNFORESEEN EVENT
+                    </p>
+
+                    <h2 class="text-primary fw-bold mb-3">
+                      Event #{{ eventNumber }}
+                    </h2>
+
+                    <div class="game-title-divider small-divider"></div>
+
+                    <p class="text-secondary mt-4">
+                      Something unexpected has happened!
+                      Flip the coin to discover how it affects your finances.
+                    </p>
+
+                    <div class="my-4">
+                      <div
+                        class="coin-display mx-auto"
+                        :class="{ 'coin-flipped': hasFlipped }"
+                      >
+                        {{ hasFlipped ? (coinFlipResult.startsWith('HEADS') ? 'H' : 'T') : '?' }}
+                      </div>
+                    </div>
+
+                    <button
+                      v-if="!hasFlipped"
+                      type="button"
+                      class="btn btn-warning btn-lg w-100 fw-bold py-3 mt-3"
+                      @click="flipCoin"
+                    >
+                      FLIP THE COIN
+                    </button>
+
+                    <div
+                      v-else
+                      class="alert alert-success mt-4"
+                      role="status"
+                    >
+                      <h3 class="fw-bold">YOUR RESULT</h3>
+                      <p class="mb-0">{{ coinFlipResult }}</p>
+                      <p class="mt-3 mb-0">
+                        Your result is recorded. Waiting for the other players to flip...
+                      </p>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else-if="gamePhase === 'leaderboard'">
+                  <h2 class="text-primary fw-bold text-center mb-3">
+                    ANSWER SUBMITTED
+                  </h2>
+
+                  <p class="text-secondary text-center">
+                    The host is reviewing the leaderboard. The next question will
+                    begin when the host advances the game.
+                  </p>
+
+                  <p v-if="lastEvent" class="alert alert-info">
+                    {{ lastEvent }}
+                  </p>
+                </template>
+
+                <template v-else-if="gamePhase === 'finished'">
+                  <h2 class="text-primary fw-bold text-center mb-3">
+                    GAME COMPLETE!
+                  </h2>
+
+                  <p class="text-secondary text-center">
+                    The host has finished the game. Thanks for playing!
+                  </p>
+                </template>
+
+                <template v-else>
+                  <p class="text-secondary text-center">
+                    Waiting for the host to begin the next question...
+                  </p>
+                </template>
               </div>
-
             </div>
 
           </div>
@@ -882,5 +1177,60 @@ function confirmCareer() {
 .career-option:disabled {
   cursor: not-allowed;
   opacity: 0.7;
+}
+.player-answer-option {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #123f73;
+  font-size: 1rem;
+  font-weight: 650;
+  text-align: left;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.player-answer-option:hover:not(:disabled) {
+  border-color: #b88922;
+}
+
+.player-answer-selected {
+  border-color: #b88922;
+  background: #fff6df;
+}
+
+.player-answer-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.coin-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  border: 8px solid #b88922;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffe7a3, #d6a84f);
+  color: #123f73;
+  font-size: 4rem;
+  font-weight: 900;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.coin-flipped {
+  animation: coin-land 0.4s ease-out;
+}
+
+@keyframes coin-land {
+  from {
+    transform: rotateY(180deg) scale(0.8);
+  }
+
+  to {
+    transform: rotateY(0deg) scale(1);
+  }
 }
 </style>
