@@ -231,7 +231,7 @@ function nextQuestion() {
   if (
     !socket ||
     socket.readyState !== WebSocket.OPEN ||
-    gamePhase.value !== "leaderboard"
+    !["question", "coinflip", "leaderboard"].includes(gamePhase.value)
   ) {
     return;
   }
@@ -301,28 +301,18 @@ function nextQuestion() {
             <h2 class="game-heading">GAME LOBBY</h2>
 
             <div class="game-divider"></div>
+            
+            <div class="lobby-qr-section">
+              <p class="code-instruction">SCAN TO JOIN</p>
+
+              <div class="lobby-qr-placeholder">
+                QR CODE
+              </div>
+            </div>
 
             <p class="code-instruction">Share this code with your players</p>
 
             <div class="game-code">{{ gameCode }}</div>
-
-            <div v-if="players.length === 0" class="waiting-message">
-              Waiting for players to join...
-            </div>
-
-            <div v-else class="players-section">
-              <p class="players-heading">
-                PLAYERS JOINED ({{ players.length }})
-              </p>
-
-              <div
-                v-for="player in players"
-                :key="player.id"
-                class="player-item"
-              >
-                {{ player.name }}
-              </div>
-            </div>
 
             <button
               type="button"
@@ -335,6 +325,29 @@ function nextQuestion() {
           </template>
         </div>
       </section>
+
+      <!-- PLAYERS JOINED -->
+      <section v-if="gameCreated && !gameStarted && !careerSelectionStarted"
+        class="players-lobby-section container">
+        <div class="players-section">
+          <p class="players-heading">
+            PLAYERS JOINED ({{ players.length }})
+          </p>
+
+          <p v-if="players.length === 0" class="waiting-message">
+            Waiting for players to join...
+          </p>
+
+          <div
+            v-for="player in players"
+            :key="player.id"
+            class="player-item"
+          >
+            {{ player.name }}
+          </div>
+        </div>
+      </section>
+
 
       <!-- ========================================
           WHAT YOU'LL LEARN
@@ -512,86 +525,7 @@ function nextQuestion() {
           </div>
 
           <p class="game-description">
-            Waiting for every player to submit an answer.
-          </p>
-        </template>
-        
-        <template v-else-if="gamePhase === 'coinflip'">
-          <h1 class="game-heading">UNFORESEEN EVENT</h1>
-
-          <div class="game-divider"></div>
-
-          <p class="game-description">
-            Event #{{ eventNumber }} — Each player must flip their coin
-            to reveal their individual outcome.
-          </p>
-
-          <h2 class="host-question">
-            Players who have flipped:
-            {{ eventFlipCount }} / {{ playerCount }}
-          </h2>
-
-          <div class="host-leaderboard">
-            <div
-              v-for="player in players"
-              :key="player.id"
-              class="host-leaderboard-row"
-            >
-              <strong>{{ player.name }}</strong>
-
-              <span
-                :class="player.eventFlipped
-                  ? 'career-status-confirmed'
-                  : 'career-status-pending'"
-              >
-                {{ player.eventFlipped ? 'Coin flipped' : 'Waiting to flip' }}
-              </span>
-            </div>
-          </div>
-
-          <p class="game-description">
-            The leaderboard will appear automatically after everyone flips.
-          </p>
-        </template>
-
-        <template v-else-if="gamePhase === 'leaderboard'">
-          <h1 class="game-heading">LEADERBOARD</h1>
-          <div class="game-divider"></div>
-
-          <p class="game-description">
-            Review the standings before continuing.
-          </p>
-
-          <div class="host-leaderboard">
-            <div
-              v-for="(player, index) in [...players].sort(
-                (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
-              )"
-              :key="player.id"
-              class="host-leaderboard-row"
-            >
-              <strong>{{ index + 1 }}. {{ player.name }}</strong>                
-                <span
-                  class="financial-outcome"
-                  :class="{
-                    'outcome-positive': (player.balance ?? 0) > 0,
-                    'outcome-negative': (player.balance ?? 0) < 0,
-                    'outcome-neutral': (player.balance ?? 0) === 0
-                  }"
-                >
-                  {{
-                    (player.balance ?? 0).toLocaleString("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                      maximumFractionDigits: 0
-                    })
-                  }}
-                </span>
-            </div>
-          </div>
-
-          <p v-if="lastEvent" class="game-description">
-            {{ lastEvent }}
+            The host controls when the game moves forward.
           </p>
 
           <button
@@ -599,33 +533,121 @@ function nextQuestion() {
             class="game-button game-button-primary"
             @click="nextQuestion"
           >
-            {{
-              currentQuestionNumber >= 8
-                ? "View Final Results"
-                : "Next Question"
-            }}
+            Next
           </button>
         </template>
+                
+        <template v-else-if="gamePhase === 'coinflip'">
+          <section class="event-lobby">
+            <p class="panel-eyebrow">SO, YOU THINK YOU'RE BROKE?</p>
 
-        <template v-else-if="gamePhase === 'finished'">
-          <h1 class="game-heading">FINAL RESULTS</h1>
-          <div class="game-divider"></div>
+            <h1 class="game-heading">UNFORESEEN EVENT</h1>
 
-          <p class="game-description">
-            The game is complete! Here are the final standings.
-          </p>
+            <div class="game-divider"></div>
 
-          <div class="host-leaderboard">
-            <div
-              v-for="(player, index) in [...players].sort(
-                (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
-              )"
-              :key="player.id"
-              class="host-leaderboard-row"
-            >
-              <strong>{{ index + 1 }}. {{ player.name }}</strong> 
+            <p class="game-description">
+              Event #{{ eventNumber }} — Each player must flip their coin
+              to reveal their individual outcome.
+            </p>
+
+            <div class="event-progress">
+              <div>
+                <h2>Player Progress</h2>
+                <p>Players who have flipped their coin</p>
+              </div>
+
+              <span class="event-progress-count">
+                {{ eventFlipCount }} / {{ playerCount }}
+              </span>
+            </div>
+
+            <div class="host-leaderboard event-player-grid">
+              <div
+                v-for="player in players"
+                :key="player.id"
+                class="host-leaderboard-row"
+              >
+                <strong>{{ player.name }}</strong>
+
                 <span
-                  class="financial-outcome"
+                  :class="player.eventFlipped
+                    ? 'career-status-confirmed'
+                    : 'career-status-pending'"
+                >
+                  {{ player.eventFlipped ? 'Coin flipped' : 'Waiting to flip' }}
+                </span>
+              </div>
+            </div>
+
+            <p class="game-description event-instruction">
+              Continue when you are ready, even if some players have not flipped.
+            </p>
+
+            <button
+              type="button"
+              class="game-button game-button-primary event-continue-button"
+              @click="nextQuestion"
+            >
+              Continue to Leaderboard
+            </button>
+          </section>
+        </template>
+
+        <template v-else-if="gamePhase === 'leaderboard'">
+          <section class="leaderboard-lobby">
+            <p class="panel-eyebrow">SO, YOU THINK YOU'RE BROKE?</p>
+
+            <h1 class="game-heading">LEADERBOARD</h1>
+
+            <div class="game-divider"></div>
+
+            <p class="game-description">
+              Review the standings before continuing.
+            </p>
+
+            <div class="leaderboard-summary">
+              <div>
+                <h2>Current Standings</h2>
+                <p>Ranked by remaining monthly balance</p>
+              </div>
+
+              <span class="leaderboard-player-count">
+                {{ players.length }} Players
+              </span>
+            </div>
+
+            <div class="host-leaderboard leaderboard-player-grid">
+              <div
+                v-for="(player, index) in [...players].sort(
+                  (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
+                )"
+                :key="player.id"
+                class="host-leaderboard-row leaderboard-player-row"
+              >
+                <div class="leaderboard-rank-name">
+                  <span class="leaderboard-rank">{{ index + 1 }}</span>
+
+                  <strong class="player-name">{{ player.name }}</strong>
+                </div>
+
+                <span
+                  v-if="player.currentEventAmount !== undefined && player.currentEventAmount !== null"
+                  class="financial-outcome leaderboard-event-amount"
+                  :class="{
+                    'outcome-positive': player.currentEventAmount > 0,
+                    'outcome-negative': player.currentEventAmount < 0,
+                    'outcome-neutral': player.currentEventAmount === 0
+                  }"
+                >
+                  {{ player.currentEventAmount > 0 ? '+' : '' }}{{ player.currentEventAmount.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    maximumFractionDigits: 0
+                  }) }}
+                </span>
+
+                <span
+                  class="player-balance leaderboard-balance"
                   :class="{
                     'outcome-positive': (player.balance ?? 0) > 0,
                     'outcome-negative': (player.balance ?? 0) < 0,
@@ -640,8 +662,82 @@ function nextQuestion() {
                     })
                   }}
                 </span>
+              </div>
             </div>
-          </div>
+
+            <p v-if="lastEvent" class="game-description leaderboard-event-message">
+              {{ lastEvent }}
+            </p>
+
+            <button
+              type="button"
+              class="game-button game-button-primary leaderboard-next-button"
+              @click="nextQuestion"
+            >
+              {{
+                currentQuestionNumber >= 8
+                  ? "View Final Results"
+                  : "Next"
+              }}
+            </button>
+          </section>
+        </template>
+
+        <template v-else-if="gamePhase === 'finished'">
+          <section class="final-results-lobby">
+            <p class="panel-eyebrow">SO, YOU THINK YOU'RE BROKE?</p>
+
+            <h1 class="game-heading">FINAL RESULTS</h1>
+
+            <div class="game-divider"></div>
+
+            <p class="game-description">
+              The game is complete! Here are the final standings.
+            </p>
+
+            <div class="final-results-summary">
+              <div>
+                <h2>Final Standings</h2>
+                <p>Ranked by remaining monthly balance</p>
+              </div>
+
+              <span class="final-results-count">
+                {{ players.length }} Players
+              </span>
+            </div>
+
+            <div class="final-results-player-grid">
+              <div
+                v-for="(player, index) in [...players].sort(
+                  (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
+                )"
+                :key="player.id"
+                class="final-results-player-card"
+              >
+                <div class="final-results-player-name">
+                  <span class="final-results-rank">{{ index + 1 }}</span>
+                  <strong>{{ player.name }}</strong>
+                </div>
+
+                <span
+                  class="final-results-balance"
+                  :class="{
+                    'outcome-positive': (player.balance ?? 0) > 0,
+                    'outcome-negative': (player.balance ?? 0) < 0,
+                    'outcome-neutral': (player.balance ?? 0) === 0
+                  }"
+                >
+                  {{
+                    (player.balance ?? 0).toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 0
+                    })
+                  }}
+                </span>
+              </div>
+            </div>
+          </section>
         </template>
       </section>
   </main>
@@ -674,6 +770,45 @@ function nextQuestion() {
   justify-content: center;
   padding: 3rem 5%;
   text-align: center;
+}
+
+/* Space between the hero image/lobby and the player list */
+.players-lobby-section {
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+/* White card containing the joined players */
+.players-lobby-section .players-section {
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+/* Player list heading */
+.players-lobby-section .players-heading {
+  color: #1e3a5f;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+/* Individual player names */
+.players-lobby-section .player-item {
+  background: #f3f6fa;
+  color: #1f2937;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+
+/* Waiting message */
+.players-lobby-section .waiting-message {
+  color: #64748b;
+  margin-bottom: 0;
 }
 
 .host-player-list {
@@ -762,7 +897,7 @@ function nextQuestion() {
 
 .game-heading {
   margin: 0;
-  color: #153f70;
+  color: #123b69;
   font-size: clamp(1.65rem, 2.5vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.035em;
@@ -778,7 +913,7 @@ function nextQuestion() {
 
 .game-description {
   margin-bottom: 1rem;
-  color: #45556b;
+  color: #123b69;
   font-size: 1rem;
   line-height: 1.65;
 }
@@ -872,7 +1007,7 @@ function nextQuestion() {
 
 .waiting-message {
   margin: 1rem 0 1.5rem;
-  color: #64748b;
+  color: #123b69;
   font-size: 0.95rem;
 }
 
@@ -1100,7 +1235,7 @@ function nextQuestion() {
 .host-question {
   max-width: 1000px;
   margin: 1rem 0 2rem;
-  color: #153f70;
+  color: #ffffff;
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 800;
 }
@@ -1250,4 +1385,699 @@ function nextQuestion() {
 .outcome-neutral {
   color: #64748b;
 }
+
+/* Position the Next Question button at the bottom right */
+.host-game-screen {
+  position: relative;
+}
+
+.host-game-screen .game-button-primary {
+  display: block;
+  width: fit-content;
+  min-width: 180px;
+  margin: 24px 0 0 auto;
+}
+
+/* Career selection lobby */
+.career-lobby {
+  width: min(100% - 32px, 1000px);
+  margin: 40px auto;
+  padding: 36px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
+  color: #17365b;
+}
+
+/* Heading and introduction */
+.career-lobby .panel-eyebrow {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.career-lobby .game-heading {
+  text-align: center;
+  margin-bottom: 14px;
+  color: #173f6c;
+}
+
+.career-lobby .game-divider {
+  width: 64px;
+  margin: 0 auto 18px;
+}
+
+.career-lobby .game-description {
+  text-align: center;
+  color: #64748b;
+  margin-bottom: 28px;
+}
+
+/* Player cards: two columns on desktop */
+.career-lobby .host-player-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 28px 0;
+}
+
+/* Individual player card */
+.career-lobby .host-player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px 20px;
+  background: #f7f9fc;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  color: #17365b;
+  box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.career-lobby .host-player-row:hover {
+  border-color: #d7ad42;
+  transform: translateY(-2px);
+}
+
+.career-lobby .host-player-row > span:first-child {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Career status */
+.career-lobby .career-status-confirmed,
+.career-lobby .career-status-pending {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 20px;
+}
+
+.career-lobby .career-status-confirmed {
+  color: #176b3a;
+  background: #e5f6eb;
+}
+
+.career-lobby .career-status-pending {
+  color: #8a5a00;
+  background: #fff1cf;
+}
+
+/* Start Game button */
+.career-lobby > .game-button-primary {
+  display: block;
+  width: fit-content;
+  min-width: 180px;
+  margin: 24px 0 0 auto;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: 700;
+  box-shadow: 0 5px 12px rgba(130, 91, 10, 0.15);
+}
+
+.career-lobby > .game-button-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .career-lobby {
+    width: calc(100% - 24px);
+    margin: 20px auto;
+    padding: 22px 16px;
+    border-radius: 14px;
+  }
+
+  .career-lobby .host-player-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .career-lobby .host-player-row {
+    padding: 14px;
+  }
+
+  .career-lobby .host-player-row > span:last-child {
+    font-size: 0.72rem;
+  }
+
+  .career-lobby > .game-button-primary {
+    width: 100%;
+  }
+}
+
+/* Unforeseen event lobby */
+.event-lobby {
+  width: min(100% - 32px, 1000px);
+  margin: 40px auto;
+  padding: 36px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
+  color: #17365b;
+}
+
+.event-lobby .panel-eyebrow {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.event-lobby .game-heading {
+  text-align: center;
+  color: #173f6c;
+  margin-bottom: 14px;
+}
+
+.event-lobby .game-divider {
+  width: 64px;
+  margin: 0 auto 18px;
+}
+
+.event-lobby > .game-description {
+  text-align: center;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Progress header */
+.event-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 30px 0 20px;
+  padding: 20px 22px;
+  background: #f3f6fa;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+}
+
+.event-progress h2 {
+  margin: 0 0 5px;
+  color: #17365b;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.event-progress p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.event-progress-count {
+  flex-shrink: 0;
+  background: #e7b84b;
+  color: #17365b;
+  padding: 10px 16px;
+  border-radius: 24px;
+  font-weight: 800;
+}
+
+/* Two-column player grid */
+.event-lobby .event-player-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 26px;
+}
+
+.event-lobby .host-leaderboard-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px 20px;
+  background: #f7f9fc;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  color: #17365b;
+  box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
+}
+
+.event-lobby .host-leaderboard-row strong {
+  overflow-wrap: anywhere;
+}
+
+.event-lobby .career-status-confirmed,
+.event-lobby .career-status-pending {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 20px;
+}
+
+.event-lobby .career-status-confirmed {
+  color: #176b3a;
+  background: #e5f6eb;
+}
+
+.event-lobby .career-status-pending {
+  color: #8a5a00;
+  background: #fff1cf;
+}
+
+/* Continue button */
+.event-lobby .event-continue-button {
+  display: block;
+  width: fit-content;
+  min-width: 220px;
+  margin: 24px 0 0 auto;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .event-lobby {
+    width: calc(100% - 24px);
+    margin: 20px auto;
+    padding: 22px 16px;
+    border-radius: 14px;
+  }
+
+  .event-lobby .event-player-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .event-lobby .host-leaderboard-row {
+    padding: 14px;
+  }
+
+  .event-lobby .career-status-confirmed,
+  .event-lobby .career-status-pending {
+    font-size: 0.72rem;
+  }
+
+  .event-progress {
+    padding: 15px;
+  }
+
+  .event-lobby .event-continue-button {
+    width: 100%;
+  }
+}
+
+/* Leaderboard panel */
+.leaderboard-lobby {
+  width: min(100% - 32px, 1000px);
+  margin: 40px auto;
+  padding: 36px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
+  color: #17365b;
+}
+
+.leaderboard-lobby .panel-eyebrow {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.leaderboard-lobby .game-heading {
+  color: #173f6c;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.leaderboard-lobby .game-divider {
+  width: 64px;
+  margin: 0 auto 18px;
+}
+
+.leaderboard-lobby > .game-description {
+  text-align: center;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Standings header */
+.leaderboard-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 28px 0 20px;
+  padding: 20px 22px;
+  background: #f3f6fa;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+}
+
+.leaderboard-summary h2 {
+  margin: 0 0 5px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #17365b;
+}
+
+.leaderboard-summary p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.leaderboard-player-count {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border-radius: 24px;
+  background: #e7b84b;
+  color: #17365b;
+  font-weight: 700;
+}
+
+/* Player rows */
+.leaderboard-lobby .leaderboard-player-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 26px;
+}
+
+.leaderboard-lobby .leaderboard-player-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  background: #f7f9fc;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  color: #17365b;
+  box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.leaderboard-lobby .leaderboard-player-row:hover {
+  border-color: #d7ad42;
+  transform: translateY(-2px);
+}
+
+.leaderboard-rank-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  grid-column: 1 / -1;
+}
+
+.leaderboard-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #e8eef6;
+  color: #173f6c;
+  font-weight: 800;
+}
+
+.leaderboard-lobby .player-name {
+  overflow-wrap: anywhere;
+}
+
+.leaderboard-event-amount {
+  justify-self: start;
+  font-weight: 800;
+}
+
+.leaderboard-lobby .leaderboard-balance {
+  justify-self: end;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.leaderboard-lobby .outcome-positive {
+  color: #16834a;
+}
+
+.leaderboard-lobby .outcome-negative {
+  color: #c62828;
+}
+
+.leaderboard-lobby .outcome-neutral {
+  color: #64748b;
+}
+
+.leaderboard-lobby .leaderboard-event-amount.outcome-positive,
+.leaderboard-lobby .leaderboard-event-amount.outcome-negative {
+  padding: 5px 9px;
+  border-radius: 20px;
+}
+
+.leaderboard-lobby .leaderboard-event-amount.outcome-positive {
+  background: #e5f6eb;
+}
+
+.leaderboard-lobby .leaderboard-event-amount.outcome-negative {
+  background: #fee7e7;
+}
+
+/* Event message and Next button */
+.leaderboard-lobby .leaderboard-event-message {
+  margin-top: 22px;
+  padding: 14px 18px;
+  background: #f3f6fa;
+  border-radius: 10px;
+}
+
+.leaderboard-lobby .leaderboard-next-button {
+  display: block;
+  width: fit-content;
+  min-width: 180px;
+  margin: 24px 0 0 auto;
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* Mobile */
+@media (max-width: 650px) {
+  .leaderboard-lobby {
+    width: calc(100% - 24px);
+    margin: 20px auto;
+    padding: 22px 16px;
+  }
+
+  .leaderboard-lobby .leaderboard-player-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .leaderboard-lobby .leaderboard-player-row {
+    padding: 15px;
+  }
+
+  .leaderboard-summary {
+    padding: 15px;
+  }
+
+  .leaderboard-summary p {
+    font-size: 0.8rem;
+  }
+
+  .leaderboard-player-count {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+
+  .leaderboard-lobby .leaderboard-next-button {
+    width: 100%;
+  }
+}
+
+/* Final results panel */
+.final-results-lobby {
+  width: min(100% - 32px, 1000px);
+  margin: 40px auto;
+  padding: 36px;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
+  color: #17365b;
+}
+
+.final-results-lobby .panel-eyebrow {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.final-results-lobby .game-heading {
+  text-align: center;
+  color: #173f6c;
+  margin-bottom: 14px;
+}
+
+.final-results-lobby .game-divider {
+  width: 64px;
+  margin: 0 auto 18px;
+}
+
+.final-results-lobby > .game-description {
+  text-align: center;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* Summary heading */
+.final-results-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 28px 0 20px;
+  padding: 20px 22px;
+  background: #f3f6fa;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+}
+
+.final-results-summary h2 {
+  margin: 0 0 5px;
+  color: #17365b;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.final-results-summary p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.final-results-count {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border-radius: 24px;
+  background: #e7b84b;
+  color: #17365b;
+  font-weight: 700;
+}
+
+/* Final player cards */
+.final-results-player-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.final-results-player-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  background: #f7f9fc;
+  border: 1px solid #e1e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.final-results-player-card:hover {
+  border-color: #d7ad42;
+  transform: translateY(-2px);
+}
+
+.final-results-player-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #17365b;
+}
+
+.final-results-player-name strong {
+  overflow-wrap: anywhere;
+}
+
+.final-results-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #e8eef6;
+  color: #173f6c;
+  font-weight: 800;
+}
+
+.final-results-balance {
+  flex-shrink: 0;
+  padding: 8px 11px;
+  border-radius: 24px;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.final-results-lobby .outcome-positive {
+  color: #16834a;
+  background: #e5f6eb;
+}
+
+.final-results-lobby .outcome-negative {
+  color: #c62828;
+  background: #fee7e7;
+}
+
+.final-results-lobby .outcome-neutral {
+  color: #64748b;
+  background: #edf0f4;
+}
+
+/* Mobile layout */
+@media (max-width: 650px) {
+  .final-results-lobby {
+    width: calc(100% - 24px);
+    margin: 20px auto;
+    padding: 22px 16px;
+  }
+
+  .final-results-player-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .final-results-player-card {
+    padding: 14px;
+  }
+
+  .final-results-balance {
+    font-size: 0.85rem;
+    padding: 7px 9px;
+  }
+
+  .final-results-summary {
+    padding: 15px;
+  }
+
+  .final-results-summary p {
+    font-size: 0.8rem;
+  }
+
+  .final-results-count {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+}
+
 </style>

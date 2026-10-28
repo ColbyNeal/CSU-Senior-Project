@@ -18,6 +18,19 @@ const currentQuestionNumber = ref(1);
 const answeredCount = ref(0);
 const playerCount = ref(0);
 const lastEvent = ref(null);
+const playerId = ref("");
+const players = ref([]);
+const myPlayer = computed(() =>
+  players.value.find((player) => player.id === playerId.value)
+);
+
+function formatMoney(amount) {
+  return Number(amount ?? 0).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  });
+}
 const selectedAnswers = ref([]);
 const answerSubmitted = ref(false);
 const answerError = ref("");
@@ -105,6 +118,7 @@ async function joinGame() {
       console.log("Message from server:", data);
 
       if (data.type === "joined") {
+        playerId.value = data.playerId;
         console.log("Player ID:", data.playerId);
       }
 
@@ -129,6 +143,7 @@ async function joinGame() {
             gamePhase.value !== "question" ||
             currentQuestionNumber.value !== data.currentQuestionNumber
           );
+
         const incomingPhase = data.phase;
 
         if (
@@ -142,6 +157,7 @@ async function joinGame() {
         answeredCount.value = data.answeredCount;
         playerCount.value = data.playerCount;
         lastEvent.value = data.lastEvent;
+        players.value = data.players ?? [];
 
         // Track the active unforeseen event.
         if (
@@ -341,30 +357,42 @@ async function confirmCareer() {
   }
 }
 
+
 function toggleAnswer(optionId) {
   if (answerSubmitted.value) return;
 
   const question = currentQuestion.value;
-
   if (!question) return;
 
-  // Future Preparedness requires exactly two different choices.
-  if (currentQuestionNumber.value === 8) {
+  // Questions 5 and 8 allow multiple selections.
+  const isMultiSelect = [5, 8].includes(
+    currentQuestionNumber.value
+  );
+
+  if (isMultiSelect) {
     const alreadySelected = selectedAnswers.value.includes(optionId);
 
     if (alreadySelected) {
       selectedAnswers.value = selectedAnswers.value.filter(
         (id) => id !== optionId
       );
-    } else if (selectedAnswers.value.length < 2) {
-      selectedAnswers.value = [...selectedAnswers.value, optionId];
+    } else if (
+      currentQuestionNumber.value !== 8 ||
+      selectedAnswers.value.length < 2
+    ) {
+      selectedAnswers.value = [
+        ...selectedAnswers.value,
+        optionId
+      ];
     }
 
     return;
   }
 
+  // All other questions allow one selection.
   selectedAnswers.value = [optionId];
 }
+
 
 function submitAnswer() {
   if (
@@ -376,15 +404,18 @@ function submitAnswer() {
     return;
   }
 
-  const isMultiSelect = currentQuestionNumber.value === 8;
+  const isMultiSelect = [5, 8].includes(
+  currentQuestionNumber.value
+);
+const requiresExactlyTwo = currentQuestionNumber.value === 8;
 
   if (
     selectedAnswers.value.length === 0 ||
-    (isMultiSelect && selectedAnswers.value.length !== 2)
+    (requiresExactlyTwo && selectedAnswers.value.length !== 2)
   ) {
-    answerError.value = isMultiSelect
+    answerError.value = requiresExactlyTwo
       ? "Choose exactly two different options."
-      : "Please select an answer.";
+      : "Please select at least one option.";
     return;
   }
 
@@ -843,9 +874,16 @@ function flipCoin() {
                   <h2 class="text-primary fw-bold text-center mb-4">
                     {{ currentQuestion.text || currentQuestion.title || currentQuestion.question || "Question text unavailable" }}
                   </h2>
-
-                  <p v-if="currentQuestionNumber === 8"
-                    class="text-secondary text-center">
+                  <p
+                    v-if="currentQuestionNumber === 5"
+                    class="text-secondary text-center"
+                  >
+                    Select all the technology options you want.
+                  </p>
+                  <p
+                    v-else-if="currentQuestionNumber === 8"
+                    class="text-secondary text-center"
+                  >
                     Select exactly two different options.
                   </p>
 
@@ -956,11 +994,82 @@ function flipCoin() {
 
                 <template v-else-if="gamePhase === 'finished'">
                   <h2 class="text-primary fw-bold text-center mb-3">
-                    GAME COMPLETE!
+                    YOUR FINAL RESULTS
                   </h2>
 
                   <p class="text-secondary text-center">
-                    The host has finished the game. Thanks for playing!
+                    Here is how your decisions and unforeseen events affected your budget.
+                  </p>
+
+                  <div v-if="myPlayer" class="container mt-4">
+                    <details class="card p-3 mb-4" open>
+                      <summary class="h5 fw-bold">Final Budget Summary</summary>
+
+                      <p>Monthly spendable income:
+                        {{ formatMoney(myPlayer.monthlySpendableIncome) }}
+                      </p>
+
+                      <p>Monthly expenses:
+                        {{ formatMoney(myPlayer.monthlyExpenses) }}
+                      </p>
+
+                      <p>Monthly savings:
+                        {{ formatMoney(myPlayer.monthlySavings) }}
+                      </p>
+
+                      <hr />
+
+                      <p class="fw-bold">
+                        Final balance:
+                        {{ formatMoney(myPlayer.balance) }}
+                      </p>
+                    </details>
+
+                    <details class="card p-3 mb-4">
+                      <summary class="h5 fw-bold">Your Decisions</summary>
+
+                      <div
+                        v-if="myPlayer.decisionHistory?.length"
+                        v-for="decision in myPlayer.decisionHistory"
+                        :key="decision.questionNumber"
+                        class="border-bottom py-3"
+                      >
+                        <h4 class="h6 fw-bold">
+                          Question {{ decision.questionNumber }}: {{ decision.questionTitle }}
+                        </h4>
+
+                        <div
+                          v-for="option in decision.selectedOptions"
+                          :key="option.id"
+                          class="d-flex justify-content-between gap-3"
+                        >
+                          <span>{{ option.label }}</span>
+                          <span>{{ formatMoney(option.monthlyCost) }}/month</span>
+                        </div>
+                      </div>
+
+                      <p v-else class="text-secondary">
+                        No decision history is available.
+                      </p>
+                    </details>
+
+                    <details class="card p-3 mb-4">
+                      <summary class="h5 fw-bold">Unforeseen Events</summary>
+
+                      <ul v-if="myPlayer.eventHistory?.length">
+                        <li v-for="(event, index) in myPlayer.eventHistory" :key="index">
+                          {{ event }}
+                        </li>
+                      </ul>
+
+                      <p v-else class="text-secondary">
+                        No event history is available.
+                      </p>
+                    </details>
+                  </div>
+
+                  <p v-else class="text-secondary text-center">
+                    Your final player information is not available.
                   </p>
                 </template>
 

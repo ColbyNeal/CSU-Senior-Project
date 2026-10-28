@@ -22,8 +22,19 @@ type Player = {
   monthlyExpenses: number;
   monthlySavings: number;
   balance: number;
+  eventBalanceAdjustment: number;
+  currentEventAmount?: number;
   housingChoice?: string;
   eventHistory: string[];
+    decisionHistory: {
+    questionNumber: number;
+    questionTitle: string;
+    selectedOptions: {
+      id: string;
+      label: string;
+      monthlyCost: number;
+    }[];
+  }[];
   retirementAge?: number;
   retirementSavingsPercent?: number;
   shortTermSavingsPercent?: number;
@@ -70,10 +81,10 @@ const QUESTIONS: Question[] = [
     selectionMode: "single",
     requiredSelections: 1,
     options: [
-      { id: "hand-me-down", label: "Hand-Me-Down Car — $200/month", cost: 200 },
-      { id: "used-car", label: "Used Car — $250 payment + $150 fuel/maintenance", cost: 400 },
-      { id: "new-car", label: "New Car — $350 payment + $250 fuel/maintenance", cost: 600 },
-      { id: "bus", label: "Bus — $550 payment + $350 fuel/maintenance", cost: 900 },
+      { id: "bus", label: "Bus — $200 payment + $0 fuel/maintenance", cost: 200 },
+      { id: "hand-me-down", label: "Hand-Me-Down car — $250 payment + $150 fuel/maintenance", cost: 400 },
+      { id: "used-car", label: "Used Car — $350 payment + $250 fuel/maintenance", cost: 600 },
+      { id: "new-car", label: "New Car — $550 payment + $350 fuel/maintenance", cost: 900 },
     ],
   },
   {
@@ -109,8 +120,8 @@ const QUESTIONS: Question[] = [
     options: [
       { id: "cell-phone", label: "Cell Phone — $45/month", cost: 45 },
       { id: "internet", label: "High-Speed Internet — $60/month", cost: 60 },
-      { id: "cable", label: "Cable — $70/month", cost: 70 },
-      { id: "streaming", label: "Netflix / Amazon Prime / Hulu — $15/month", cost: 15 },
+      { id: "gaming-subscription", label: "Gaming subscription — $20/month", cost: 20 },
+      { id: "streaming", label: "Netflix / Amazon Prime / Hulu / Disney+ — $50/month", cost: 50 },
     ],
   },
   {
@@ -210,9 +221,12 @@ function getPublicPlayers(game: Game) {
     educationLevel: player.educationLevel,
     monthlySpendableIncome: player.monthlySpendableIncome,
     monthlyExpenses: player.monthlyExpenses,
+    monthlySavings: player.monthlySavings,
     balance: player.balance,
+    currentEventAmount: player.currentEventAmount,
     housingChoice: player.housingChoice,
     eventHistory: player.eventHistory,
+    decisionHistory: player.decisionHistory,
     eventFlipped:
       game.pendingEvent !== undefined &&
       player.flippedEvents.includes(game.pendingEvent),
@@ -530,34 +544,75 @@ const server = Bun.serve<SocketData>({
         return;
       }
 
-      // Only the host can advance from the leaderboard.
+      // Only the host can control game progression.
       if (data.type === "next-question") {
-        if (
-          ws.data.role !== "host" ||
-          game.phase !== "leaderboard"
-        ) {
+        if (ws.data.role !== "host") {
           return;
         }
 
-        // Finish the game after the final question.
-        if (game.currentQuestion >= QUESTIONS.length) {
-          game.phase = "finished";
+        // The host is advancing from the coin-flip event.
+        if (game.phase === "coinflip") {
+          game.pendingEvent = undefined;
+
+          // After Question 8 and Event 3, show final results.
+          if (game.currentQuestion >= QUESTIONS.length) {
+            game.phase = "finished";
+          } else {
+            game.phase = "leaderboard";
+          }
+
           broadcastGameState(game);
           return;
         }
 
-        // Advance to the next question.
-        game.currentQuestion += 1;
-        game.lastEvent = undefined;
-        game.pendingEvent = undefined;
+        // The host is advancing from the current question.
+        if (game.phase === "question") {
+          // Start an unforeseen event after Questions 1, 4, and 8.
+          const eventByQuestion: Record<number, number> = {
+            1: 1,
+            4: 2,
+            8: 3,
+          };
 
-        for (const player of game.players) {
-          player.currentAnswer = undefined;
+          const eventNumber = eventByQuestion[game.currentQuestion];
+
+          if (eventNumber !== undefined) {
+            game.pendingEvent = eventNumber;
+            game.lastEvent =
+              `Unforeseen Event #${eventNumber}: Every player must flip a coin.`;
+            game.phase = "coinflip";
+          } else {
+            game.pendingEvent = undefined;
+            game.phase = "leaderboard";
+          }
+
+          broadcastGameState(game);
+          return;
         }
 
-        game.phase = "question";
-        broadcastGameState(game);
-        return;
+        // The host is advancing from the leaderboard.
+        if (game.phase === "leaderboard") {
+          // Finish the game after the final question.
+          if (game.currentQuestion >= QUESTIONS.length) {
+            game.phase = "finished";
+            broadcastGameState(game);
+            return;
+          }
+
+          // Prepare the next question.
+          game.currentQuestion += 1;
+          game.lastEvent = undefined;
+          game.pendingEvent = undefined;
+
+          for (const player of game.players) {
+            player.currentAnswer = undefined;
+            player.currentEventAmount = undefined;
+          }
+
+          game.phase = "question";
+          broadcastGameState(game);
+          return;
+        }
       }
 
       // A player can confirm a career only once.
@@ -658,7 +713,10 @@ const server = Bun.serve<SocketData>({
           monthlyExpenses: 0,
           monthlySavings: 0,
           balance: 0,
+          eventBalanceAdjustment: 0,
+          currentEventAmount: undefined,
           eventHistory: [],
+          decisionHistory: [],
           flippedEvents: [],
         };
 
@@ -701,39 +759,54 @@ const server = Bun.serve<SocketData>({
         const eventNumber = game.pendingEvent;
         const heads = Math.random() < 0.5;
         let result = "";
+        player.currentEventAmount = 0;
 
         if (eventNumber === 1) {
           if (heads) {
-            player.balance += 1000;
+            player.eventBalanceAdjustment += 1000;
+            player.currentEventAmount = 1000;
             result = "HEADS — You inherited $1,000!";
           } else {
-            player.balance -= 1200;
+            player.eventBalanceAdjustment -= 1200;
+            player.currentEventAmount = -1200;
             result = "TAILS — You paid $1,200 for a fender bender.";
           }
         } else if (eventNumber === 2) {
           if (heads) {
-            player.balance -= 500;
+            player.eventBalanceAdjustment -= 500;
+            player.currentEventAmount = -500;
             result = "HEADS — You paid $500 for replacement tires.";
           } else {
-            player.balance += 1400;
+            player.eventBalanceAdjustment += 1400;
+            player.currentEventAmount = 1400;
             result = "TAILS — You received a $1,400 birthday gift!";
           }
-        } else if (eventNumber === 3) {
+                } else if (eventNumber === 3) {
           if (heads) {
             if (player.retirementAge !== undefined) {
               player.retirementAge += 5;
             }
+
+            player.currentEventAmount = 0;
             result =
               "HEADS — The stock market crashed. Retirement is delayed by five years.";
           } else {
             player.monthlySpendableIncome += 1000;
-            player.balance += 1000;
+            player.currentEventAmount = 1000;
+
             result =
               "TAILS — You inherited $1,000 and your monthly income increased by $1,000.";
           }
         } else {
           return;
         }
+
+        // Recalculate the balance immediately after the event.
+        player.balance =
+          player.monthlySpendableIncome -
+          player.monthlyExpenses -
+          player.monthlySavings +
+          player.eventBalanceAdjustment;
 
         player.flippedEvents.push(eventNumber);
         player.eventHistory.push(
@@ -749,6 +822,7 @@ const server = Bun.serve<SocketData>({
           }),
         );
 
+        // The host controls when the game moves to the leaderboard.
         const everyoneFlipped =
           game.players.length > 0 &&
           game.players.every((item) =>
@@ -758,8 +832,6 @@ const server = Bun.serve<SocketData>({
         if (everyoneFlipped) {
           game.lastEvent =
             `Unforeseen Event #${eventNumber} completed. All players have flipped.`;
-          game.pendingEvent = undefined;
-          game.phase = "leaderboard";
         }
 
         broadcastGameState(game);
@@ -830,7 +902,23 @@ const server = Bun.serve<SocketData>({
         // Store all selected answers as a comma-separated string.
         player.currentAnswer = selectedIds.join(",");
         player.answeredQuestion = game.currentQuestion;
-        
+
+        // Save only the options the player selected for the final budget breakdown.
+        player.decisionHistory.push({
+          questionNumber: question.id,
+          questionTitle: question.title,
+          selectedOptions: options
+            .filter((option) => selectedIds.includes(option.id))
+            .map((option) => ({
+              id: option.id,
+              label: option.label,
+              monthlyCost:
+                question.id === 3 || question.id === 4
+                  ? (player.monthlySpendableIncome * (option.percentage ?? 0)) / 100
+                  : option.cost,
+            })),
+        });
+ 
         // Save retirement and savings decisions.
         if (question.id === 3) {
           const retirementOption = options[0];
@@ -877,11 +965,13 @@ const server = Bun.serve<SocketData>({
         player.monthlySavings =
           retirementSavings + shortTermSavings;
 
-        // Calculate money remaining after expenses and savings.
+        // Calculate the player's remaining monthly balance.
+        // Preserve all one-time event adjustments.
         player.balance =
           player.monthlySpendableIncome -
           player.monthlyExpenses -
-          player.monthlySavings;
+          player.monthlySavings +
+          player.eventBalanceAdjustment;
 
         // Confirm receipt privately.
         ws.send(
@@ -890,36 +980,6 @@ const server = Bun.serve<SocketData>({
             questionNumber: game.currentQuestion,
           }),
         );
-
-        broadcastGameState(game);
-
-        // Wait until every player has answered.
-        const everyoneAnswered =
-          game.players.length > 0 &&
-          game.players.every(
-            (item) =>
-              item.answeredQuestion === game.currentQuestion,
-          );
-
-        if (!everyoneAnswered) return;
-        // Start an unforeseen event after Questions 1, 4, and 8.
-        const eventByQuestion: Record<number, number> = {
-          1: 1,
-          4: 2,
-          8: 3,
-        };
-
-        const eventNumber = eventByQuestion[question.id];
-
-        if (eventNumber !== undefined) {
-          game.pendingEvent = eventNumber;
-          game.lastEvent =
-            `Unforeseen Event #${eventNumber}: Every player must flip a coin.`;
-          game.phase = "coinflip";
-        } else {
-          game.pendingEvent = undefined;
-          game.phase = "leaderboard";
-        }
 
         broadcastGameState(game);
         return;
