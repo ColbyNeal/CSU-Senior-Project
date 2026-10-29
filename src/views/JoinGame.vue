@@ -90,7 +90,7 @@ async function joinGame() {
     const name = playerName.value.trim();
 
     const response = await fetch(
-      `http://localhost:3000/api/games/${code}`,
+      `${window.location.protocol}//${window.location.hostname}:3000/api/games/${code}`,
     );
 
     if (!response.ok) {
@@ -99,7 +99,7 @@ async function joinGame() {
     }
 
     socket = new WebSocket(
-      `ws://localhost:3000/ws?gameCode=${code}&role=player`,
+      `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3000/ws?gameCode=${code}&role=player`,
     );
 
     socket.addEventListener("open", () => {
@@ -216,7 +216,9 @@ async function loadCareers() {
   careersError.value = "";
 
   try {
-    const response = await fetch("http://localhost:3000/api/careers");
+    const response = await fetch(
+      `${window.location.protocol}//${window.location.hostname}:3000/api/careers`
+    );
 
     if (!response.ok) {
       throw new Error("Unable to load careers.");
@@ -260,7 +262,7 @@ async function loadCareerDetails(socCode) {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/api/careers/details?socCode=${encodeURIComponent(socCode)}`
+      `${window.location.protocol}//${window.location.hostname}:3000/api/careers/details?socCode=${encodeURIComponent(socCode)}`,
     );
 
     if (!response.ok) {
@@ -317,7 +319,7 @@ async function confirmCareer() {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/api/careers/details?socCode=${encodeURIComponent(selectedCareer.value)}`,
+      `${window.location.protocol}//${window.location.hostname}:3000/api/careers/details?socCode=${encodeURIComponent(selectedCareer.value)}`,
     );
 
     if (!response.ok) {

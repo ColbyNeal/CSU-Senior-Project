@@ -35,7 +35,9 @@ const filteredCareers = computed(() => {
 
 async function loadCareers() {
   try {
-    const response = await fetch("http://localhost:3000/api/careers");
+    const response = await fetch(
+      `${window.location.protocol}//${window.location.hostname}:3000/api/careers`
+    );
 
     if (!response.ok) {
       throw new Error("Unable to load careers.");

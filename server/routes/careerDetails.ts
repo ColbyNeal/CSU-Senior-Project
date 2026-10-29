@@ -88,7 +88,10 @@ export function handleCareerDetailsRequest(request: Request) {
       },
       {
         headers: {
-          "Access-Control-Allow-Origin": "http://localhost:5173",
+          "Access-Control-Allow-Origin":
+            request.headers.get("origin") === "http://192.168.1.239:5173"
+              ? "http://192.168.1.239:5173"
+              : "http://localhost:5173",
           "Access-Control-Allow-Methods": "GET, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
         },
@@ -105,7 +108,10 @@ export function handleCareerDetailsRequest(request: Request) {
       {
         status: 500,
         headers: {
-          "Access-Control-Allow-Origin": "http://localhost:5173",
+          "Access-Control-Allow-Origin":
+            request.headers.get("origin") === "http://192.168.1.239:5173"
+              ? "http://192.168.1.239:5173"
+              : "http://localhost:5173",
           "Access-Control-Allow-Methods": "GET, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
         },

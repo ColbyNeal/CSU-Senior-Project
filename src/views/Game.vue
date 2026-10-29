@@ -95,7 +95,7 @@ async function createGame() {
   // Keep your existing createGame function here.
   try {
     const response = await fetch(
-      "http://localhost:3000/api/games",
+      `${window.location.protocol === "https:" ? "https:" : "http:"}//${window.location.hostname}:3000/api/games`,
       {
         method: "POST",
       },
@@ -113,7 +113,7 @@ async function createGame() {
     console.log("Game created:", data.gameCode);
 
     socket = new WebSocket(
-      `ws://localhost:3000/ws?gameCode=${data.gameCode}&role=host`,
+      `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3000/ws?gameCode=${data.gameCode}&role=host`,
     );
 
     socket.addEventListener("open", () => {
@@ -202,7 +202,10 @@ async function loadCareers() {
   careersError.value = "";
 
   try {
-    const response = await fetch("http://localhost:3000/api/careers");
+    const response = await fetch(
+      `${window.location.protocol}//${window.location.hostname}:3000/api/careers`
+    );
+
 
     if (!response.ok) {
       throw new Error("Unable to load careers.");

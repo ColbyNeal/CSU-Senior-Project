@@ -290,6 +290,7 @@ function allPlayersConfirmed(game: Game) {
 }
 
 const server = Bun.serve<SocketData>({
+  hostname: "0.0.0.0",
   port: 3000,
 
   async fetch(request, server) {
@@ -391,7 +392,10 @@ const server = Bun.serve<SocketData>({
         {
           headers: {
             "Access-Control-Allow-Origin":
-              "http://localhost:5173",
+              request.headers.get("origin") === "http://localhost:5173" ||
+              request.headers.get("origin") === "http://192.168.1.239:5173"
+                ? request.headers.get("origin")!
+                : "http://localhost:5173",
             "Access-Control-Allow-Methods":
               "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers":
@@ -408,6 +412,13 @@ const server = Bun.serve<SocketData>({
       url.pathname.startsWith("/api/games/") &&
       request.method === "GET"
     ) {
+      const origin = request.headers.get("origin");
+      const allowedOrigin =
+        origin === "http://localhost:5173" ||
+        origin === "http://192.168.1.239:5173"
+          ? origin
+          : "http://localhost:5173";
+
       const gameCode = url.pathname
         .split("/")
         .pop()
@@ -430,8 +441,9 @@ const server = Bun.serve<SocketData>({
           {
             status: 404,
             headers: {
-              "Access-Control-Allow-Origin":
-                "http://localhost:5173",
+              "Access-Control-Allow-Origin": allowedOrigin,
+              "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+              "Access-Control-Allow-Headers": "Content-Type",
             },
           },
         );
@@ -445,8 +457,9 @@ const server = Bun.serve<SocketData>({
         },
         {
           headers: {
-            "Access-Control-Allow-Origin":
-              "http://localhost:5173",
+            "Access-Control-Allow-Origin": allowedOrigin,
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type",
           },
         },
       );
