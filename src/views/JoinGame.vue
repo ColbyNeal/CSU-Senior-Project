@@ -1,5 +1,4 @@
 <script setup>
-import GamePlay from "./GamePlay.vue";
 import { computed, ref, inject } from "vue";
 import { calculateMonthlyIncomeBreakdown } from "../utils/budgetCalculations.js";
 

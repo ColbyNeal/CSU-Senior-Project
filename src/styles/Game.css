@@ -166,7 +166,7 @@
 
 .game-description {
   margin-bottom: 1rem;
-  color: #123b69;
+  color: #ffffff;
   font-size: 1rem;
   line-height: 1.65;
 }
@@ -374,7 +374,6 @@
   font-weight: 800;
   letter-spacing: 0.14em;
 }
-
 
 .learning-title {
   margin-bottom: 0.75rem;
@@ -1313,5 +1312,249 @@
   .final-results-count {
     font-size: 0.8rem;
     padding: 8px 10px;
+  }
+}
+
+/* ============================================
+   REUSABLE QUESTION CARDS
+   Shared design for game question options
+   ============================================ */
+
+.question-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: #fffaf0;
+  border: 2px solid #d9a441;
+  border-radius: 16px;
+  color: #102b50;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.question-card-selected {
+  border-color: #f2c15e;
+  box-shadow: 0 0 0 3px rgba(242, 193, 94, 0.35);
+  transform: translateY(-3px);
+}
+
+.question-card-image {
+  display: block;
+  width: 100%;
+  height: clamp(200px, 24vw, 300px);
+  object-fit: cover;
+}
+
+.question-card-title {
+  margin: 0;
+  padding: 14px 10px;
+  background: #073b70;
+  color: #fff;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.question-card-price {
+  padding: 12px 8px;
+  background: #f3e5c3;
+  border-bottom: 1px solid #d9a441;
+  color: #073b70;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.question-card-details {
+  flex: 1;
+  margin: 0;
+  padding: 14px 20px 18px 36px;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.question-card-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px;
+  border: 0;
+  border-top: 1px solid #e5dfd1;
+  background: #fff;
+  color: #073b70;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.question-card-select:hover {
+  background: #fff1cf;
+}
+
+.question-card-select:focus-visible {
+  outline: 3px solid #073b70;
+  outline-offset: -4px;
+}
+
+.question-card-radio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #073b70;
+  border-radius: 50%;
+  color: #d9a441;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 800px) {
+  .question-card-image {
+    height: 240px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .question-card {
+    transition: none;
+  }
+
+  .question-card-selected {
+    transform: none;
+  }
+}
+
+/* COMPOUND INTEREST EDUCATIONAL PANEL */
+.compound-interest-panel {
+  width: min(100%, 1000px);
+  margin: 28px auto;
+  padding: 20px;
+  background: #fffaf0;
+  border: 2px solid #d9a441;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.compound-interest-heading {
+  margin: 0 0 16px;
+  color: #073b70;
+  text-align: center;
+  font-weight: 800;
+}
+
+.compound-interest-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.compound-interest-caption {
+  margin: 14px 0 0;
+  color: #102b50;
+  text-align: center;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .compound-interest-panel {
+    padding: 12px;
+    margin: 18px auto;
+  }
+
+  .compound-interest-heading {
+    font-size: 1.25rem;
+  }
+}
+
+/* TRANSPORTATION LAYOUT*/
+.transportation-image-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 1200px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.transportation-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .transportation-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .transportation-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* RETIREMENT IMAGE CARDS */
+.retirement-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 1000px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.retirement-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Adjust only Question 3 retirement images */
+.retirement-image-grid .question-card-image {
+  object-position: center 20%;
+}
+
+@media (max-width: 700px) {
+  .retirement-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* QUESTION 3 — RETIREMENT CARD LAYOUT */
+.retirement-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 1000px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.retirement-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.retirement-image-grid .question-card-image {
+  height: 240px;
+  object-fit: cover;
+}
+
+@media (max-width: 800px) {
+  .retirement-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .retirement-image-grid {
+    grid-template-columns: 1fr;
   }
 }

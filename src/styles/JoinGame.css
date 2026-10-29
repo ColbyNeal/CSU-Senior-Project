@@ -55,7 +55,6 @@
 }
 
 /* Form controls */
-
 .form-control {
   border: 2px solid #d6a84f;
 }
@@ -66,21 +65,23 @@
 }
 
 /* Join button */
-
-.btn-warning {
-  background-color: #d6a84f;
-  border-color: #b88922;
-  color: #123f73;
+.btn-warning,
+.btn-warning:focus,
+.btn-warning:active {
+  background-color: #e2b447 !important;
+  border-color: #e2b447 !important;
+  color: #073b70 !important;
+  box-shadow: none;
 }
 
 .btn-warning:hover {
-  background-color: #e2b961;
-  border-color: #b88922;
-  color: #123f73;
+  background-color: #d6a84f !important;
+  border-color: #b88922 !important;
+  color: #073b70 !important;
 }
 
-/* Career selection */
 
+/* Career selection */
 .career-list {
   display: flex;
   flex-direction: column;

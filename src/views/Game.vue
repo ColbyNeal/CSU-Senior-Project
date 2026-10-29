@@ -5,9 +5,32 @@
 // ============================================
 import { inject, onMounted, ref, watch } from "vue";
 import JoinGame from "./JoinGame.vue";
-import apartmentImage from "../assets/questions/apartment.png";
-import houseImage from "../assets/questions/house.jpeg";
-import townhouseImage from "../assets/questions/townhouse.jpeg";
+import QuestionCard from "../components/QuestionCard.vue";
+
+// Housing
+import apartmentCardImage from "../assets/questions/q1-apartment.png";
+import townhouseCardImage from "../assets/questions/q1-townhouse.png";
+import singleFamilyHouseCardImage from "../assets/questions/q1-single-family-house.png";
+
+// Transportation
+import busImage from "../assets/questions/q2-bus.png";
+import handMeDownImage from "../assets/questions/q2-hand-me-down-car.png";
+import usedCarImage from "../assets/questions/q2-used-car.png";
+import newCarImage from "../assets/questions/q2-new-car.png";
+
+// Retirement
+import retireAt50Image from "../assets/questions/q3-retire-at-50.png";
+import retireAt60Image from "../assets/questions/q3-retire-at-60.png";
+import retireAt72Image from "../assets/questions/q3-retire-at-72.png";
+
+// Remaining questions
+import compoundInterestImage from "../assets/questions/compound-interest.png";
+import groceriesImage from "../assets/questions/q6-groceries-and-food.png";
+import vacationBeachImage from "../assets/questions/q8-vacation-beach.png";
+
+import recreationImage from "../assets/questions/q8-recreation-and-entertainment.png";
+
+
 
 // ============================================
 // GAME STATE
@@ -29,6 +52,7 @@ const allCareersConfirmed = ref(false);
 const gamePhase = ref("lobby");
 const currentQuestion = ref(null);
 const currentQuestionNumber = ref(1);
+const showCompoundInterest = ref(false);
 const answeredCount = ref(0);
 const playerCount = ref(0);
 const lastEvent = ref(null);
@@ -51,7 +75,7 @@ const housingOptions = [
   {
     id: "apartment",
     title: "APARTMENT",
-    image: apartmentImage,
+    image: apartmentCardImage,
     expense: 1200,
     utilities: 250,
     details: [
@@ -63,7 +87,7 @@ const housingOptions = [
   {
     id: "townhouse",
     title: "TOWNHOUSE",
-    image: townhouseImage,
+    image: townhouseCardImage,
     expense: 1800,
     utilities: 320,
     details: [
@@ -75,7 +99,7 @@ const housingOptions = [
   {
     id: "house",
     title: "SINGLE FAMILY HOUSE",
-    image: houseImage,
+    image: singleFamilyHouseCardImage,
     expense: 2500,
     utilities: 400,
     details: [
@@ -84,6 +108,61 @@ const housingOptions = [
       "Higher cost"
     ]
   }
+];
+
+const transportationOptions = [
+  {
+    id: "bus",
+    title: "BUS",
+    image: busImage,
+    priceLabel: "$200/month",
+    details: ["Public transportation", "No fuel or maintenance costs"],
+  },
+  {
+    id: "hand-me-down",
+    title: "HAND-ME-DOWN CAR",
+    image: handMeDownImage,
+    priceLabel: "$400/month",
+    details: ["Lower monthly payment", "Fuel and maintenance included"],
+  },
+  {
+    id: "used-car",
+    title: "USED CAR",
+    image: usedCarImage,
+    priceLabel: "$600/month",
+    details: ["Moderate monthly cost", "Fuel and maintenance included"],
+  },
+  {
+    id: "new-car",
+    title: "NEW CAR",
+    image: newCarImage,
+    priceLabel: "$900/month",
+    details: ["Newer vehicle", "Fuel and maintenance included"],
+  },
+];
+
+const retirementOptions = [
+  {
+    id: "retire-50",
+    title: "RETIRE AT 50",
+    image: retireAt50Image,
+    priceLabel: "Save 5% monthly",
+    details: ["More time for retirement", "Start saving earlier"],
+  },
+  {
+    id: "retire-60",
+    title: "RETIRE AT 60",
+    image: retireAt60Image,
+    priceLabel: "Save 3% monthly",
+    details: ["Balance work and retirement", "Build retirement savings"],
+  },
+  {
+    id: "retire-72",
+    title: "RETIRE AT 72",
+    image: retireAt72Image,
+    priceLabel: "Save 2% monthly",
+    details: ["Work longer", "Save a smaller percentage"],
+  },
 ];
 
 // ============================================
@@ -241,6 +320,21 @@ function nextQuestion() {
 
   socket.send(JSON.stringify({ type: "next-question" }));
 }
+
+function handleHostNext() {
+  if (currentQuestionNumber.value === 3) {
+    showCompoundInterest.value = true;
+    return;
+  }
+
+  nextQuestion();
+}
+
+function continueAfterCompoundInterest() {
+  showCompoundInterest.value = false;
+  nextQuestion();
+}
+
 </script>
 
 <template>
@@ -465,7 +559,39 @@ function nextQuestion() {
       <section v-if="gameStarted" class="host-game-screen">
         <p class="panel-eyebrow">SO, YOU THINK YOU'RE BROKE?</p>
 
-        <template v-if="gamePhase === 'question' && currentQuestion">
+        <template
+          v-if="gamePhase === 'question' && currentQuestion && showCompoundInterest"
+        >
+          <section class="compound-interest-panel">
+            <p class="panel-eyebrow">PLAN FOR YOUR FUTURE</p>
+
+            <h1 class="game-heading">THE POWER OF COMPOUND INTEREST</h1>
+
+            <div class="game-divider"></div>
+
+            <img
+              :src="compoundInterestImage"
+              alt="Chart comparing investment growth when starting at ages 25, 35, and 45"
+              class="compound-interest-image"
+            />
+
+            <p class="compound-interest-caption">
+              Starting earlier gives your money more time to grow.
+            </p>
+
+            <button
+              type="button"
+              class="game-button game-button-primary"
+              @click="continueAfterCompoundInterest"
+            >
+              Continue to Question 4
+            </button>
+          </section>
+        </template>
+
+        <template
+          v-else-if="gamePhase === 'question' && currentQuestion && !showCompoundInterest"
+        >
           <h1 class="game-heading">
             Question {{ currentQuestionNumber }}
           </h1>
@@ -481,7 +607,7 @@ function nextQuestion() {
           </p>
 
           <div
-            v-if="currentQuestionNumber !== 1"
+            v-if="![1, 2, 3].includes(currentQuestionNumber)"
             class="host-options"
           >
             <div
@@ -496,37 +622,42 @@ function nextQuestion() {
           <!-- HOUSING IMAGE CARDS -->
           <div
             v-if="currentQuestionNumber === 1"
-            class="housing-image-grid"
+            class="housing-image-grid question-card-grid"
           >
-            <article
+            <QuestionCard
               v-for="option in housingOptions"
               :key="option.id"
-              class="housing-image-card"
-            >
-              <img
-                :src="option.image"
-                :alt="option.title"
-                class="housing-image"
-              />
-
-              <h3>{{ option.title }}</h3>
-
-              <div class="housing-expense">
-                ${{ option.expense.toLocaleString() }} rent
-                + ${{ option.utilities.toLocaleString() }} utilities
-              </div>
-
-              <ul>
-                <li
-                  v-for="detail in option.details"
-                  :key="detail"
-                >
-                  {{ detail }}
-                </li>
-              </ul>
-            </article>
+              :option="{
+                ...option,
+                priceLabel: `$${option.expense.toLocaleString()} rent + $${option.utilities.toLocaleString()} utilities`,
+              }"
+            />
           </div>
 
+          <!-- TRANSPORTATION IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 2"
+            class="transportation-image-grid question-card-grid"
+          >
+            <QuestionCard
+              v-for="option in transportationOptions"
+              :key="option.id"
+              :option="option"
+            />
+          </div>
+
+          <!-- RETIREMENT IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 3 && !showCompoundInterest"
+            class="retirement-image-grid question-card-grid"
+          >
+            <QuestionCard
+              v-for="option in retirementOptions"
+              :key="option.id"
+              :option="option"
+            />
+          </div>
+          
           <p class="game-description">
             The host controls when the game moves forward.
           </p>
@@ -534,7 +665,7 @@ function nextQuestion() {
           <button
             type="button"
             class="game-button game-button-primary"
-            @click="nextQuestion"
+            @click="handleHostNext"
           >
             Next
           </button>
