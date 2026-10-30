@@ -23,12 +23,37 @@ import retireAt50Image from "../assets/questions/q3-retire-at-50.png";
 import retireAt60Image from "../assets/questions/q3-retire-at-60.png";
 import retireAt72Image from "../assets/questions/q3-retire-at-72.png";
 
-// Remaining questions
+// Compound Interest
 import compoundInterestImage from "../assets/questions/compound-interest.png";
-import groceriesImage from "../assets/questions/q6-groceries-and-food.png";
-import vacationBeachImage from "../assets/questions/q8-vacation-beach.png";
 
-import recreationImage from "../assets/questions/q8-recreation-and-entertainment.png";
+// Investment
+import minimalSaverImage from "../assets/questions/q4-minimal-saver.png";
+import averageSaverImage from "../assets/questions/q4-average-saver.png";
+import aggressiveSaverImage from "../assets/questions/q4-aggressive-saver.png";
+
+// Technology
+import cellPhoneImage from "../assets/questions/q5-cell-phone.png";
+import internetImage from "../assets/questions/q5-high-speed-internet.png";
+import gamingImage from "../assets/questions/q5-gaming-subscription.png";
+import streamingImage from "../assets/questions/q5-streaming-services.png";
+
+// Meals
+import greatValueImage from "../assets/questions/q6-great-value.png";
+import nameBrandImage from "../assets/questions/q6-name-brand.png";
+import eatOutHalfImage from "../assets/questions/q6-eat-out-half.png";
+import eatOutMostImage from "../assets/questions/q6-eat-out-most.png";
+
+// Clothing
+import loungeWearImage from "../assets/questions/q7-lounge-wear.png";
+import businessCasualImage from "../assets/questions/q7-business-casual.png";
+import businessProfessionalImage from "../assets/questions/q7-business-professional.png";
+
+// Midlife-crisis
+import childrenDaycareImage from "../assets/questions/q8-children-daycare.png";
+import timeshareImage from "../assets/questions/q8-timeshare-vacation.png";
+import disneyTripsImage from "../assets/questions/q8-disney-world-trips.png";
+import midlifeCrisisImage from "../assets/questions/q8-midlife-crisis.png";
+
 
 
 
@@ -165,6 +190,198 @@ const retirementOptions = [
   },
 ];
 
+const savingsOptions = [
+  {
+    id: "minimal-saver",
+    title: "MINIMAL SAVER",
+    image: minimalSaverImage,
+    priceLabel: "Save 5% monthly",
+    details: ["Save a small portion of your income", "Build savings gradually"],
+  },
+  {
+    id: "average-saver",
+    title: "AVERAGE SAVER",
+    image: averageSaverImage,
+    priceLabel: "Save 10% monthly",
+    details: ["Save a moderate portion of your income", "Balance saving and spending"],
+  },
+  {
+    id: "aggressive-saver",
+    title: "AGGRESSIVE SAVER",
+    image: aggressiveSaverImage,
+    priceLabel: "Save 15% monthly",
+    details: ["Save a larger portion of your income", "Build long-term wealth"],
+  },
+];
+
+const technologyOptions = [
+  {
+    id: "cell-phone",
+    title: "CELL PHONE",
+    image: cellPhoneImage,
+    priceLabel: "$45/month",
+    details: ["Stay connected", "Calls, texts, and mobile apps"],
+  },
+  {
+    id: "internet",
+    title: "HIGH-SPEED INTERNET",
+    image: internetImage,
+    priceLabel: "$60/month",
+    details: ["Reliable home internet", "Connect multiple devices"],
+  },
+  {
+    id: "gaming-subscription",
+    title: "GAMING SUBSCRIPTION",
+    image: gamingImage,
+    priceLabel: "$20/month",
+    details: ["Online gaming access", "Entertainment and multiplayer"],
+  },
+  {
+    id: "streaming",
+    title: "STREAMING SERVICES",
+    image: streamingImage,
+    priceLabel: "$50/month",
+    details: ["Netflix, Prime Video, Hulu, Disney+", "Movies and television"],
+  },
+];
+
+const mealOptions = [
+  {
+    id: "great-value",
+    title: "GREAT VALUE",
+    image: greatValueImage,
+    priceLabel: "$400/month",
+    details: [
+      "Store brand groceries",
+      "Simple, home-cooked meals",
+      "Focus on essentials",
+      "Most affordable option",
+    ],
+  },
+  {
+    id: "name-brand",
+    title: "NAME BRAND",
+    image: nameBrandImage,
+    priceLabel: "$600/month",
+    details: [
+      "Name brand groceries",
+      "Higher quality ingredients",
+      "More variety and options",
+      "Home-cooked meals",
+    ],
+  },
+  {
+    id: "eat-out-half",
+    title: "EAT OUT HALF THE TIME",
+    image: eatOutHalfImage,
+    priceLabel: "$1,000/month",
+    details: [
+      "Mix of home-cooked meals and restaurant meals",
+      "Lunch or dinner out several times per week",
+      "Fast food and casual dining",
+    ],
+  },
+  {
+    id: "eat-out-most",
+    title: "EAT OUT MOST OF THE TIME",
+    image: eatOutMostImage,
+    priceLabel: "$1,300/month",
+    details: [
+      "Restaurant meals most days",
+      "Multiple meals out per week",
+      "Fast food, casual dining, and sit-down restaurants",
+      "Highest cost option",
+    ],
+  },
+];
+
+const clothingOptions = [
+  {
+    id: "lounge-wear",
+    title: "LOUNGE WEAR",
+    image: loungeWearImage,
+    priceLabel: "$60/month",
+    details: [
+      "Casual and comfortable clothing",
+      "T-shirts, shorts, sweatshirts, and pants",
+      "Great for everyday wear",
+      "Most affordable option",
+    ],
+  },
+  {
+    id: "business-casual",
+    title: "BUSINESS CASUAL",
+    image: businessCasualImage,
+    priceLabel: "$100/month",
+    details: [
+      "Polo shirts, button-down shirts, and khakis",
+      "Blouses, slacks, and nice casual outfits",
+      "Comfortable and professional look",
+      "Good balance of style and cost",
+    ],
+  },
+  {
+    id: "business-professional",
+    title: "BUSINESS PROFESSIONAL",
+    image: businessProfessionalImage,
+    priceLabel: "$150/month",
+    details: [
+      "Dress shirts, slacks, suits, and blazers",
+      "Professional dresses, blouses, skirts, and suits",
+      "Polished and professional appearance",
+      "Higher quality and longer-lasting clothing",
+    ],
+  },
+];
+
+const preparednessOptions = [
+  {
+    id: "children-daycare",
+    title: "CHILDREN IN DAYCARE",
+    image: childrenDaycareImage,
+    priceLabel: "$2,702.50/month",
+    details: [
+      "Childcare and daycare expenses",
+      "Reliable care while working",
+      "Support for your family's future",
+    ],
+  },
+  {
+    id: "timeshare",
+    title: "TIMESHARE VACATION",
+    image: timeshareImage,
+    priceLabel: "$100/month",
+    details: [
+      "Vacation property access",
+      "Annual family vacations",
+      "Plan ahead for getaways",
+    ],
+  },
+  {
+    id: "disney-trips",
+    title: "DISNEY WORLD TRIPS",
+    image: disneyTripsImage,
+    priceLabel: "$200/month",
+    details: [
+      "Family trips to Disney World",
+      "Save toward vacations",
+      "Create lasting memories",
+    ],
+  },
+  {
+    id: "midlife-crisis",
+    title: "MID-LIFE CRISIS",
+    image: midlifeCrisisImage,
+    priceLabel: "$400/month",
+    details: [
+      "New vehicle, toys, or hobbies",
+      "Enjoy the things you've always wanted",
+      "Personal fun and adventure",
+      "Live life now",
+    ],
+  },
+];
+
 // ============================================
 // CREATE GAME
 // Requests a new game from the backend and
@@ -264,7 +481,7 @@ function startCareerSelection() {
   socket.send(JSON.stringify({ type: "start-game" }));
 }
 
-function launchGame() {
+async function launchGame() {
   if (
     !socket ||
     socket.readyState !== WebSocket.OPEN ||
@@ -273,6 +490,16 @@ function launchGame() {
     return;
   }
 
+  // Request fullscreen when the host starts gameplay.
+  try {
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+    }
+  } catch (error) {
+    console.warn("Fullscreen could not be enabled:", error);
+  }
+
+  // Preserve the existing multiplayer launch behavior.
   socket.send(JSON.stringify({ type: "launch-game" }));
 }
 
@@ -333,6 +560,42 @@ function handleHostNext() {
 function continueAfterCompoundInterest() {
   showCompoundInterest.value = false;
   nextQuestion();
+}
+
+// Return the host to the home screen after the game finishes.
+async function returnToHome() {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+  }
+  if (socket) {
+    socket.close();
+    socket = null;
+  }
+
+  gameCreated.value = false;
+  gameStarted.value = false;
+  gameCode.value = "";
+  players.value = [];
+
+  careers.value = [];
+  selectedCareer.value = "";
+  careerConfirmed.value = false;
+  careersLoading.value = false;
+  careersError.value = "";
+  careerSelectionStarted.value = false;
+  allCareersConfirmed.value = false;
+
+  gamePhase.value = "lobby";
+  currentQuestion.value = null;
+  currentQuestionNumber.value = 1;
+  showCompoundInterest.value = false;
+  answeredCount.value = 0;
+  playerCount.value = 0;
+  lastEvent.value = null;
+  eventNumber.value = null;
+  eventFlipCount.value = 0;
+
+  console.log("Host returned to home screen.");
 }
 
 </script>
@@ -607,7 +870,7 @@ function continueAfterCompoundInterest() {
           </p>
 
           <div
-            v-if="![1, 2, 3].includes(currentQuestionNumber)"
+            v-if="![1, 2, 3, 4, 5, 6, 7, 8].includes(currentQuestionNumber)"
             class="host-options"
           >
             <div
@@ -653,6 +916,66 @@ function continueAfterCompoundInterest() {
           >
             <QuestionCard
               v-for="option in retirementOptions"
+              :key="option.id"
+              :option="option"
+            />
+          </div>
+
+          <!-- SAVINGS IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 4"
+            class="savings-image-grid question-card-grid"
+          >
+            <QuestionCard
+              v-for="option in savingsOptions"
+              :key="option.id"
+              :option="option"
+            />
+          </div>
+          
+          <!-- TECHNOLOGY IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 5"
+            class="technology-image-grid question-card-grid"
+          >
+            <QuestionCard
+              v-for="option in technologyOptions"
+              :key="option.id"
+              :option="option"
+            />
+          </div>
+
+          <!-- MEALS IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 6"
+            class="meals-image-grid question-card-grid"
+          >
+            <QuestionCard
+              v-for="option in mealOptions"
+              :key="option.id"
+              :option="option"
+            />
+          </div>
+
+          <!-- CLOTHING IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 7"
+            class="clothing-image-grid question-card-grid"
+          >
+            <QuestionCard
+              v-for="option in clothingOptions"
+              :key="option.id"
+              :option="option"
+            />
+          </div>
+
+          <!-- PREPAREDNESS IMAGE CARDS -->
+          <div
+            v-if="currentQuestionNumber === 8"
+            class="preparedness-image-grid question-card-grid"
+          >
+            <QuestionCard
+              v-for="option in preparednessOptions"
               :key="option.id"
               :option="option"
             />
@@ -870,6 +1193,15 @@ function continueAfterCompoundInterest() {
                   }}
                 </span>
               </div>
+            </div>
+            <div class="final-results-actions">
+              <button
+                class="btn btn-warning"
+                @click="returnToHome"
+              >
+                <i class="bi bi-house-door-fill"></i>
+                Back to Home
+              </button>
             </div>
           </section>
         </template>

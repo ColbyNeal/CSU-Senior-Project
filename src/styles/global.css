@@ -47,3 +47,20 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
+
+/* Hide scrollbar while preserving scrolling */
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}

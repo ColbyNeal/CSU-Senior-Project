@@ -474,14 +474,32 @@
     transform: none;
   }
 }
+
 .host-game-screen {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  padding: 3rem 5%;
+  min-height: 100dvh;
+  padding: 0 3% 1rem;
   text-align: center;
+  box-sizing: border-box;
+}
+
+.host-game-screen > .panel-eyebrow {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.host-game-screen .game-heading {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.host-game-screen .game-divider {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .host-question {
@@ -1555,6 +1573,191 @@
 
 @media (max-width: 520px) {
   .retirement-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* QUESTION 4 — SAVINGS IMAGE CARDS */
+.savings-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 1000px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.savings-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 800px) {
+  .savings-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .savings-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Adjust Question 4 image positioning only */
+.savings-image-grid .question-card-image {
+  object-position: center 50%;
+}
+
+/* QUESTION 5 — TECHNOLOGY IMAGE CARDS */
+
+.technology-image-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 1200px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.technology-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.technology-image-grid .question-card-image {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  object-position: center;
+  background: #fffaf0;
+}
+
+/* Medium screens */
+@media (max-width: 900px) {
+  .technology-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 520px) {
+  .technology-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* QUESTION 6 — MEALS IMAGE CARDS */
+
+.meals-image-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 1200px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.meals-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.meals-image-grid .question-card-image {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Medium screens */
+@media (max-width: 900px) {
+  .meals-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 520px) {
+  .meals-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* QUESTION 7 — CLOTHING IMAGE CARDS */
+
+.clothing-image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  width: min(100%, 1100px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.clothing-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.clothing-image-grid .question-card-image {
+  width: 100%;
+  height: 195px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Medium screens */
+@media (max-width: 900px) {
+  .clothing-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 520px) {
+  .clothing-image-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* QUESTION 8 — FUTURE PREPAREDNESS IMAGE CARDS */
+
+.preparedness-image-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  width: min(100%, 1200px);
+  margin: 24px auto;
+  align-items: stretch;
+}
+
+.preparedness-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.preparedness-image-grid .question-card-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Medium screens */
+@media (max-width: 900px) {
+  .preparedness-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 520px) {
+  .preparedness-image-grid {
     grid-template-columns: 1fr;
   }
 }

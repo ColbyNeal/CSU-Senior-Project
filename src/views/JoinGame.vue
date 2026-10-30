@@ -446,6 +446,55 @@ function flipCoin() {
     }),
   );
 }
+
+function returnToHome() {
+  if (socket) {
+    socket.close();
+    socket = null;
+  }
+
+  gameCode.value = "";
+  playerName.value = "";
+  joined.value = false;
+  careerSelectionStarted.value = false;
+  gameStarted.value = false;
+  connectionStatus.value = "";
+
+  gamePhase.value = "lobby";
+  currentQuestion.value = null;
+  currentQuestionNumber.value = 1;
+  answeredCount.value = 0;
+  playerCount.value = 0;
+  lastEvent.value = null;
+  playerId.value = "";
+  players.value = [];
+
+  selectedAnswers.value = [];
+  answerSubmitted.value = false;
+  answerError.value = "";
+
+  eventNumber.value = null;
+  coinFlipResult.value = "";
+  hasFlipped.value = false;
+
+  careers.value = [];
+  selectedCareer.value = "";
+  careerConfirmed.value = false;
+  careersLoading.value = false;
+  careersError.value = "";
+  careerSearch.value = "";
+  selectedEducationLevel.value = "";
+
+  careerDetails.value = null;
+  detailsLoading.value = false;
+  detailsError.value = "";
+  monthlyIncome.value = null;
+
+  setFullScreenGame?.(false);
+
+  console.log("Player returned to join screen.");
+}
+
 </script>
 
 <template>
@@ -1072,6 +1121,16 @@ function flipCoin() {
                   <p v-else class="text-secondary text-center">
                     Your final player information is not available.
                   </p>
+                  <div class="text-center mt-4">
+                    <button
+                      type="button"
+                      class="btn btn-warning btn-lg fw-bold px-5 py-3"
+                      @click="returnToHome"
+                    >
+                      <i class="bi bi-house-door-fill me-2"></i>
+                      Back to Home
+                    </button>
+                  </div>
                 </template>
 
                 <template v-else>
