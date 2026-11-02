@@ -16,7 +16,9 @@ function getAllowedOrigin(request: Request) {
       url.hostname === "127.0.0.1";
 
     const isLocalNetwork =
-      /^192\.168\.1\.\d+$/.test(url.hostname);
+  /^10\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname) ||
+  /^192\.168\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname) ||
+  /^172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname);
 
     if (
       url.protocol === "http:" &&
