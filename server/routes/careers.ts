@@ -16,14 +16,19 @@ function getAllowedOrigin(request: Request) {
       url.hostname === "127.0.0.1";
 
     const isLocalNetwork =
-  /^10\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname) ||
-  /^192\.168\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname) ||
-  /^172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname);
+      /^10\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname) ||
+      /^192\.168\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname) ||
+      /^172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname);
+
+    const isRenderFrontend =
+      url.protocol === "https:" &&
+      url.hostname.endsWith(".onrender.com");
 
     if (
-      url.protocol === "http:" &&
-      url.port === "5173" &&
-      (isLocalhost || isLocalNetwork)
+      (url.protocol === "http:" &&
+        url.port === "5173" &&
+        (isLocalhost || isLocalNetwork)) ||
+      isRenderFrontend
     ) {
       return origin;
     }
@@ -41,18 +46,25 @@ export function handleCareerRequest(request: Request) {
     return null;
   }
 
-  if (request.method !== "GET") {
-    return Response.json(
-      { error: "Method not allowed." },
-      { status: 405 },
-    );
-  }
-
   const corsHeaders = {
     "Access-Control-Allow-Origin": getAllowedOrigin(request),
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }
+
+  if (request.method !== "GET") {
+    return Response.json(
+      { error: "Method not allowed." },
+      { status: 405, headers: corsHeaders },
+    );
+  }
 
   try {
     const database = new Database(DATABASE_PATH, {
