@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import { API_BASE_URL } from "../utils/apiConfig.js";
 
 const careers = ref([]);
 const loading = ref(true);
@@ -36,7 +37,7 @@ const filteredCareers = computed(() => {
 async function loadCareers() {
   try {
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3000/api/careers`
+      `${API_BASE_URL}/api/careers`
     );
 
     if (!response.ok) {

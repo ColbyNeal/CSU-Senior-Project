@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:3000";
+
+import { API_BASE_URL } from "./apiConfig.js";
 
 export async function getLatestBlsSeries(seriesId) {
   const response = await fetch(

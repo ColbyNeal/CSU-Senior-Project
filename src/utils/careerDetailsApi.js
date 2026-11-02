@@ -1,4 +1,5 @@
-const API_BASE_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
+
+import { API_BASE_URL } from "./apiConfig.js";
 
 export async function getCareerDetails(socCode) {
   const response = await fetch(

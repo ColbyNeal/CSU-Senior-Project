@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, inject } from "vue";
 import { calculateMonthlyIncomeBreakdown } from "../utils/budgetCalculations.js";
+import { API_BASE_URL, WS_BASE_URL } from "../utils/apiConfig.js";
 
 const setFullScreenGame = inject("setFullScreenGame");
 const gameCode = ref("");
@@ -89,7 +90,7 @@ async function joinGame() {
     const name = playerName.value.trim();
 
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3000/api/games/${code}`,
+      `${API_BASE_URL}/api/games/${code}`,
     );
 
     if (!response.ok) {
@@ -98,7 +99,7 @@ async function joinGame() {
     }
 
     socket = new WebSocket(
-      `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3000/ws?gameCode=${code}&role=player`,
+      `${WS_BASE_URL}/ws?gameCode=${code}&role=player`,
     );
 
     socket.addEventListener("open", () => {
@@ -216,7 +217,7 @@ async function loadCareers() {
 
   try {
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3000/api/careers`
+      `${API_BASE_URL}/api/careers`
     );
 
     if (!response.ok) {
@@ -261,7 +262,7 @@ async function loadCareerDetails(socCode) {
 
   try {
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3000/api/careers/details?socCode=${encodeURIComponent(socCode)}`,
+      `${API_BASE_URL}/api/careers/details?socCode=${encodeURIComponent(socCode)}`
     );
 
     if (!response.ok) {
@@ -318,7 +319,7 @@ async function confirmCareer() {
 
   try {
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3000/api/careers/details?socCode=${encodeURIComponent(selectedCareer.value)}`,
+      `${API_BASE_URL}/api/careers/details?socCode=${encodeURIComponent(selectedCareer.value)}`
     );
 
     if (!response.ok) {

@@ -188,6 +188,12 @@ function getAllowedOrigin(request: Request) {
 
   if (!origin) return "http://localhost:5173";
 
+  const frontendUrl = process.env.FRONTEND_URL;
+
+  if (frontendUrl && origin === frontendUrl) {
+    return origin;
+  }
+
   try {
     const url = new URL(origin);
 
@@ -196,9 +202,9 @@ function getAllowedOrigin(request: Request) {
       url.hostname === "127.0.0.1";
 
     const isLocalNetwork =
-  /^10\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname) ||
-  /^192\.168\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname) ||
-  /^172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname);
+      /^10\.(?:\d{1,3}\.){2}\d{1,3}$/.test(url.hostname) ||
+      /^192\.168\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname) ||
+      /^172\.(?:1[6-9]|2\d|3[01])\.(?:\d{1,3}\.)\d{1,3}$/.test(url.hostname);
 
     if (
       url.protocol === "http:" &&
@@ -331,6 +337,14 @@ const server = Bun.serve<SocketData>({
      * WebSocket connection
      */
     if (url.pathname === "/ws") {
+      const allowedOrigin = getAllowedOrigin(request);
+      const requestOrigin = request.headers.get("origin");
+
+      if (requestOrigin && requestOrigin !== allowedOrigin) {
+        return new Response("Origin not allowed.", {
+          status: 403,
+        });
+      }
       const gameCode = url.searchParams.get("gameCode");
       const role = url.searchParams.get("role");
 

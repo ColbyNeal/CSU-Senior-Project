@@ -6,6 +6,7 @@
 import { inject, onMounted, ref, watch } from "vue";
 import JoinGame from "./JoinGame.vue";
 import QuestionCard from "../components/QuestionCard.vue";
+import { API_BASE_URL, WS_BASE_URL } from "../utils/apiConfig.js";
 
 // Housing
 import apartmentCardImage from "../assets/questions/q1-apartment.png";
@@ -391,7 +392,7 @@ async function createGame() {
   // Keep your existing createGame function here.
   try {
     const response = await fetch(
-      `${window.location.protocol === "https:" ? "https:" : "http:"}//${window.location.hostname}:3000/api/games`,
+      `${API_BASE_URL}/api/games`,
       {
         method: "POST",
       },
@@ -409,7 +410,7 @@ async function createGame() {
     console.log("Game created:", data.gameCode);
 
     socket = new WebSocket(
-      `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:3000/ws?gameCode=${data.gameCode}&role=host`,
+      `${WS_BASE_URL}/ws?gameCode=${data.gameCode}&role=host`,
     );
 
     socket.addEventListener("open", () => {
@@ -509,7 +510,7 @@ async function loadCareers() {
 
   try {
     const response = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3000/api/careers`
+      `${API_BASE_URL}/api/careers`
     );
 
 
