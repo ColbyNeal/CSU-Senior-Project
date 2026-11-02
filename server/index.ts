@@ -322,7 +322,7 @@ function allPlayersConfirmed(game: Game) {
 
 const server = Bun.serve<SocketData>({
   hostname: "0.0.0.0",
-  port: 3000,
+  port: Number(process.env.PORT ?? 3000),
 
   async fetch(request, server) {
     const url = new URL(request.url);
@@ -1037,6 +1037,4 @@ const server = Bun.serve<SocketData>({
   },
 });
 
-console.log(
-  `Backend running at http://localhost:${server.port}`,
-);
+console.log(`Backend listening on port ${server.port}`);
