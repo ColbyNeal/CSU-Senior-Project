@@ -183,6 +183,35 @@ type Game = {
 
 const games = new Map<string, Game>();
 
+function getAllowedOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+
+  if (!origin) return "http://localhost:5173";
+
+  try {
+    const url = new URL(origin);
+
+    const isLocalhost =
+      url.hostname === "localhost" ||
+      url.hostname === "127.0.0.1";
+
+    const isLocalNetwork =
+      /^192\.168\.1\.\d+$/.test(url.hostname);
+
+    if (
+      url.protocol === "http:" &&
+      url.port === "5173" &&
+      (isLocalhost || isLocalNetwork)
+    ) {
+      return origin;
+    }
+  } catch {
+    // Use the default origin for invalid URLs.
+  }
+
+  return "http://localhost:5173";
+}
+
 function generateGameCode() {
   const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -391,11 +420,7 @@ const server = Bun.serve<SocketData>({
         },
         {
           headers: {
-            "Access-Control-Allow-Origin":
-              request.headers.get("origin") === "http://localhost:5173" ||
-              request.headers.get("origin") === "http://192.168.1.239:5173"
-                ? request.headers.get("origin")!
-                : "http://localhost:5173",
+            "Access-Control-Allow-Origin": getAllowedOrigin(request),
             "Access-Control-Allow-Methods":
               "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers":
@@ -412,12 +437,7 @@ const server = Bun.serve<SocketData>({
       url.pathname.startsWith("/api/games/") &&
       request.method === "GET"
     ) {
-      const origin = request.headers.get("origin");
-      const allowedOrigin =
-        origin === "http://localhost:5173" ||
-        origin === "http://192.168.1.239:5173"
-          ? origin
-          : "http://localhost:5173";
+      const allowedOrigin = getAllowedOrigin(request);
 
       const gameCode = url.pathname
         .split("/")
@@ -476,8 +496,7 @@ const server = Bun.serve<SocketData>({
         },
         {
           headers: {
-            "Access-Control-Allow-Origin":
-              "http://localhost:5173",
+            "Access-Control-Allow-Origin": getAllowedOrigin(request),
             "Access-Control-Allow-Methods":
               "GET, POST, OPTIONS",
             "Access-Control-Allow-Headers":
@@ -493,8 +512,7 @@ const server = Bun.serve<SocketData>({
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: {
-          "Access-Control-Allow-Origin":
-            "http://localhost:5173",
+          "Access-Control-Allow-Origin": getAllowedOrigin(request),
           "Access-Control-Allow-Methods":
             "GET, POST, OPTIONS",
           "Access-Control-Allow-Headers":
