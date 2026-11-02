@@ -1,10 +1,18 @@
 <script setup>
-import { computed, ref, inject } from "vue";
+import { computed, ref, inject, onMounted} from "vue";
 import { calculateMonthlyIncomeBreakdown } from "../utils/budgetCalculations.js";
 import { API_BASE_URL, WS_BASE_URL } from "../utils/apiConfig.js";
 
 const setFullScreenGame = inject("setFullScreenGame");
 const gameCode = ref("");
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search);
+  const codeFromUrl = params.get("gameCode");
+
+  if (codeFromUrl) {
+    gameCode.value = codeFromUrl.trim().toUpperCase();
+  }
+});
 const playerName = ref("");
 const joined = ref(false);
 const careerSelectionStarted = ref(false);

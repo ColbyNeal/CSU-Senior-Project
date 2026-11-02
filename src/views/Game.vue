@@ -7,6 +7,7 @@ import { inject, onMounted, ref, watch } from "vue";
 import JoinGame from "./JoinGame.vue";
 import QuestionCard from "../components/QuestionCard.vue";
 import { API_BASE_URL, WS_BASE_URL } from "../utils/apiConfig.js";
+import QRCode from "qrcode";
 
 // Housing
 import apartmentCardImage from "../assets/questions/q1-apartment.png";
@@ -65,6 +66,7 @@ import midlifeCrisisImage from "../assets/questions/q8-midlife-crisis.png";
 const gameCreated = ref(false);
 const gameStarted = ref(false);
 const gameCode = ref("");
+const qrCodeDataUrl = ref("");
 const players = ref([]);
 const careers = ref([]);
 const selectedCareer = ref("");
@@ -405,6 +407,17 @@ async function createGame() {
     const data = await response.json();
 
     gameCode.value = data.gameCode;
+
+    // Generate the QR code for players to join this game.
+    const joinUrl = new URL("/join", window.location.origin);
+    joinUrl.searchParams.set("gameCode", data.gameCode);
+
+    qrCodeDataUrl.value = await QRCode.toDataURL(joinUrl.toString(), {
+      width: 250,
+      margin: 2,
+      errorCorrectionLevel: "H",
+    });
+
     gameCreated.value = true;
 
     console.log("Game created:", data.gameCode);
@@ -610,10 +623,8 @@ async function returnToHome() {
     :class="{ 'career-lobby-active': careerSelectionStarted }"
     >
     <template v-if="!careerSelectionStarted && !gameStarted">
-      <!-- ======================================
-          HERO SECTION
-          Contains the banner image and game panel
-          ====================================== -->
+
+      <!-- HERO IMAGE -->
       <section class="game-hero">
         <img
           src="/game-hero.png"
@@ -621,153 +632,203 @@ async function returnToHome() {
           class="game-hero-image"
         />
 
-        <div class="game-panel">
-          <!-- HOST GAME -->
-          <template v-if="!gameCreated">
-            <p class="panel-eyebrow">PERSONAL FINANCIAL MANAGEMENT</p>
+        <!-- HOST GAME PANEL -->
+        <div v-if="!gameCreated" class="game-panel">
+          <p class="panel-eyebrow">PERSONAL FINANCIAL MANAGEMENT</p>
 
-            <h2 class="game-heading">HOST GAME</h2>
+          <h2 class="game-heading">HOST GAME</h2>
 
-            <div class="game-divider"></div>
+          <div class="game-divider"></div>
 
-            <p class="game-description">
-              Bring your friends together and put your financial skills to the
-              test.
-            </p>
+          <p class="game-description">
+            Bring your friends together and put your financial skills to the test.
+          </p>
 
-            <div class="game-actions">
-              <button
-                type="button"
-                class="game-button game-button-primary"
-                @click="createGame"
-              >
-                Create Game
-              </button>
-
-              <RouterLink
-                to="/join"
-                class="game-button game-button-secondary"
-              >
-                Join Game
-              </RouterLink>
-            </div>
-
-            <p class="panel-footer">Learn. Play. Make smarter money moves.</p>
-          </template>
-
-          <!-- GAME LOBBY -->
-          <template v-else-if="!gameStarted">
-            <p class="panel-eyebrow">YOUR GAME IS READY</p>
-
-            <h2 class="game-heading">GAME LOBBY</h2>
-
-            <div class="game-divider"></div>
-            
-            <div class="lobby-qr-section">
-              <p class="code-instruction">SCAN TO JOIN</p>
-
-              <div class="lobby-qr-placeholder">
-                QR CODE
-              </div>
-            </div>
-
-            <p class="code-instruction">Share this code with your players</p>
-
-            <div class="game-code">{{ gameCode }}</div>
-
+          <div class="game-actions">
             <button
               type="button"
               class="game-button game-button-primary"
+              @click="createGame"
+            >
+              Create Game
+            </button>
+
+            <RouterLink
+              to="/join"
+              class="game-button game-button-secondary"
+            >
+              Join Game
+            </RouterLink>
+          </div>
+
+          <p class="panel-footer">
+            Learn. Play. Make smarter money moves.
+          </p>
+        </div>
+      </section>
+
+      <!-- GAME LOBBY CARD -->
+      <section v-if="gameCreated" class="lobby-card">
+
+        <div class="lobby-card-heading">
+          <div class="lobby-eyebrow">
+            <span></span>
+            YOUR GAME IS READY
+            <span></span>
+          </div>
+
+          <h2 class="lobby-title">GAME LOBBY</h2>
+        </div>
+
+        <div class="lobby-content">
+
+          <!-- QR CODE -->
+          <div class="lobby-qr-panel">
+            <div class="lobby-qr-placeholder">
+              <img
+                v-if="qrCodeDataUrl"
+                :src="qrCodeDataUrl"
+                alt="Scan to join this game"
+                class="lobby-qr-image"
+              />
+            </div>
+
+            <p>Scan to join on your phone</p>
+          </div>
+
+          <div class="lobby-vertical-divider"></div>
+
+          <!-- GAME CODE AND START BUTTON -->
+          <div class="lobby-game-details">
+            <label>GAME CODE</label>
+
+            <div class="game-code">
+              {{ gameCode }}
+            </div>
+
+            <p>Share this code with your players</p>
+
+            <button
+              type="button"
+              class="game-button game-button-primary lobby-start-button"
               :disabled="players.length === 0"
               @click="startCareerSelection"
             >
               Start Game
             </button>
-          </template>
-        </div>
-      </section>
-
-      <!-- PLAYERS JOINED -->
-      <section v-if="gameCreated && !gameStarted && !careerSelectionStarted"
-        class="players-lobby-section container">
-        <div class="players-section">
-          <p class="players-heading">
-            PLAYERS JOINED ({{ players.length }})
-          </p>
-
-          <p v-if="players.length === 0" class="waiting-message">
-            Waiting for players to join...
-          </p>
-
-          <div
-            v-for="player in players"
-            :key="player.id"
-            class="player-item"
-          >
-            {{ player.name }}
+            <button
+              type="button"
+              class="lobby-back-button"
+              @click="returnToHome"
+            >
+              ← Back to Home
+            </button>
           </div>
+
         </div>
       </section>
 
+      <!-- PLAYERS JOINED CARD -->
+      <section
+        v-if="gameCreated"
+        class="players-lobby-section"
+      >
+        <div class="players-section">
 
-      <!-- ========================================
-          WHAT YOU'LL LEARN
-          Introductory financial education content
-          ======================================== -->
-      <section class="learning-section container py-5">
+          <div class="players-heading">
+            <span class="players-icon">👥</span>
+            PLAYERS JOINED ({{ players.length }})
+          </div>
+
+          <div class="players-divider"></div>
+
+          <div class="players-list">
+            <p
+              v-if="players.length === 0"
+              class="waiting-message"
+            >
+              <span class="waiting-icon">✺</span>
+              Waiting for players to join...
+            </p>
+
+            <div
+              v-for="player in players"
+              :key="player.id"
+              class="player-item"
+            >
+              {{ player.name }}
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- WHAT YOU'LL LEARN -->
+      <section
+        v-if="!gameCreated"
+        class="learning-section container py-5"
+      >
         <div class="text-center mb-4">
           <p class="learning-eyebrow">BEYOND THE GAME</p>
+
           <h2 class="learning-title">Build Skills for Real Life</h2>
+
           <p class="learning-intro">
             Explore the financial decisions that shape your future.
           </p>
         </div>
 
-        <!-- Three responsive learning cards -->
         <div class="row g-4">
-          <!-- Budgeting card -->
+
           <div class="col-12 col-md-4">
             <article class="learning-card h-100">
               <div class="learning-icon" aria-hidden="true">
                 <span>💰</span>
               </div>
+
               <h3>Budgeting</h3>
+
               <p>
                 Understand income, expenses, and everyday spending choices.
               </p>
             </article>
           </div>
 
-          <!-- Career planning card -->
           <div class="col-12 col-md-4">
             <article class="learning-card h-100">
               <div class="learning-icon" aria-hidden="true">
                 <span>🎓</span>
               </div>
+
               <h3>Career Planning</h3>
+
               <p>
                 Explore careers and compare available wage information.
               </p>
+
               <RouterLink to="/careers" class="learning-link">
                 Explore Careers <span aria-hidden="true">→</span>
               </RouterLink>
             </article>
           </div>
 
-          <!-- Financial decisions card -->
           <div class="col-12 col-md-4">
             <article class="learning-card h-100">
               <div class="learning-icon" aria-hidden="true">
                 <span>🎯</span>
               </div>
+
               <h3>Smart Choices</h3>
+
               <p>
                 Learn to evaluate options and make informed financial decisions.
               </p>
             </article>
           </div>
+
         </div>
       </section>
+
     </template>
 
     <!-- FULL-SCREEN CAREER LOBBY -->

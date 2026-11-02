@@ -4,3 +4,44 @@
 @import "./styles/Careers.css";
 @import "./styles/Game.css";
 @import "./styles/JoinGame.css";
+
+/* =========================================
+   GLOBAL WEBSITE LAYOUT
+   ========================================= */
+
+:root {
+  --page-max-width: 1200px;
+  --page-padding: 32px;
+  --section-spacing: 32px;
+  --card-gap: 20px;
+}
+
+.site-content {
+  width: 100%;
+  max-width: calc(var(--page-max-width) + (var(--page-padding) * 2));
+  margin: 0 auto;
+  padding: 0 var(--page-padding) 32px;
+}
+
+/* Full-screen gameplay must remain unrestricted */
+.site-content.full-screen-game {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --page-padding: 16px;
+    --section-spacing: 24px;
+    --card-gap: 12px;
+  }
+
+  .site-content {
+    padding: 0 var(--page-padding) 24px;
+  }
+
+  .site-content.full-screen-game {
+    padding: 0;
+  }
+}

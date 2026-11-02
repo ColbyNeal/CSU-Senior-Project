@@ -1040,11 +1040,52 @@ const server = Bun.serve<SocketData>({
         `WebSocket disconnected: ${ws.data.role} - ${ws.data.gameCode}`,
       );
 
-      if (ws.data.role === "host") {
-        const game = games.get(ws.data.gameCode);
+      const game = games.get(ws.data.gameCode);
 
-        if (game) {
+      if (!game) return;
+
+      // Handle host disconnection.
+      if (ws.data.role === "host") {
+        if (game.host === ws) {
           game.host = undefined;
+        }
+
+        return;
+      }
+
+      // Handle player disconnection.
+      if (ws.data.role === "player" && ws.data.playerId) {
+        const playerIndex = game.players.findIndex(
+          (player) =>
+            player.id === ws.data.playerId &&
+            player.socket === ws,
+        );
+
+        if (playerIndex === -1) return;
+
+        const disconnectedPlayer = game.players[playerIndex];
+
+        // Remove the disconnected player from the active game.
+        game.players.splice(playerIndex, 1);
+
+        console.log(
+          `Removed disconnected player: ${disconnectedPlayer.name}`,
+        );
+
+        // Update the host and remaining players.
+        broadcastGameState(game);
+        sendPlayersUpdated(game);
+
+        // Recheck career confirmations after removing the player.
+        if (
+          game.phase === "career-selection" &&
+          allPlayersConfirmed(game)
+        ) {
+          game.host?.send(
+            JSON.stringify({
+              type: "all-careers-confirmed",
+            }),
+          );
         }
       }
     },

@@ -203,3 +203,8 @@
     margin-top: 1.25rem;
   }
 }
+
+/* CSU navy headings and labels */
+.join-page .text-primary {
+  color: #153f70 !important;
+}

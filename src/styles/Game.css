@@ -1,7 +1,11 @@
+/* =========================================================
+   GAME HOME AND HOST LOBBY
+   ========================================================= */
+
 .game-home {
+  min-height: 0;
   padding: 1rem 1.5rem 0;
   background: transparent;
-  min-height: 0;
 }
 
 .game-home.career-lobby-active {
@@ -11,96 +15,6 @@
   width: 100%;
   min-height: 100vh;
   padding: 0;
-}
-
-.career-lobby {
-  flex: 1;
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 5%;
-  text-align: center;
-}
-
-/* Space between the hero image/lobby and the player list */
-.players-lobby-section {
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
-
-/* White card containing the joined players */
-.players-lobby-section .players-section {
-  background: #ffffff;
-  color: #1f2937;
-  border-radius: 16px;
-  padding: 28px 32px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
-}
-
-/* Player list heading */
-.players-lobby-section .players-heading {
-  color: #1e3a5f;
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-}
-
-/* Individual player names */
-.players-lobby-section .player-item {
-  background: #f3f6fa;
-  color: #1f2937;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 10px;
-}
-
-/* Waiting message */
-.players-lobby-section .waiting-message {
-  color: #64748b;
-  margin-bottom: 0;
-}
-
-.host-player-list {
-  width: min(700px, 100%);
-  margin: 2rem auto;
-  text-align: left;
-}
-
-.host-player-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  margin-bottom: 0.75rem;
-  border-radius: 8px;
-  background: #fff;
-  color: #123f73;
-}
-
-.career-status-pending {
-  color: #b91c1c;
-  font-weight: 700;
-}
-
-.career-status-confirmed {
-  color: #15803d;
-  font-weight: 700;
-}
-
-@media (max-width: 576px) {
-  .career-lobby {
-    padding: 2rem 1rem;
-  }
-
-  .host-player-row {
-    align-items: flex-start;
-    flex-direction: column;
-  }
 }
 
 .game-hero {
@@ -125,13 +39,14 @@
   border-radius: inherit;
 }
 
+/* Host Game panel */
 .game-panel {
   position: absolute;
-  top: 67%;
+  top: 69%;
   right: 2%;
+  width: min(34%, 430px);
+  padding: clamp(1rem, 2vw, 1.75rem);
   transform: translateY(-50%);
-  width: min(38%, 490px);
-  padding: clamp(1.5rem, 3vw, 2.75rem);
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 1.25rem;
   background: rgba(255, 255, 255, 0.94);
@@ -164,9 +79,9 @@
   background: #d9ad4b;
 }
 
-.game-description {
+.game-panel > .game-description {
   margin-bottom: 1rem;
-  color: #ffffff;
+  color: #123f73;
   font-size: 1rem;
   line-height: 1.65;
 }
@@ -181,8 +96,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 3.5rem;
-  padding: 0.85rem 1.25rem;
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
   border: 2px solid #c4932e;
   border-radius: 0.65rem;
   font: inherit;
@@ -217,8 +132,8 @@
 
 .game-button-secondary:hover {
   transform: translateY(-2px);
-  background: #153f70;
   border-color: #153f70;
+  background: #153f70;
   color: #fff;
 }
 
@@ -234,7 +149,7 @@
 }
 
 .panel-footer {
-  margin: 1.5rem 0 0;
+  margin: 1rem 0 0;
   color: #64748b;
   font-size: 0.8rem;
 }
@@ -287,84 +202,304 @@
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 1100px) {
-  .game-home {
-    padding: 1rem;
-  }
+/* =========================================================
+   JOINED PLAYERS SECTION
+   ========================================================= */
 
-  .game-hero-image {
-    height: 560px;
-  }
+/* =========================================================
+   GAME LOBBY CARD
+   ========================================================= */
 
-  .game-panel {
-    top: 63%;
-    right: 1%;
-    width: 42%;
-    padding: 1rem 1.25rem;
-  }
+.lobby-card {
+  width: min(100%, 1100px);
+  margin: 32px auto 0;
+  padding: 32px 40px;
+  border: 1px solid #e1e7ef;
+  border-top: 5px solid #d9ad4b;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #153f70;
+  box-shadow: 0 10px 30px rgba(15, 39, 68, 0.13);
 }
+
+.lobby-card-heading {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.lobby-eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: #98701f;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.lobby-eyebrow span {
+  width: 28px;
+  height: 2px;
+  background: #d9ad4b;
+}
+
+.lobby-title {
+  margin: 0;
+  color: #123b69;
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+
+.lobby-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  align-items: center;
+  gap: 36px;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.lobby-qr-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lobby-qr-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 220px;
+  padding: 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.lobby-qr-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.lobby-qr-panel p {
+  margin: 14px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.lobby-vertical-divider {
+  width: 1px;
+  height: 220px;
+  background: #e2e8f0;
+}
+
+.lobby-game-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lobby-game-details label {
+  margin-bottom: 10px;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.lobby-game-details .game-code {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 18px 12px;
+  border: 2px dashed #d9ad4b;
+  border-radius: 12px;
+  background: #fffaf0;
+  color: #153f70;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.lobby-game-details > p {
+  margin: 0 0 22px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.lobby-start-button {
+  width: min(100%, 280px);
+}
+
+.lobby-back-button {
+  width: min(100%, 280px);
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #153f70;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.lobby-back-button:hover {
+  border-color: #153f70;
+  background: #edf3fa;
+}
+
+.lobby-back-button:focus-visible {
+  outline: 3px solid #d9ad4b;
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   PLAYERS JOINED CARD
+   ========================================================= */
+
+.players-lobby-section {
+  width: min(100%, 1100px);
+  margin: 24px auto 40px;
+}
+
+.players-lobby-section .players-section {
+  margin: 0;
+  padding: 26px 32px;
+  border: 1px solid #e1e7ef;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #153f70;
+  box-shadow: 0 8px 24px rgba(15, 39, 68, 0.1);
+}
+
+.players-lobby-section .players-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  color: #153f70;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.players-icon {
+  font-size: 1.3rem;
+}
+
+.players-divider {
+  width: 100%;
+  height: 1px;
+  margin-bottom: 18px;
+  background: #e2e8f0;
+}
+
+.players-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.players-lobby-section .player-item {
+  margin: 0;
+  padding: 11px 18px;
+  border: 1px solid #dce5ef;
+  border-radius: 9px;
+  background: #f3f6fa;
+  color: #153f70;
+  font-weight: 650;
+}
+
+.players-lobby-section .waiting-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: #64748b;
+}
+
+.waiting-icon {
+  color: #d9ad4b;
+  font-size: 1.2rem;
+}
+
+/* =========================================================
+   RESPONSIVE GAME LOBBY
+   ========================================================= */
 
 @media (max-width: 767.98px) {
-  .game-home {
-    padding: 0.5rem 0.75rem 0;
-    min-height: 0;
+  .lobby-card {
+    margin-top: 18px;
+    padding: 24px 18px;
   }
 
-  .game-hero {
-    display: flex;
+  .lobby-card-heading {
+    margin-bottom: 22px;
+  }
+
+  .lobby-content {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .lobby-vertical-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .lobby-qr-placeholder {
+    width: 190px;
+    height: 190px;
+  }
+
+  .lobby-game-details {
+    width: 100%;
+  }
+
+  .lobby-game-details .game-code {
+    max-width: 360px;
+  }
+
+  .players-lobby-section {
+    margin: 18px auto 28px;
+  }
+
+  .players-lobby-section .players-section {
+    padding: 22px 18px;
+  }
+
+  .players-list {
     flex-direction: column;
-    overflow: hidden;
-    border-radius: 0.85rem;
   }
 
-  .game-hero-image {
-    display: block;
+  .players-lobby-section .player-item {
     width: 100%;
-    height: auto;
-    aspect-ratio: auto;
-    object-fit: contain;
-    object-position: center;
-    background: transparent;
-  }
-
-  .game-panel {
-    position: relative;
-    top: auto;
-    right: auto;
-    transform: none;
-    width: 100%;
-    max-width: none;
-    padding: 1.5rem;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-  }
-
-  .game-heading {
-    font-size: 1.8rem;
-  }
-
-  .game-button {
-    min-height: 3.25rem;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .game-button {
-    transition: none;
-  }
-}
-
-/* ============================================
-   WHAT YOU'LL LEARN SECTION
-   Fills the space below the game hero
-   ============================================ */
+/* =========================================================
+   LEARNING SECTION
+   ========================================================= */
 
 .learning-section {
   max-width: 1200px;
-  padding-top: 3.5rem !important;
-  padding-bottom: 3.5rem !important;
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
 }
 
 .learning-eyebrow {
@@ -377,12 +512,12 @@
 
 .learning-title {
   margin-bottom: 0.75rem;
-  color: #ffffff;
+  color: #fff;
   font-size: clamp(1.8rem, 3vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
+}
 
 .learning-intro {
   max-width: 600px;
@@ -390,8 +525,7 @@
   color: #f1f5f9;
   font-size: 1rem;
   line-height: 1.6;
-  }
-
+}
 
 .learning-card {
   padding: 1.75rem;
@@ -450,32 +584,12 @@
   color: #87621b;
 }
 
-@media (max-width: 767.98px) {
-  .learning-section {
-    padding-top: 2.5rem !important;
-    padding-bottom: 2rem !important;
-  }
-
-  .learning-card {
-    padding: 1.4rem;
-  }
-
-  .learning-card:hover {
-    transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .learning-card {
-    transition: none;
-  }
-
-  .learning-card:hover {
-    transform: none;
-  }
-}
+/* =========================================================
+   HOST GAME SCREEN
+   ========================================================= */
 
 .host-game-screen {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -483,8 +597,8 @@
   min-height: 100vh;
   min-height: 100dvh;
   padding: 0 3% 1rem;
-  text-align: center;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .host-game-screen > .panel-eyebrow {
@@ -505,7 +619,7 @@
 .host-question {
   max-width: 1000px;
   margin: 1rem 0 2rem;
-  color: #ffffff;
+  color: #fff;
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 800;
 }
@@ -519,8 +633,8 @@
 .host-option,
 .host-leaderboard-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.75rem;
   padding: 1rem 1.25rem;
@@ -540,6 +654,17 @@
   font-size: 1.1rem;
 }
 
+.host-game-screen .game-button-primary {
+  display: block;
+  width: fit-content;
+  min-width: 180px;
+  margin: 24px 0 0 auto;
+}
+
+/* =========================================================
+   HOUSING QUESTION
+   ========================================================= */
+
 .housing-image-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -554,11 +679,11 @@
 .housing-image-card {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   min-width: 0;
-  background: #fffaf0;
+  overflow: hidden;
   border: 2px solid #d9a441;
   border-radius: 16px;
+  background: #fffaf0;
   color: #102b50;
   text-align: left;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
@@ -575,7 +700,7 @@
   margin: 0;
   padding: 16px 10px;
   background: #073b70;
-  color: white;
+  color: #fff;
   text-align: center;
   font-size: 1.4rem;
 }
@@ -588,31 +713,86 @@
   line-height: 1.8;
 }
 
-@media (max-width: 800px) {
-  .housing-image-grid {
-    grid-template-columns: 1fr;
-    padding: 0 16px;
-  }
-
-  .housing-image {
-    height: 260px;
-  }
-}
-
 .housing-expense {
   padding: 12px 8px;
-  text-align: center;
+  border-bottom: 1px solid #d9a441;
+  background: #f3e5c3;
   color: #073b70;
+  text-align: center;
   font-size: 2rem;
   font-weight: 800;
-  background: #f3e5c3;
-  border-bottom: 1px solid #d9a441;
 }
 
 .housing-expense span {
   font-size: 1rem;
   font-weight: 500;
 }
+
+/* =========================================================
+   SHARED QUESTION CARD STYLES
+   ========================================================= */
+
+.question-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 2px solid #d9a441;
+  border-radius: 16px;
+  background: #fffaf0;
+  color: #102b50;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.question-card-selected {
+  transform: translateY(-3px);
+  border-color: #f2c15e;
+  box-shadow: 0 0 0 3px rgba(242, 193, 94, 0.35);
+}
+
+.question-card-image {
+  display: block;
+  width: 100%;
+  height: clamp(200px, 24vw, 300px);
+  object-fit: cover;
+}
+
+.question-card-title {
+  margin: 0;
+  padding: 14px 10px;
+  background: #073b70;
+  color: #fff;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.question-card-price {
+  padding: 12px 8px;
+  border-bottom: 1px solid #d9a441;
+  background: #f3e5c3;
+  color: #073b70;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.question-card-details {
+  flex: 1;
+  margin: 0;
+  padding: 14px 20px 18px 36px;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+/* =========================================================
+   FINANCIAL OUTCOMES
+   ========================================================= */
 
 .financial-outcome {
   display: inline-block;
@@ -639,54 +819,204 @@
   color: #64748b;
 }
 
-/* Position the Next Question button at the bottom right */
-.host-game-screen {
-  position: relative;
+/* =========================================================
+   COMPOUND INTEREST EDUCATIONAL PANEL
+   ========================================================= */
+
+.compound-interest-panel {
+  width: min(100%, 1000px);
+  margin: 28px auto;
+  padding: 20px;
+  border: 2px solid #d9a441;
+  border-radius: 16px;
+  background: #fffaf0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-.host-game-screen .game-button-primary {
+.compound-interest-heading {
+  margin: 0 0 16px;
+  color: #073b70;
+  text-align: center;
+  font-weight: 800;
+}
+
+.compound-interest-image {
   display: block;
-  width: fit-content;
-  min-width: 180px;
-  margin: 24px 0 0 auto;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
 }
 
-/* Career selection lobby */
-.career-lobby {
-  width: min(100% - 32px, 1000px);
+.compound-interest-caption {
+  margin: 14px 0 0;
+  color: #102b50;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* =========================================================
+   SHARED QUESTION GRID LAYOUTS
+   ========================================================= */
+
+.transportation-image-grid,
+.retirement-image-grid,
+.savings-image-grid,
+.technology-image-grid,
+.meals-image-grid,
+.clothing-image-grid,
+.preparedness-image-grid {
+  display: grid;
+  align-items: stretch;
+  gap: 16px;
+  width: min(100%, 1200px);
+  margin: 24px auto;
+}
+
+.transportation-image-grid .question-card,
+.retirement-image-grid .question-card,
+.savings-image-grid .question-card,
+.technology-image-grid .question-card,
+.meals-image-grid .question-card,
+.clothing-image-grid .question-card,
+.preparedness-image-grid .question-card {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+/* Question 2 - Transportation */
+.transportation-image-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Question 3 - Retirement */
+.retirement-image-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 1000px;
+}
+
+.retirement-image-grid .question-card-image {
+  height: 240px;
+  object-fit: cover;
+  object-position: center 20%;
+}
+
+/* Question 4 - Savings */
+.savings-image-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 1000px;
+}
+
+.savings-image-grid .question-card-image {
+  object-position: center 50%;
+}
+
+/* Question 5 - Technology */
+.technology-image-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.technology-image-grid .question-card-image {
+  height: 220px;
+  object-fit: contain;
+  object-position: center;
+  background: #fffaf0;
+}
+
+/* Question 6 - Meals */
+.meals-image-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.meals-image-grid .question-card-image {
+  height: 240px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Question 7 - Clothing */
+.clothing-image-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  max-width: 1100px;
+}
+
+.clothing-image-grid .question-card-image {
+  height: 195px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Question 8 - Future preparedness */
+.preparedness-image-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.preparedness-image-grid .question-card-image {
+  height: 220px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* =========================================================
+   CAREER, EVENT, LEADERBOARD AND RESULTS PANELS
+   ========================================================= */
+
+.career-lobby,
+.event-lobby,
+.leaderboard-lobby,
+.final-results-lobby {
+  width: min(calc(100% - 32px), 1000px);
   margin: 40px auto;
   padding: 36px;
-  background: rgba(255, 255, 255, 0.97);
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 20px;
-  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
+  background: rgba(255, 255, 255, 0.97);
   color: #17365b;
+  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
 }
 
-/* Heading and introduction */
-.career-lobby .panel-eyebrow {
-  text-align: center;
+/* Shared panel headings */
+.career-lobby .panel-eyebrow,
+.event-lobby .panel-eyebrow,
+.leaderboard-lobby .panel-eyebrow,
+.final-results-lobby .panel-eyebrow {
   margin-bottom: 10px;
+  text-align: center;
 }
 
-.career-lobby .game-heading {
-  text-align: center;
+.career-lobby .game-heading,
+.event-lobby .game-heading,
+.leaderboard-lobby .game-heading,
+.final-results-lobby .game-heading {
   margin-bottom: 14px;
   color: #173f6c;
+  text-align: center;
 }
 
-.career-lobby .game-divider {
+.career-lobby .game-divider,
+.event-lobby .game-divider,
+.leaderboard-lobby .game-divider,
+.final-results-lobby .game-divider {
   width: 64px;
   margin: 0 auto 18px;
 }
 
-.career-lobby .game-description {
-  text-align: center;
+.event-lobby > .game-description,
+.leaderboard-lobby > .game-description,
+.final-results-lobby > .game-description {
   color: #64748b;
-  margin-bottom: 28px;
+  line-height: 1.6;
+  text-align: center;
 }
 
-/* Player cards: two columns on desktop */
+.career-lobby .game-description {
+  margin-bottom: 28px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Career selection players */
 .career-lobby .host-player-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -694,173 +1024,7 @@
   margin: 28px 0;
 }
 
-/* Individual player card */
-.career-lobby .host-player-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-width: 0;
-  padding: 18px 20px;
-  background: #f7f9fc;
-  border: 1px solid #e1e8f0;
-  border-radius: 12px;
-  color: #17365b;
-  box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
-  transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.career-lobby .host-player-row:hover {
-  border-color: #d7ad42;
-  transform: translateY(-2px);
-}
-
-.career-lobby .host-player-row > span:first-child {
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-
-/* Career status */
-.career-lobby .career-status-confirmed,
-.career-lobby .career-status-pending {
-  flex-shrink: 0;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 20px;
-}
-
-.career-lobby .career-status-confirmed {
-  color: #176b3a;
-  background: #e5f6eb;
-}
-
-.career-lobby .career-status-pending {
-  color: #8a5a00;
-  background: #fff1cf;
-}
-
-/* Start Game button */
-.career-lobby > .game-button-primary {
-  display: block;
-  width: fit-content;
-  min-width: 180px;
-  margin: 24px 0 0 auto;
-  padding: 14px 28px;
-  border-radius: 10px;
-  font-weight: 700;
-  box-shadow: 0 5px 12px rgba(130, 91, 10, 0.15);
-}
-
-.career-lobby > .game-button-primary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-/* Mobile layout */
-@media (max-width: 600px) {
-  .career-lobby {
-    width: calc(100% - 24px);
-    margin: 20px auto;
-    padding: 22px 16px;
-    border-radius: 14px;
-  }
-
-  .career-lobby .host-player-list {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .career-lobby .host-player-row {
-    padding: 14px;
-  }
-
-  .career-lobby .host-player-row > span:last-child {
-    font-size: 0.72rem;
-  }
-
-  .career-lobby > .game-button-primary {
-    width: 100%;
-  }
-}
-
-/* Unforeseen event lobby */
-.event-lobby {
-  width: min(100% - 32px, 1000px);
-  margin: 40px auto;
-  padding: 36px;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
-  color: #17365b;
-}
-
-.event-lobby .panel-eyebrow {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.event-lobby .game-heading {
-  text-align: center;
-  color: #173f6c;
-  margin-bottom: 14px;
-}
-
-.event-lobby .game-divider {
-  width: 64px;
-  margin: 0 auto 18px;
-}
-
-.event-lobby > .game-description {
-  text-align: center;
-  color: #64748b;
-  line-height: 1.6;
-}
-
-/* Progress header */
-.event-progress {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin: 30px 0 20px;
-  padding: 20px 22px;
-  background: #f3f6fa;
-  border: 1px solid #e1e8f0;
-  border-radius: 12px;
-}
-
-.event-progress h2 {
-  margin: 0 0 5px;
-  color: #17365b;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-
-.event-progress p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.9rem;
-}
-
-.event-progress-count {
-  flex-shrink: 0;
-  background: #e7b84b;
-  color: #17365b;
-  padding: 10px 16px;
-  border-radius: 24px;
-  font-weight: 800;
-}
-
-/* Two-column player grid */
-.event-lobby .event-player-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin: 0 0 26px;
-}
-
+.career-lobby .host-player-row,
 .event-lobby .host-leaderboard-row {
   display: flex;
   align-items: center;
@@ -868,140 +1032,126 @@
   gap: 12px;
   min-width: 0;
   padding: 18px 20px;
-  background: #f7f9fc;
   border: 1px solid #e1e8f0;
   border-radius: 12px;
+  background: #f7f9fc;
   color: #17365b;
   box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
 }
 
+.career-lobby .host-player-row {
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.career-lobby .host-player-row:hover {
+  transform: translateY(-2px);
+  border-color: #d7ad42;
+}
+
+.career-lobby .host-player-row > span:first-child,
 .event-lobby .host-leaderboard-row strong {
   overflow-wrap: anywhere;
 }
 
+.career-lobby .host-player-row > span:first-child {
+  font-weight: 600;
+}
+
+/* Player status */
+.career-lobby .career-status-confirmed,
+.career-lobby .career-status-pending,
 .event-lobby .career-status-confirmed,
 .event-lobby .career-status-pending {
   flex-shrink: 0;
-  font-size: 0.8rem;
-  font-weight: 700;
   padding: 6px 10px;
   border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
+.career-lobby .career-status-confirmed,
 .event-lobby .career-status-confirmed {
-  color: #176b3a;
   background: #e5f6eb;
+  color: #176b3a;
 }
 
+.career-lobby .career-status-pending,
 .event-lobby .career-status-pending {
-  color: #8a5a00;
   background: #fff1cf;
+  color: #8a5a00;
 }
 
-/* Continue button */
-.event-lobby .event-continue-button {
+/* Lobby action buttons */
+.career-lobby > .game-button-primary,
+.event-lobby .event-continue-button,
+.leaderboard-lobby .leaderboard-next-button {
   display: block;
   width: fit-content;
-  min-width: 220px;
+  min-width: 180px;
   margin: 24px 0 0 auto;
   padding: 14px 24px;
   border-radius: 10px;
   font-weight: 700;
 }
 
-/* Mobile layout */
-@media (max-width: 600px) {
-  .event-lobby {
-    width: calc(100% - 24px);
-    margin: 20px auto;
-    padding: 22px 16px;
-    border-radius: 14px;
-  }
-
-  .event-lobby .event-player-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .event-lobby .host-leaderboard-row {
-    padding: 14px;
-  }
-
-  .event-lobby .career-status-confirmed,
-  .event-lobby .career-status-pending {
-    font-size: 0.72rem;
-  }
-
-  .event-progress {
-    padding: 15px;
-  }
-
-  .event-lobby .event-continue-button {
-    width: 100%;
-  }
+.career-lobby > .game-button-primary {
+  padding: 14px 28px;
+  box-shadow: 0 5px 12px rgba(130, 91, 10, 0.15);
 }
 
-/* Leaderboard panel */
-.leaderboard-lobby {
-  width: min(100% - 32px, 1000px);
-  margin: 40px auto;
-  padding: 36px;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
-  color: #17365b;
+.career-lobby > .game-button-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
-.leaderboard-lobby .panel-eyebrow {
-  text-align: center;
-  margin-bottom: 10px;
+.event-lobby .event-continue-button {
+  min-width: 220px;
 }
 
-.leaderboard-lobby .game-heading {
-  color: #173f6c;
-  text-align: center;
-  margin-bottom: 14px;
-}
+/* =========================================================
+   UNFORESEEN EVENT PANEL
+   ========================================================= */
 
-.leaderboard-lobby .game-divider {
-  width: 64px;
-  margin: 0 auto 18px;
-}
-
-.leaderboard-lobby > .game-description {
-  text-align: center;
-  color: #64748b;
-  line-height: 1.6;
-}
-
-/* Standings header */
-.leaderboard-summary {
+.event-progress,
+.leaderboard-summary,
+.final-results-summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin: 28px 0 20px;
   padding: 20px 22px;
-  background: #f3f6fa;
   border: 1px solid #e1e8f0;
   border-radius: 12px;
+  background: #f3f6fa;
 }
 
-.leaderboard-summary h2 {
+.event-progress {
+  margin-top: 30px;
+}
+
+.event-progress h2,
+.leaderboard-summary h2,
+.final-results-summary h2 {
   margin: 0 0 5px;
+  color: #17365b;
   font-size: 1.15rem;
   font-weight: 700;
-  color: #17365b;
 }
 
-.leaderboard-summary p {
+.event-progress p,
+.leaderboard-summary p,
+.final-results-summary p {
   margin: 0;
-  font-size: 0.9rem;
   color: #64748b;
+  font-size: 0.9rem;
 }
 
-.leaderboard-player-count {
+.event-progress-count,
+.leaderboard-player-count,
+.final-results-count {
   flex-shrink: 0;
   padding: 9px 14px;
   border-radius: 24px;
@@ -1010,13 +1160,22 @@
   font-weight: 700;
 }
 
-/* Player rows */
+.event-progress-count {
+  padding: 10px 16px;
+  font-weight: 800;
+}
+
+.event-lobby .event-player-grid,
 .leaderboard-lobby .leaderboard-player-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   margin: 0 0 26px;
 }
+
+/* =========================================================
+   LEADERBOARD
+   ========================================================= */
 
 .leaderboard-lobby .leaderboard-player-row {
   display: grid;
@@ -1026,34 +1185,37 @@
   gap: 12px;
   min-width: 0;
   padding: 18px;
-  background: #f7f9fc;
   border: 1px solid #e1e8f0;
   border-radius: 12px;
+  background: #f7f9fc;
   color: #17365b;
   box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .leaderboard-lobby .leaderboard-player-row:hover {
-  border-color: #d7ad42;
   transform: translateY(-2px);
+  border-color: #d7ad42;
 }
 
 .leaderboard-rank-name {
   display: flex;
+  grid-column: 1 / -1;
   align-items: center;
   gap: 10px;
   min-width: 0;
-  grid-column: 1 / -1;
 }
 
-.leaderboard-rank {
+.leaderboard-rank,
+.final-results-rank {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  flex-shrink: 0;
   border-radius: 50%;
   background: #e8eef6;
   color: #173f6c;
@@ -1071,8 +1233,8 @@
 
 .leaderboard-lobby .leaderboard-balance {
   justify-self: end;
-  font-weight: 800;
   font-size: 1.05rem;
+  font-weight: 800;
 }
 
 .leaderboard-lobby .outcome-positive {
@@ -1101,129 +1263,17 @@
   background: #fee7e7;
 }
 
-/* Event message and Next button */
 .leaderboard-lobby .leaderboard-event-message {
   margin-top: 22px;
   padding: 14px 18px;
-  background: #f3f6fa;
   border-radius: 10px;
-}
-
-.leaderboard-lobby .leaderboard-next-button {
-  display: block;
-  width: fit-content;
-  min-width: 180px;
-  margin: 24px 0 0 auto;
-  padding: 14px 24px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-/* Mobile */
-@media (max-width: 650px) {
-  .leaderboard-lobby {
-    width: calc(100% - 24px);
-    margin: 20px auto;
-    padding: 22px 16px;
-  }
-
-  .leaderboard-lobby .leaderboard-player-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .leaderboard-lobby .leaderboard-player-row {
-    padding: 15px;
-  }
-
-  .leaderboard-summary {
-    padding: 15px;
-  }
-
-  .leaderboard-summary p {
-    font-size: 0.8rem;
-  }
-
-  .leaderboard-player-count {
-    font-size: 0.8rem;
-    padding: 8px 10px;
-  }
-
-  .leaderboard-lobby .leaderboard-next-button {
-    width: 100%;
-  }
-}
-
-/* Final results panel */
-.final-results-lobby {
-  width: min(100% - 32px, 1000px);
-  margin: 40px auto;
-  padding: 36px;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  box-shadow: 0 18px 45px rgba(5, 28, 55, 0.18);
-  color: #17365b;
-}
-
-.final-results-lobby .panel-eyebrow {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.final-results-lobby .game-heading {
-  text-align: center;
-  color: #173f6c;
-  margin-bottom: 14px;
-}
-
-.final-results-lobby .game-divider {
-  width: 64px;
-  margin: 0 auto 18px;
-}
-
-.final-results-lobby > .game-description {
-  text-align: center;
-  color: #64748b;
-  line-height: 1.6;
-}
-
-/* Summary heading */
-.final-results-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 28px 0 20px;
-  padding: 20px 22px;
   background: #f3f6fa;
-  border: 1px solid #e1e8f0;
-  border-radius: 12px;
 }
 
-.final-results-summary h2 {
-  margin: 0 0 5px;
-  color: #17365b;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
+/* =========================================================
+   FINAL RESULTS
+   ========================================================= */
 
-.final-results-summary p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.9rem;
-}
-
-.final-results-count {
-  flex-shrink: 0;
-  padding: 9px 14px;
-  border-radius: 24px;
-  background: #e7b84b;
-  color: #17365b;
-  font-weight: 700;
-}
-
-/* Final player cards */
 .final-results-player-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1237,16 +1287,18 @@
   gap: 12px;
   min-width: 0;
   padding: 18px;
-  background: #f7f9fc;
   border: 1px solid #e1e8f0;
   border-radius: 12px;
+  background: #f7f9fc;
   box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .final-results-player-card:hover {
-  border-color: #d7ad42;
   transform: translateY(-2px);
+  border-color: #d7ad42;
 }
 
 .final-results-player-name {
@@ -1262,229 +1314,239 @@
 }
 
 .final-results-rank {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 34px;
   height: 34px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: #e8eef6;
-  color: #173f6c;
-  font-weight: 800;
 }
 
 .final-results-balance {
   flex-shrink: 0;
   padding: 8px 11px;
   border-radius: 24px;
-  font-weight: 800;
   font-size: 0.95rem;
+  font-weight: 800;
 }
 
 .final-results-lobby .outcome-positive {
-  color: #16834a;
   background: #e5f6eb;
+  color: #16834a;
 }
 
 .final-results-lobby .outcome-negative {
-  color: #c62828;
   background: #fee7e7;
+  color: #c62828;
 }
 
 .final-results-lobby .outcome-neutral {
-  color: #64748b;
   background: #edf0f4;
+  color: #64748b;
 }
 
-/* Mobile layout */
-@media (max-width: 650px) {
+/* =========================================================
+   QR AND PLAYER LOBBY
+   ========================================================= */
+
+.host-player-list {
+  width: min(700px, 100%);
+  margin: 2rem auto;
+  text-align: left;
+}
+
+.host-player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: #fff;
+  color: #123f73;
+}
+
+.career-status-pending {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.career-status-confirmed {
+  color: #15803d;
+  font-weight: 700;
+}
+
+/* =========================================================
+   RESPONSIVE LAYOUTS
+   ========================================================= */
+
+/* Medium desktop and tablet */
+@media (max-width: 1100px) {
+  .game-home {
+    padding: 1rem;
+  }
+
+  .game-hero-image {
+    height: 560px;
+  }
+
+  .game-panel {
+    top: 63%;
+    right: 1%;
+    width: 42%;
+    padding: 1rem 1.25rem;
+  }
+}
+
+/* Tablet and mobile */
+@media (max-width: 900px) {
+  .transportation-image-grid,
+  .technology-image-grid,
+  .meals-image-grid,
+  .preparedness-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .retirement-image-grid,
+  .savings-image-grid,
+  .clothing-image-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .housing-image-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+
+  .housing-image {
+    height: 260px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767.98px) {
+  .game-home {
+    min-height: 0;
+    padding: 0.5rem 0.75rem 0;
+  }
+
+  .game-hero {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 0.85rem;
+  }
+
+  .game-hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+    object-position: center;
+    background: transparent;
+  }
+
+  .game-panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: none;
+    padding: 1.5rem;
+    transform: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .game-heading {
+    font-size: 1.8rem;
+  }
+
+  .game-button {
+    min-height: 3.25rem;
+  }
+
+  .learning-section {
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .learning-card {
+    padding: 1.4rem;
+  }
+
+  .learning-card:hover {
+    transform: none;
+  }
+
+  .career-lobby,
+  .event-lobby,
+  .leaderboard-lobby,
   .final-results-lobby {
     width: calc(100% - 24px);
     margin: 20px auto;
     padding: 22px 16px;
+    border-radius: 14px;
   }
 
+  .career-lobby .host-player-list,
+  .event-lobby .event-player-grid,
+  .leaderboard-lobby .leaderboard-player-grid,
   .final-results-player-grid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
 
+  .career-lobby .host-player-row,
+  .event-lobby .host-leaderboard-row,
+  .leaderboard-lobby .leaderboard-player-row,
   .final-results-player-card {
     padding: 14px;
   }
 
-  .final-results-balance {
-    font-size: 0.85rem;
-    padding: 7px 9px;
+  .career-lobby .host-player-row > span:last-child,
+  .event-lobby .career-status-confirmed,
+  .event-lobby .career-status-pending {
+    font-size: 0.72rem;
   }
 
+  .career-lobby > .game-button-primary,
+  .event-lobby .event-continue-button,
+  .leaderboard-lobby .leaderboard-next-button {
+    width: 100%;
+  }
+
+  .event-progress,
+  .leaderboard-summary,
   .final-results-summary {
     padding: 15px;
   }
 
+  .leaderboard-summary p,
   .final-results-summary p {
     font-size: 0.8rem;
   }
 
+  .leaderboard-player-count,
   .final-results-count {
-    font-size: 0.8rem;
     padding: 8px 10px;
-  }
-}
-
-/* ============================================
-   REUSABLE QUESTION CARDS
-   Shared design for game question options
-   ============================================ */
-
-.question-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  background: #fffaf0;
-  border: 2px solid #d9a441;
-  border-radius: 16px;
-  color: #102b50;
-  text-align: left;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.question-card-selected {
-  border-color: #f2c15e;
-  box-shadow: 0 0 0 3px rgba(242, 193, 94, 0.35);
-  transform: translateY(-3px);
-}
-
-.question-card-image {
-  display: block;
-  width: 100%;
-  height: clamp(200px, 24vw, 300px);
-  object-fit: cover;
-}
-
-.question-card-title {
-  margin: 0;
-  padding: 14px 10px;
-  background: #073b70;
-  color: #fff;
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.question-card-price {
-  padding: 12px 8px;
-  background: #f3e5c3;
-  border-bottom: 1px solid #d9a441;
-  color: #073b70;
-  text-align: center;
-  font-size: 1.25rem;
-  font-weight: 800;
-}
-
-.question-card-details {
-  flex: 1;
-  margin: 0;
-  padding: 14px 20px 18px 36px;
-  font-size: 0.95rem;
-  line-height: 1.8;
-}
-
-.question-card-select {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 48px;
-  padding: 10px;
-  border: 0;
-  border-top: 1px solid #e5dfd1;
-  background: #fff;
-  color: #073b70;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.question-card-select:hover {
-  background: #fff1cf;
-}
-
-.question-card-select:focus-visible {
-  outline: 3px solid #073b70;
-  outline-offset: -4px;
-}
-
-.question-card-radio {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #073b70;
-  border-radius: 50%;
-  color: #d9a441;
-  font-size: 0.9rem;
-}
-
-@media (max-width: 800px) {
-  .question-card-image {
-    height: 240px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .question-card {
-    transition: none;
+    font-size: 0.8rem;
   }
 
-  .question-card-selected {
-    transform: none;
+  .final-results-balance {
+    padding: 7px 9px;
+    font-size: 0.85rem;
   }
-}
 
-/* COMPOUND INTEREST EDUCATIONAL PANEL */
-.compound-interest-panel {
-  width: min(100%, 1000px);
-  margin: 28px auto;
-  padding: 20px;
-  background: #fffaf0;
-  border: 2px solid #d9a441;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
+  .host-player-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 
-.compound-interest-heading {
-  margin: 0 0 16px;
-  color: #073b70;
-  text-align: center;
-  font-weight: 800;
-}
-
-.compound-interest-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.compound-interest-caption {
-  margin: 14px 0 0;
-  color: #102b50;
-  text-align: center;
-  font-weight: 600;
-}
-
-@media (max-width: 600px) {
   .compound-interest-panel {
-    padding: 12px;
     margin: 18px auto;
+    padding: 12px;
   }
 
   .compound-interest-heading {
@@ -1492,272 +1554,41 @@
   }
 }
 
-/* TRANSPORTATION LAYOUT*/
-.transportation-image-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  width: min(100%, 1200px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.transportation-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-}
-
-@media (max-width: 900px) {
-  .transportation-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .transportation-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* RETIREMENT IMAGE CARDS */
-.retirement-image-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  width: min(100%, 1000px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.retirement-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-}
-
-/* Adjust only Question 3 retirement images */
-.retirement-image-grid .question-card-image {
-  object-position: center 20%;
-}
-
-@media (max-width: 700px) {
-  .retirement-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* QUESTION 3 — RETIREMENT CARD LAYOUT */
-.retirement-image-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  width: min(100%, 1000px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.retirement-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-}
-
-.retirement-image-grid .question-card-image {
-  height: 240px;
-  object-fit: cover;
-}
-
-@media (max-width: 800px) {
-  .retirement-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .retirement-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* QUESTION 4 — SAVINGS IMAGE CARDS */
-.savings-image-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  width: min(100%, 1000px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.savings-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-}
-
-@media (max-width: 800px) {
-  .savings-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .savings-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Adjust Question 4 image positioning only */
-.savings-image-grid .question-card-image {
-  object-position: center 50%;
-}
-
-/* QUESTION 5 — TECHNOLOGY IMAGE CARDS */
-
-.technology-image-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  width: min(100%, 1200px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.technology-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-}
-
-.technology-image-grid .question-card-image {
-  width: 100%;
-  height: 220px;
-  object-fit: contain;
-  object-position: center;
-  background: #fffaf0;
-}
-
-/* Medium screens */
-@media (max-width: 900px) {
-  .technology-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Mobile screens */
-@media (max-width: 520px) {
-  .technology-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* QUESTION 6 — MEALS IMAGE CARDS */
-
-.meals-image-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  width: min(100%, 1200px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.meals-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-}
-
-.meals-image-grid .question-card-image {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-  object-position: center;
-}
-
-/* Medium screens */
-@media (max-width: 900px) {
-  .meals-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Mobile screens */
-@media (max-width: 520px) {
-  .meals-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* QUESTION 7 — CLOTHING IMAGE CARDS */
-
-.clothing-image-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  width: min(100%, 1100px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.clothing-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-}
-
-.clothing-image-grid .question-card-image {
-  width: 100%;
-  height: 195px;
-  object-fit: cover;
-  object-position: center;
-}
-
-/* Medium screens */
-@media (max-width: 900px) {
-  .clothing-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Mobile screens */
-@media (max-width: 520px) {
-  .clothing-image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* QUESTION 8 — FUTURE PREPAREDNESS IMAGE CARDS */
-
-.preparedness-image-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  width: min(100%, 1200px);
-  margin: 24px auto;
-  align-items: stretch;
-}
-
-.preparedness-image-grid .question-card {
-  width: 100%;
-  min-width: 0;
-  height: 100%;
-}
-
-.preparedness-image-grid .question-card-image {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  object-position: center;
-}
-
-/* Medium screens */
-@media (max-width: 900px) {
-  .preparedness-image-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Mobile screens */
-@media (max-width: 520px) {
+/* Narrow mobile */
+@media (max-width: 600px) {
+  .retirement-image-grid,
+  .savings-image-grid,
+  .clothing-image-grid,
+  .transportation-image-grid,
+  .technology-image-grid,
+  .meals-image-grid,
   .preparedness-image-grid {
     grid-template-columns: 1fr;
   }
+
+  .learning-card {
+    padding: 1.4rem;
+  }
 }
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .game-button,
+  .learning-card,
+  .question-card,
+  .career-lobby .host-player-row,
+  .leaderboard-lobby .leaderboard-player-row,
+  .final-results-player-card {
+    transition: none;
+  }
+
+  .game-button:hover,
+  .learning-card:hover,
+  .question-card-selected,
+  .career-lobby .host-player-row:hover,
+  .leaderboard-lobby .leaderboard-player-row:hover,
+  .final-results-player-card:hover {
+    transform: none;
+  }
+}
+
