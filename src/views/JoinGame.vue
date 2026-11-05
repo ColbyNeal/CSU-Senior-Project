@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, inject, onMounted} from "vue";
+import { computed, ref, inject, onMounted, onUnmounted } from "vue";
 import { calculateMonthlyIncomeBreakdown } from "../utils/budgetCalculations.js";
 import { API_BASE_URL, WS_BASE_URL } from "../utils/apiConfig.js";
 
@@ -31,6 +31,62 @@ const players = ref([]);
 const myPlayer = computed(() =>
   players.value.find((player) => player.id === playerId.value)
 );
+
+// Money change animation
+const previousBalance = ref(null);
+const balanceChange = ref(0);
+const balanceAnimation = ref("");
+const displayedBalance = ref(0);
+
+let balanceAnimationTimer = null;
+let balanceCountTimer = null;
+
+function updateBalanceAnimation(newBalance) {
+  const nextBalance = Number(newBalance ?? 0);
+
+  if (previousBalance.value === null) {
+    previousBalance.value = nextBalance;
+    displayedBalance.value = nextBalance;
+    return;
+  }
+
+  const difference = nextBalance - previousBalance.value;
+
+  if (difference === 0) return;
+
+  balanceChange.value = difference;
+  balanceAnimation.value = difference > 0 ? "gain" : "loss";
+
+  displayedBalance.value = previousBalance.value;
+  previousBalance.value = nextBalance;
+
+  clearInterval(balanceCountTimer);
+  clearTimeout(balanceAnimationTimer);
+
+  const startBalance = displayedBalance.value;
+  const duration = 900;
+  const steps = 30;
+  let step = 0;
+
+  balanceCountTimer = setInterval(() => {
+    step++;
+
+    const progress = Math.min(step / steps, 1);
+    displayedBalance.value =
+      startBalance + difference * progress;
+
+    if (step >= steps) {
+      clearInterval(balanceCountTimer);
+      displayedBalance.value = nextBalance;
+    }
+  }, duration / steps);
+
+  balanceAnimationTimer = setTimeout(() => {
+    balanceAnimation.value = "";
+    balanceChange.value = 0;
+  }, 2200);
+}
+
 
 function formatMoney(amount) {
   return Number(amount ?? 0).toLocaleString("en-US", {
@@ -87,47 +143,132 @@ const filteredCareers = computed(() => {
 });
 
 let socket = null;
+let reconnectTimer = null;
+let reconnectAttempts = 0;
+let manuallyLeaving = false;
+let componentUnmounting = false;
+let isConnecting = false;
 
-async function joinGame() {
-  if (!gameCode.value.trim() || !playerName.value.trim()) {
+const PLAYER_SESSION_KEY = "csu-career-explorer-player-session";
+
+function savePlayerSession() {
+  if (!gameCode.value || !playerId.value) return;
+
+  try {
+    localStorage.setItem(
+      PLAYER_SESSION_KEY,
+      JSON.stringify({
+        gameCode: gameCode.value,
+        playerName: playerName.value,
+        playerId: playerId.value,
+      }),
+    );
+  } catch (error) {
+    console.warn("Unable to save player session:", error);
+  }
+}
+
+function clearReconnectTimer() {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+}
+
+function scheduleReconnect(delay) {
+  if (
+    manuallyLeaving ||
+    componentUnmounting ||
+    !gameCode.value ||
+    !playerName.value ||
+    !playerId.value ||
+    reconnectTimer
+  ) {
     return;
   }
 
-  try {
-    const code = gameCode.value.trim().toUpperCase();
-    const name = playerName.value.trim();
+  connectionStatus.value = "Connection interrupted. Reconnecting...";
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/games/${code}`,
-    );
+    if (document.visibilityState === "visible" && navigator.onLine) {
+      connectToGame(gameCode.value, playerName.value, true);
+    } else {
+      scheduleReconnect(5000);
+    }
+  }, delay);
+}
+
+async function connectToGame(code, name, isReconnect = false) {
+  if (
+    manuallyLeaving ||
+    componentUnmounting ||
+    isConnecting ||
+    (socket && (
+      socket.readyState === WebSocket.CONNECTING ||
+      socket.readyState === WebSocket.OPEN
+    ))
+  ) {
+    return;
+  }
+
+  isConnecting = true;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/games/${code}`);
 
     if (!response.ok) {
-      alert("Game not found. Check the game code and try again.");
+      connectionStatus.value = "Game session is no longer available.";
+      isConnecting = false;
       return;
     }
 
-    socket = new WebSocket(
+    const ws = new WebSocket(
       `${WS_BASE_URL}/ws?gameCode=${code}&role=player`,
     );
+    socket = ws;
 
-    socket.addEventListener("open", () => {
-      socket.send(JSON.stringify({ type: "join", name }));
+    ws.addEventListener("open", () => {
+      if (socket !== ws) return;
+
+      ws.send(
+        JSON.stringify({
+          type: "join",
+          name,
+          playerId: playerId.value || undefined,
+        }),
+      );
 
       gameCode.value = code;
       playerName.value = name;
       joined.value = true;
       setFullScreenGame?.(true);
-      connectionStatus.value = "Connected to game";
+      connectionStatus.value = isReconnect
+        ? "Restoring your game..."
+        : "Connected to game";
+      isConnecting = false;
     });
 
-    socket.addEventListener("message", (event) => {
-      const data = JSON.parse(event.data);
+    ws.addEventListener("message", (event) => {
+      if (socket !== ws) return;
 
+      const data = JSON.parse(event.data);
       console.log("Message from server:", data);
 
       if (data.type === "joined") {
         playerId.value = data.playerId;
-        console.log("Player ID:", data.playerId);
+        reconnectAttempts = 0;
+        savePlayerSession();
+        connectionStatus.value = data.reconnected
+          ? "Reconnected. Your game has been restored."
+          : "Connected to game";
+      }
+
+      if (data.type === "join-error") {
+        connectionStatus.value = data.message || "Unable to rejoin this game.";
+        returnToHome();
+        alert(data.message || "Unable to rejoin this game.");
+        return;
       }
 
       if (data.type === "career-selection-started") {
@@ -137,6 +278,7 @@ async function joinGame() {
 
       if (data.type === "career-confirmed") {
         careerConfirmed.value = true;
+        selectedCareer.value = data.socCode;
         loadCareerDetails(data.socCode);
       }
 
@@ -152,43 +294,71 @@ async function joinGame() {
             currentQuestionNumber.value !== data.currentQuestionNumber
           );
 
-        const incomingPhase = data.phase;
-
-        if (
-          incomingPhase !== "leaderboard" ||
-          gamePhase.value !== "coinflip"
-        ) {
-          gamePhase.value = incomingPhase;
-        }
+        gamePhase.value = data.phase;
         currentQuestion.value = data.currentQuestion;
         currentQuestionNumber.value = data.currentQuestionNumber;
+
         answeredCount.value = data.answeredCount;
         playerCount.value = data.playerCount;
         lastEvent.value = data.lastEvent;
+
+        // IMPORTANT: Update the players from the server first.
         players.value = data.players ?? [];
 
-        // Track the active unforeseen event.
-        if (
-          data.phase === "coinflip" &&
-          data.eventNumber !== eventNumber.value
-        ) {
-          eventNumber.value = data.eventNumber;
-          coinFlipResult.value = "";
-          hasFlipped.value = false;
+        // Find this player's latest information.
+        const updatedMyPlayer = players.value.find(
+          (player) => player.id === playerId.value
+        );
+
+        // Update the player's money animation.
+        if (updatedMyPlayer) {
+          updateBalanceAnimation(updatedMyPlayer.balance);
+        }
+
+
+        // Reconstruct the player's screen from the server's saved game state.
+        careerSelectionStarted.value = data.phase !== "lobby";
+        const restoredPlayer = players.value.find(
+          (player) => player.id === playerId.value,
+        );
+
+        if (restoredPlayer?.careerConfirmed && restoredPlayer.careerSocCode) {
+          careerConfirmed.value = true;
+          selectedCareer.value = restoredPlayer.careerSocCode;
+          if (
+            !careerDetails.value ||
+            careerDetails.value.soc_code !== restoredPlayer.careerSocCode
+          ) {
+            loadCareerDetails(restoredPlayer.careerSocCode);
+          }
+        }
+
+        if (data.phase === "career-selection" && careers.value.length === 0) {
+          loadCareers();
         }
 
         if (
           data.phase === "question" ||
+          data.phase === "coinflip" ||
           data.phase === "leaderboard" ||
           data.phase === "finished"
         ) {
           gameStarted.value = true;
         }
 
+        if (data.phase === "coinflip") {
+          eventNumber.value = data.eventNumber;
+          hasFlipped.value = Boolean(restoredPlayer?.eventFlipped);
+        }
+
+        if (data.phase === "question") {
+          answerSubmitted.value = Boolean(restoredPlayer?.answered);
+        }
+
         if (questionChanged) {
           selectedAnswers.value = [];
-          answerSubmitted.value = false;
           answerError.value = "";
+          answerSubmitted.value = Boolean(restoredPlayer?.answered);
         }
       }
 
@@ -197,7 +367,7 @@ async function joinGame() {
         answerError.value = "";
       }
 
-      // Receive this player's private coin-flip result.
+      // Receive or restore this player's private coin-flip result.
       if (data.type === "coin-flip-result") {
         eventNumber.value = data.eventNumber;
         coinFlipResult.value = data.result;
@@ -205,19 +375,131 @@ async function joinGame() {
       }
     });
 
-    socket.addEventListener("close", () => {
-      connectionStatus.value = "Disconnected";
+    ws.addEventListener("close", () => {
+      if (socket !== ws) return;
+
+      socket = null;
+      isConnecting = false;
+
+      if (!manuallyLeaving && !componentUnmounting) {
+        connectionStatus.value = "Connection interrupted. Reconnecting...";
+        reconnectAttempts += 1;
+        const delay = Math.min(1500 * (2 ** (reconnectAttempts - 1)), 15000);
+        scheduleReconnect(delay);
+      }
     });
 
-    socket.addEventListener("error", (error) => {
+    ws.addEventListener("error", (error) => {
       console.error("WebSocket error:", error);
-      connectionStatus.value = "Connection error";
+      connectionStatus.value = "Connection interrupted. Reconnecting...";
+      // The close event schedules the retry.
     });
   } catch (error) {
-    console.error("Error joining game:", error);
-    alert("Unable to connect to the game server.");
+    console.error("Error connecting to game:", error);
+    isConnecting = false;
+
+    if (!manuallyLeaving && !componentUnmounting) {
+      reconnectAttempts += 1;
+      scheduleReconnect(Math.min(1500 * (2 ** (reconnectAttempts - 1)), 15000));
+    }
   }
 }
+
+async function joinGame(isReconnect = false) {
+  if (!gameCode.value.trim() || !playerName.value.trim()) {
+    return;
+  }
+
+  manuallyLeaving = false;
+  componentUnmounting = false;
+  clearReconnectTimer();
+
+  const code = gameCode.value.trim().toUpperCase();
+  const name = playerName.value.trim();
+
+  if (!isReconnect) {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(PLAYER_SESSION_KEY) || "null",
+      );
+
+      if (saved?.gameCode === code && saved?.playerId) {
+        playerId.value = saved.playerId;
+        playerName.value = saved.playerName || name;
+      }
+    } catch {
+      // Ignore an invalid or unavailable saved browser session.
+    }
+  }
+
+  await connectToGame(code, playerName.value || name, isReconnect);
+}
+
+// A sleeping phone may not run timers. Retry immediately when the page wakes
+// or the device comes back online.
+function handleVisibilityChange() {
+  if (
+    document.visibilityState === "visible" &&
+    !manuallyLeaving &&
+    joined.value &&
+    (!socket || socket.readyState === WebSocket.CLOSED)
+  ) {
+    clearReconnectTimer();
+    connectToGame(gameCode.value, playerName.value, true);
+  }
+}
+
+function handleNetworkOnline() {
+  if (
+    !manuallyLeaving &&
+    joined.value &&
+    (!socket || socket.readyState === WebSocket.CLOSED)
+  ) {
+    clearReconnectTimer();
+    connectToGame(gameCode.value, playerName.value, true);
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  window.addEventListener("online", handleNetworkOnline);
+
+  // Restore the previous player automatically after a refresh or browser return.
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(PLAYER_SESSION_KEY) || "null",
+    );
+
+    const params = new URLSearchParams(window.location.search);
+    const urlCode = params.get("gameCode")?.trim().toUpperCase();
+
+    if (
+      saved?.gameCode &&
+      saved?.playerId &&
+      (!urlCode || urlCode === saved.gameCode)
+    ) {
+      gameCode.value = saved.gameCode;
+      playerName.value = saved.playerName || "";
+      playerId.value = saved.playerId;
+      joinGame(true);
+    }
+  } catch (error) {
+    console.warn("Unable to restore saved player session:", error);
+  }
+});
+
+onUnmounted(() => {
+  componentUnmounting = true;
+  clearReconnectTimer();
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
+  window.removeEventListener("online", handleNetworkOnline);
+
+  if (socket) {
+    const oldSocket = socket;
+    socket = null;
+    oldSocket.close();
+  }
+});
 
 async function loadCareers() {
   careersLoading.value = true;
@@ -457,9 +739,24 @@ function flipCoin() {
 }
 
 function returnToHome() {
+  manuallyLeaving = true;
+  clearReconnectTimer();
+
+  try {
+    localStorage.removeItem(PLAYER_SESSION_KEY);
+  } catch (error) {
+    console.warn("Unable to clear saved player session:", error);
+  }
+
   if (socket) {
-    socket.close();
+    const oldSocket = socket;
     socket = null;
+
+    if (oldSocket.readyState === WebSocket.OPEN) {
+      oldSocket.send(JSON.stringify({ type: "leave" }));
+    }
+
+    oldSocket.close();
   }
 
   gameCode.value = "";
@@ -468,6 +765,8 @@ function returnToHome() {
   careerSelectionStarted.value = false;
   gameStarted.value = false;
   connectionStatus.value = "";
+  reconnectAttempts = 0;
+  isConnecting = false;
 
   gamePhase.value = "lobby";
   currentQuestion.value = null;
@@ -924,7 +1223,37 @@ function returnToHome() {
               
               <!-- MULTIPLAYER GAMEPLAY -->
               <div v-else class="text-start">
+                <!-- PLAYER'S CURRENT MONEY BALANCE -->
+                <div
+                  v-if="myPlayer && ['question', 'coinflip', 'leaderboard', 'finished'].includes(gamePhase)"
+                  class="player-balance-card"
+                  aria-live="polite"
+                >
+                  <span class="player-balance-label">YOUR CURRENT BALANCE</span>
+                  <strong class="player-balance-amount"
+                    :class="balanceAnimation">
+                    {{ formatMoney(Math.round(displayedBalance)) }}
+                  </strong>
+                </div>
                 <template v-if="gamePhase === 'question' && currentQuestion">
+                  <div class="player-question-progress">
+                    <div class="player-progress-heading">
+                      <span>QUESTION {{ currentQuestionNumber }} OF 8</span>
+                      <span>{{ Math.max(0, 8 - currentQuestionNumber) }} LEFT</span>
+                    </div>
+
+                    <div class="player-progress-dots">
+                      <span
+                        v-for="dot in 8"
+                        :key="dot"
+                        class="player-progress-dot"
+                        :class="{
+                          'completed': dot < currentQuestionNumber,
+                          'active': dot === currentQuestionNumber
+                        }"
+                      ></span>
+                    </div>
+                  </div>
                   <p class="text-uppercase fw-bold mb-2 text-center"
                     style="color: #b88922;">
                     Question {{ currentQuestionNumber }}

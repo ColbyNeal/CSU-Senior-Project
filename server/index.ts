@@ -26,7 +26,7 @@ type Player = {
   currentEventAmount?: number;
   housingChoice?: string;
   eventHistory: string[];
-    decisionHistory: {
+  decisionHistory: {
     questionNumber: number;
     questionTitle: string;
     selectedOptions: {
@@ -252,6 +252,7 @@ function getPublicPlayers(game: Game) {
   return game.players.map((player) => ({
     id: player.id,
     name: player.name,
+    connected: Boolean(player.socket),
     careerConfirmed: player.careerConfirmed,
     careerSocCode: player.careerSocCode,
     careerTitle: player.careerTitle,
@@ -305,6 +306,7 @@ function sendPlayersUpdated(game: Game) {
       players: game.players.map((player) => ({
         id: player.id,
         name: player.name,
+        connected: Boolean(player.socket),
         careerConfirmed: player.careerConfirmed,
         careerSocCode: player.careerSocCode,
         careerTitle: player.careerTitle,
@@ -737,14 +739,112 @@ const server = Bun.serve<SocketData>({
         return;
       }
 
-      // Players can join only while the game is in the lobby.
+      // Explicitly remove a player only when they choose to leave the game.
+      if (data.type === "leave") {
+        if (ws.data.role !== "player" || !ws.data.playerId) {
+          return;
+        }
+
+        const playerIndex = game.players.findIndex(
+          (player) =>
+            player.id === ws.data.playerId &&
+            player.socket === ws,
+        );
+
+        if (playerIndex !== -1) {
+          const [leavingPlayer] = game.players.splice(playerIndex, 1);
+          console.log(`Player left the game: ${leavingPlayer.name}`);
+          broadcastGameState(game);
+          sendPlayersUpdated(game);
+        }
+
+        ws.data.playerId = undefined;
+        ws.close();
+        return;
+      }
+
+      // Join a new game or reconnect an existing player.
       if (data.type === "join") {
         if (
           ws.data.role !== "player" ||
-          game.phase !== "lobby" ||
           typeof data.name !== "string" ||
           !data.name.trim()
         ) {
+          ws.close();
+          return;
+        }
+
+        const requestedPlayerId =
+          typeof data.playerId === "string" && data.playerId.trim()
+            ? data.playerId.trim()
+            : undefined;
+
+        // Reconnect: restore the existing player instead of creating a duplicate.
+        const existingPlayer = requestedPlayerId
+          ? game.players.find((player) => player.id === requestedPlayerId)
+          : undefined;
+
+        if (existingPlayer) {
+          // Replace any stale socket. Its later close event cannot disconnect
+          // this new socket because the close handler checks socket identity.
+          existingPlayer.socket = ws;
+          ws.data.playerId = existingPlayer.id;
+
+          ws.send(
+            JSON.stringify({
+              type: "joined",
+              playerId: existingPlayer.id,
+              gameCode: game.code,
+              reconnected: true,
+            }),
+          );
+
+          // Restore private career confirmation state.
+          if (existingPlayer.careerConfirmed && existingPlayer.careerSocCode) {
+            ws.send(
+              JSON.stringify({
+                type: "career-confirmed",
+                socCode: existingPlayer.careerSocCode,
+              }),
+            );
+          }
+
+          // Restore the result if this player already flipped for the
+          // currently active unforeseen event.
+          if (
+            game.pendingEvent !== undefined &&
+            existingPlayer.flippedEvents.includes(game.pendingEvent)
+          ) {
+            const latestEvent = existingPlayer.eventHistory
+              .slice()
+              .reverse()
+              .find((entry) => entry.startsWith(`Event #${game.pendingEvent} — `));
+
+            if (latestEvent) {
+              ws.send(
+                JSON.stringify({
+                  type: "coin-flip-result",
+                  eventNumber: game.pendingEvent,
+                  result: latestEvent.split(" — ").slice(1).join(" — "),
+                }),
+              );
+            }
+          }
+
+          console.log(`Player reconnected: ${existingPlayer.name} (${existingPlayer.id})`);
+          broadcastGameState(game);
+          sendPlayersUpdated(game);
+          return;
+        }
+
+        // A brand-new player may only join before the game starts.
+        if (game.phase !== "lobby") {
+          ws.send(
+            JSON.stringify({
+              type: "join-error",
+              message: "This game has already started. Rejoin using your saved player session.",
+            }),
+          );
           ws.close();
           return;
         }
@@ -775,6 +875,7 @@ const server = Bun.serve<SocketData>({
             type: "joined",
             playerId,
             gameCode: game.code,
+            reconnected: false,
           }),
         );
 
@@ -1053,40 +1154,26 @@ const server = Bun.serve<SocketData>({
         return;
       }
 
-      // Handle player disconnection.
+      // Handle player disconnection without deleting their game session.
       if (ws.data.role === "player" && ws.data.playerId) {
-        const playerIndex = game.players.findIndex(
+        const disconnectedPlayer = game.players.find(
           (player) =>
             player.id === ws.data.playerId &&
             player.socket === ws,
         );
 
-        if (playerIndex === -1) return;
+        // Ignore an old socket closing after the player has already reconnected.
+        if (!disconnectedPlayer) return;
 
-        const disconnectedPlayer = game.players[playerIndex];
-
-        // Remove the disconnected player from the active game.
-        game.players.splice(playerIndex, 1);
+        disconnectedPlayer.socket = undefined;
 
         console.log(
-          `Removed disconnected player: ${disconnectedPlayer.name}`,
+          `Player temporarily disconnected; keeping game session: ${disconnectedPlayer.name}`,
         );
 
-        // Update the host and remaining players.
+        // Keep the player and all their progress in the game.
         broadcastGameState(game);
         sendPlayersUpdated(game);
-
-        // Recheck career confirmations after removing the player.
-        if (
-          game.phase === "career-selection" &&
-          allPlayersConfirmed(game)
-        ) {
-          game.host?.send(
-            JSON.stringify({
-              type: "all-careers-confirmed",
-            }),
-          );
-        }
       }
     },
   },

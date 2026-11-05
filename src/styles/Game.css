@@ -4,8 +4,9 @@
 
 .game-home {
   min-height: 0;
-  padding: 1rem 1.5rem 0;
+  padding: 12px 1.5rem 0;
   background: transparent;
+  box-sizing: border-box;
 }
 
 .game-home.career-lobby-active {
@@ -18,16 +19,18 @@
 }
 
 .game-hero {
-  position: relative;
-  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  max-width: 1600px;
-  min-height: 480px;
+  max-width: 1400px;
+  min-height: 0;
+  height: auto;
   margin: 0 auto;
-  overflow: hidden;
-  border-radius: 1rem;
-  background: #153f70;
-  box-shadow: 0 1rem 2.5rem rgba(15, 39, 68, 0.16);
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .game-hero-image {
@@ -36,27 +39,28 @@
   height: auto;
   object-fit: contain;
   object-position: center;
-  border-radius: inherit;
+  border-radius: 1rem;
 }
 
 /* Host Game panel */
 .game-panel {
-  position: absolute;
-  top: 69%;
-  right: 2%;
-  width: min(34%, 430px);
-  padding: clamp(1rem, 2vw, 1.75rem);
-  transform: translateY(-50%);
+  position: relative;
+  width: min(calc(100% - 32px), 1110px);
+  max-width: none;
+  margin: 18px auto 0;
+  padding: 1.25rem 2rem;
+  transform: none;
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 1.25rem;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 1.25rem 3rem rgba(8, 31, 57, 0.24);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 10px 30px rgba(8, 31, 57, 0.18);
   backdrop-filter: blur(12px);
+  box-sizing: border-box;
   text-align: center;
 }
 
 .panel-eyebrow {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.4rem;
   color: #87621b;
   font-size: 0.72rem;
   font-weight: 800;
@@ -66,7 +70,7 @@
 .game-heading {
   margin: 0;
   color: #123b69;
-  font-size: clamp(1.65rem, 2.5vw, 2.5rem);
+  font-size: clamp(1.7rem, 2.5vw, 2.3rem);
   font-weight: 800;
   letter-spacing: -0.035em;
 }
@@ -74,7 +78,7 @@
 .game-divider {
   width: 5rem;
   height: 4px;
-  margin: 0.75rem auto;
+  margin: 0.5rem auto;
   border-radius: 999px;
   background: #d9ad4b;
 }
@@ -83,12 +87,15 @@
   margin-bottom: 1rem;
   color: #123f73;
   font-size: 1rem;
-  line-height: 1.65;
+  line-height: 1.5;
 }
 
 .game-actions {
   display: grid;
-  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  max-width: 950px;
+  margin: 0 auto;
 }
 
 .game-button {
@@ -149,7 +156,7 @@
 }
 
 .panel-footer {
-  margin: 1rem 0 0;
+  margin: 0.85rem 0 0;
   color: #64748b;
   font-size: 0.8rem;
 }
@@ -201,10 +208,6 @@
   color: #153f70;
   overflow-wrap: anywhere;
 }
-
-/* =========================================================
-   JOINED PLAYERS SECTION
-   ========================================================= */
 
 /* =========================================================
    GAME LOBBY CARD
@@ -441,56 +444,6 @@
 /* =========================================================
    RESPONSIVE GAME LOBBY
    ========================================================= */
-
-@media (max-width: 767.98px) {
-  .lobby-card {
-    margin-top: 18px;
-    padding: 24px 18px;
-  }
-
-  .lobby-card-heading {
-    margin-bottom: 22px;
-  }
-
-  .lobby-content {
-    grid-template-columns: 1fr;
-    gap: 22px;
-  }
-
-  .lobby-vertical-divider {
-    width: 100%;
-    height: 1px;
-  }
-
-  .lobby-qr-placeholder {
-    width: 190px;
-    height: 190px;
-  }
-
-  .lobby-game-details {
-    width: 100%;
-  }
-
-  .lobby-game-details .game-code {
-    max-width: 360px;
-  }
-
-  .players-lobby-section {
-    margin: 18px auto 28px;
-  }
-
-  .players-lobby-section .players-section {
-    padding: 22px 18px;
-  }
-
-  .players-list {
-    flex-direction: column;
-  }
-
-  .players-lobby-section .player-item {
-    width: 100%;
-  }
-}
 
 /* =========================================================
    LEARNING SECTION
@@ -1378,22 +1331,6 @@
    ========================================================= */
 
 /* Medium desktop and tablet */
-@media (max-width: 1100px) {
-  .game-home {
-    padding: 1rem;
-  }
-
-  .game-hero-image {
-    height: 560px;
-  }
-
-  .game-panel {
-    top: 63%;
-    right: 1%;
-    width: 42%;
-    padding: 1rem 1.25rem;
-  }
-}
 
 /* Tablet and mobile */
 @media (max-width: 900px) {
@@ -1453,9 +1390,9 @@
     max-width: none;
     padding: 1.5rem;
     transform: none;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(8, 31, 57, 0.18);
     backdrop-filter: none;
   }
 
@@ -1552,6 +1489,61 @@
   .compound-interest-heading {
     font-size: 1.25rem;
   }
+
+  .game-actions {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  /* Lobby card */
+  .lobby-card {
+    margin-top: 18px;
+    padding: 24px 18px;
+  }
+
+  .lobby-card-heading {
+    margin-bottom: 22px;
+  }
+
+  .lobby-content {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .lobby-vertical-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .lobby-qr-placeholder {
+    width: 190px;
+    height: 190px;
+  }
+
+  .lobby-game-details {
+    width: 100%;
+  }
+
+  .lobby-game-details .game-code {
+    max-width: 360px;
+  }
+
+  .players-lobby-section {
+    margin: 18px auto 28px;
+  }
+
+  .players-lobby-section .players-section {
+    padding: 22px 18px;
+  }
+
+  .players-list {
+    flex-direction: column;
+  }
+
+  .players-lobby-section .player-item {
+    width: 100%;
+  }
+
 }
 
 /* Narrow mobile */
@@ -1568,6 +1560,120 @@
 
   .learning-card {
     padding: 1.4rem;
+  }
+}
+
+
+
+/* =========================================================
+   DESKTOP QUESTION SCREENS - FIT WITHIN ONE VIEWPORT
+   Compact card and spacing scale for standard laptop/desktop
+   screens while preserving the existing multi-column layouts.
+   ========================================================= */
+
+@media (min-width: 901px) and (max-height: 1100px) {
+  .host-game-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 8px 2.5% 10px;
+  }
+
+  .host-game-screen > .panel-eyebrow {
+    margin-bottom: 2px;
+    font-size: 0.72rem;
+  }
+
+  .host-game-screen .game-heading {
+    margin-bottom: 2px;
+    font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+  }
+
+  .host-game-screen .game-divider {
+    margin-top: 4px;
+    margin-bottom: 0.5rem;
+  }
+
+  .host-question {
+    margin: 0.5rem 0 0.75rem;
+    font-size: clamp(1.35rem, 2.5vw, 2.1rem);
+  }
+
+  .housing-image-grid,
+  .transportation-image-grid,
+  .retirement-image-grid,
+  .savings-image-grid,
+  .technology-image-grid,
+  .meals-image-grid,
+  .clothing-image-grid,
+  .preparedness-image-grid {
+    margin-top: 1.2vh;
+    margin-bottom: 0.8vh;
+    gap: 14px;
+  }
+
+  .housing-image-grid {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .housing-image {
+    height: clamp(145px, 20vh, 220px);
+  }
+
+  .housing-image-card h3,
+  .question-card-title {
+    padding: 9px 8px;
+    font-size: 1rem;
+  }
+
+  .housing-expense {
+    padding: 8px 6px;
+    font-size: 1.35rem;
+  }
+
+  .housing-expense span {
+    font-size: 0.85rem;
+  }
+
+  .housing-image-card ul {
+    padding: 9px 14px 10px 30px;
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .question-card-image {
+    height: clamp(130px, 18vh, 190px);
+  }
+
+  .question-card-price {
+    padding: 8px 6px;
+    font-size: 1.05rem;
+  }
+
+  .question-card-details {
+    padding: 8px 14px 10px 30px;
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+
+  .retirement-image-grid .question-card-image,
+  .meals-image-grid .question-card-image {
+    height: clamp(130px, 18vh, 190px);
+  }
+
+  .technology-image-grid .question-card-image,
+  .preparedness-image-grid .question-card-image {
+    height: clamp(125px, 17vh, 180px);
+  }
+
+  .clothing-image-grid .question-card-image {
+    height: clamp(120px, 16vh, 175px);
+  }
+
+  .host-game-screen .game-button-primary {
+    min-height: 44px;
+    margin-top: 0.8vh;
+    padding: 10px 28px;
   }
 }
 
@@ -1592,3 +1698,227 @@
   }
 }
 
+/* =========================================================
+   FINAL DESKTOP QUESTION LAYOUT
+   Fill the available screen and use white response text.
+   ========================================================= */
+
+@media (min-width: 901px) {
+  .host-game-screen {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 10px 2.5%;
+  }
+
+  /* Make the player response counter white */
+  .host-game-screen .game-description {
+    color: #ffffff !important;
+  }
+
+  /* Let the question cards expand into the available space */
+  .host-game-screen .housing-image-grid,
+  .host-game-screen .transportation-image-grid,
+  .host-game-screen .retirement-image-grid,
+  .host-game-screen .savings-image-grid,
+  .host-game-screen .technology-image-grid,
+  .host-game-screen .meals-image-grid,
+  .host-game-screen .clothing-image-grid,
+  .host-game-screen .preparedness-image-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    align-items: stretch;
+  }
+
+  /* Make the cards fill their grid height */
+  .host-game-screen .housing-image-card,
+  .host-game-screen .question-card {
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* Let images use the available card space */
+  .host-game-screen .housing-image,
+  .host-game-screen .question-card-image {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* Keep the Next button visible */
+  .host-game-screen .game-button-primary {
+    flex: 0 0 auto;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+}
+
+/* =========================================================
+   FIX: LEADERBOARD AND EVENT PANEL TEXT VISIBILITY
+   ========================================================= */
+
+/* Restore readable text inside the white panels */
+.leaderboard-lobby .game-description,
+.event-lobby .game-description,
+.final-results-lobby .game-description {
+  color: #64748b !important;
+}
+
+/* Make sure all panel paragraphs remain readable */
+.leaderboard-lobby p,
+.event-lobby p,
+.final-results-lobby p {
+  color: #64748b;
+}
+
+/* Keep headings dark blue */
+.leaderboard-lobby h1,
+.leaderboard-lobby h2,
+.event-lobby h1,
+.event-lobby h2,
+.final-results-lobby h1,
+.final-results-lobby h2 {
+  color: #173f6c;
+}
+
+/* Keep player names and standings readable */
+.leaderboard-lobby .player-name,
+.leaderboard-lobby .leaderboard-balance,
+.event-lobby .host-leaderboard-row,
+.event-lobby .host-leaderboard-row strong {
+  color: #17365b;
+}
+
+
+/* PLAYER QUESTION PROGRESS */
+.player-question-progress {
+  width: 100%;
+  margin: 0 auto 24px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(184, 137, 34, 0.2);
+  border-radius: 14px;
+}
+
+.player-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  color: #64748b;
+}
+
+.player-progress-dots {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 9px;
+}
+
+.player-progress-dot {
+  flex: 1;
+  height: 9px;
+  border-radius: 20px;
+  background: #dce1e7;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.player-progress-dot.completed {
+  background: #269b72;
+}
+
+.player-progress-dot.active {
+  background: #b88922;
+  transform: scaleY(1.5);
+}
+
+/* PLAYER CURRENT MONEY BALANCE */
+.player-balance-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: 0 auto 22px;
+  padding: 16px;
+  background: #ffffff;
+  border: 2px solid #d9ad4b;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(8, 31, 57, 0.08);
+}
+
+.player-balance-label {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.player-balance-amount {
+  color: #123b69;
+  font-size: clamp(1.8rem, 6vw, 2.5rem);
+  font-weight: 850;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-balance-caption {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+
+/* PLAYER MONEY CHANGE ANIMATIONS */
+
+.player-balance-amount {
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.player-balance-amount.gain {
+  color: #16803c;
+  animation: moneyGain 0.7s ease;
+}
+
+.player-balance-amount.loss {
+  color: #dc2626;
+  animation: moneyLoss 0.7s ease;
+}
+
+@keyframes moneyGain {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes moneyLoss {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-balance-amount.gain,
+  .player-balance-amount.loss {
+    animation: none;
+  }
+}
