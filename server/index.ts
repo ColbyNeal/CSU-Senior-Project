@@ -693,7 +693,21 @@ const server = Bun.serve<SocketData>({
         }
 
         player.careerSocCode = socCode;
+
+        player.careerTitle =
+          typeof data.careerTitle === "string"
+            ? data.careerTitle
+            : undefined;
+
         player.monthlySpendableIncome = data.monthlySpendableIncome;
+
+        // Initialize the player's starting monthly balance.
+        player.balance =
+          player.monthlySpendableIncome -
+          player.monthlyExpenses -
+          player.monthlySavings +
+          player.eventBalanceAdjustment;
+
         player.careerConfirmed = true;
 
         // Tell this player their choice was accepted.

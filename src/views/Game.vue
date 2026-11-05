@@ -3,7 +3,7 @@
 // IMPORTS
 // Vue reactivity and the Join Game component
 // ============================================
-import { inject, onMounted, ref, watch } from "vue";
+import { computed, inject, onMounted, ref, watch } from "vue";
 import JoinGame from "./JoinGame.vue";
 import QuestionCard from "../components/QuestionCard.vue";
 import { API_BASE_URL, WS_BASE_URL } from "../utils/apiConfig.js";
@@ -69,6 +69,35 @@ const gameCode = ref("");
 const qrCodeDataUrl = ref("");
 const players = ref([]);
 const careers = ref([]);
+// ============================================
+// LEADERBOARD RANKINGS
+// Sort by remaining monthly balance.
+// Players with equal balances share placement.
+// ============================================
+
+const rankedPlayers = computed(() => {
+  const sortedPlayers = [...players.value].sort(
+    (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
+  );
+
+  return sortedPlayers.map((player, index) => {
+    const previousPlayer = sortedPlayers[index - 1];
+
+    const rank =
+      index > 0 &&
+      (player.balance ?? 0) === (previousPlayer.balance ?? 0)
+        ? sortedPlayers.findIndex(
+            (item) => (item.balance ?? 0) === (player.balance ?? 0)
+          ) + 1
+        : index + 1;
+
+    return {
+      ...player,
+      rank,
+    };
+  });
+});
+
 const selectedCareer = ref("");
 const careerConfirmed = ref(false);
 const careersLoading = ref(false);
@@ -1137,16 +1166,19 @@ async function returnToHome() {
 
             <div class="host-leaderboard leaderboard-player-grid">
               <div
-                v-for="(player, index) in [...players].sort(
-                  (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
-                )"
+                v-for="player in rankedPlayers"
                 :key="player.id"
                 class="host-leaderboard-row leaderboard-player-row"
               >
                 <div class="leaderboard-rank-name">
-                  <span class="leaderboard-rank">{{ index + 1 }}</span>
+                  <span class="leaderboard-rank">{{ player.rank }}</span>
 
-                  <strong class="player-name">{{ player.name }}</strong>
+                  <div class="leaderboard-player-info">
+                    <strong class="player-name">{{ player.name }}</strong>
+                    <span class="player-career-title">
+                      {{ player.careerTitle || "Career not listed" }}
+                    </span>
+                  </div>
                 </div>
 
                 <span
@@ -1183,10 +1215,6 @@ async function returnToHome() {
                 </span>
               </div>
             </div>
-
-            <p v-if="lastEvent" class="game-description leaderboard-event-message">
-              {{ lastEvent }}
-            </p>
 
             <button
               type="button"
@@ -1227,14 +1255,12 @@ async function returnToHome() {
 
             <div class="final-results-player-grid">
               <div
-                v-for="(player, index) in [...players].sort(
-                  (a, b) => (b.balance ?? 0) - (a.balance ?? 0)
-                )"
+                v-for="player in rankedPlayers"
                 :key="player.id"
                 class="final-results-player-card"
               >
                 <div class="final-results-player-name">
-                  <span class="final-results-rank">{{ index + 1 }}</span>
+                  <span class="final-results-rank">{{ player.rank }}</span>
                   <strong>{{ player.name }}</strong>
                 </div>
 

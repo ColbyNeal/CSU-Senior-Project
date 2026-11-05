@@ -32,6 +32,68 @@ const myPlayer = computed(() =>
   players.value.find((player) => player.id === playerId.value)
 );
 
+// Rank players by remaining monthly balance.
+// Players with equal balances share placement.
+const rankedPlayers = computed(() => {
+  const sorted = [...players.value].sort(
+    (a, b) => Number(b.balance ?? 0) - Number(a.balance ?? 0)
+  );
+
+  return sorted.map((player) => {
+    const rank =
+      sorted.findIndex(
+        (item) =>
+          Number(item.balance ?? 0) === Number(player.balance ?? 0)
+      ) + 1;
+
+    return {
+      ...player,
+      rank,
+    };
+  });
+});
+
+// Find this player's placement.
+const myRank = computed(() =>
+  rankedPlayers.value.find(
+    (player) => player.id === playerId.value
+  )?.rank ?? null
+);
+
+// Display placement with the correct suffix.
+const myRankLabel = computed(() => {
+  if (myRank.value === null) return "Not ranked";
+
+  const remainder = myRank.value % 100;
+
+  if (remainder >= 11 && remainder <= 13) {
+    return `${myRank.value}th Place`;
+  }
+
+  const suffix = {
+    1: "st",
+    2: "nd",
+    3: "rd",
+  }[myRank.value % 10] || "th";
+
+  return `${myRank.value}${suffix} Place`;
+});
+
+// Coin-flip financial outcome
+const coinFlipAmount = computed(() =>
+  Number(myPlayer.value?.currentEventAmount ?? 0)
+);
+
+const coinFlipOutcome = computed(() => {
+  if (coinFlipAmount.value > 0) return "gain";
+  if (coinFlipAmount.value < 0) return "loss";
+  return "neutral";
+});
+
+const coinFlipAmountText = computed(() =>
+  formatMoney(Math.abs(Math.round(coinFlipAmount.value)))
+);
+
 // Money change animation
 const previousBalance = ref(null);
 const balanceChange = ref(0);
@@ -636,6 +698,7 @@ async function confirmCareer() {
       JSON.stringify({
         type: "confirm-career",
         socCode: selectedCareer.value,
+        careerTitle: data.career.title,
         monthlySpendableIncome:
           incomeBreakdown.monthlySpendableIncome,
       }),
@@ -1353,11 +1416,30 @@ function returnToHome() {
 
                     <div
                       v-else
-                      class="alert alert-success mt-4"
+                      class="coin-result-card mt-4"
+                      :class="`coin-result-${coinFlipOutcome}`"
                       role="status"
                     >
                       <h3 class="fw-bold">YOUR RESULT</h3>
-                      <p class="mb-0">{{ coinFlipResult }}</p>
+
+                      <div v-if="coinFlipOutcome === 'gain'" class="coin-result-amount">
+                        <span class="coin-result-arrow">↑</span>
+                        +{{ coinFlipAmountText }}
+                      </div>
+
+                      <div v-else-if="coinFlipOutcome === 'loss'" class="coin-result-amount">
+                        <span class="coin-result-arrow">↓</span>
+                        -{{ coinFlipAmountText }}
+                      </div>
+
+                      <div v-else class="coin-result-amount">
+                        NO IMMEDIATE BALANCE CHANGE
+                      </div>
+
+                      <p class="coin-result-description">
+                        {{ coinFlipResult }}
+                      </p>
+
                       <p class="mt-3 mb-0">
                         Your result is recorded. Waiting for the other players to flip...
                       </p>
@@ -1366,18 +1448,19 @@ function returnToHome() {
                 </template>
 
                 <template v-else-if="gamePhase === 'leaderboard'">
-                  <h2 class="text-primary fw-bold text-center mb-3">
-                    ANSWER SUBMITTED
-                  </h2>
+                  <div class="player-standing-card text-center mt-3">
+                    <p class="text-uppercase fw-bold mb-2">
+                      YOUR CURRENT STANDING
+                    </p>
 
-                  <p class="text-secondary text-center">
-                    The host is reviewing the leaderboard. The next question will
-                    begin when the host advances the game.
-                  </p>
+                    <h2 class="player-standing-rank">
+                      {{ myRankLabel }}
+                    </h2>
 
-                  <p v-if="lastEvent" class="alert alert-info">
-                    {{ lastEvent }}
-                  </p>
+                    <p class="text-secondary mb-0">
+                      Out of {{ playerCount }} players
+                    </p>
+                  </div>
                 </template>
 
                 <template v-else-if="gamePhase === 'finished'">

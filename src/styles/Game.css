@@ -1136,9 +1136,10 @@
   grid-template-rows: auto auto;
   align-items: center;
   gap: 12px;
+  min-height: 110px;
   min-width: 0;
   padding: 18px;
-  border: 1px solid #e1e8f0;
+  border: 2px solid #d4a72c;
   border-radius: 12px;
   background: #f7f9fc;
   color: #17365b;
@@ -1155,7 +1156,8 @@
 
 .leaderboard-rank-name {
   display: flex;
-  grid-column: 1 / -1;
+  grid-column: 1;
+  grid-row: 1 / 3;
   align-items: center;
   gap: 10px;
   min-width: 0;
@@ -1186,19 +1188,28 @@
 
 .leaderboard-lobby .leaderboard-balance {
   justify-self: end;
+  align-self: center;
+  grid-column: 2;
+  grid-row: 1 / 3;
+  padding: 8px 14px;
+  border-radius: 24px;
   font-size: 1.05rem;
   font-weight: 800;
+  white-space: nowrap;
 }
 
-.leaderboard-lobby .outcome-positive {
+.leaderboard-lobby .leaderboard-balance.outcome-positive {
+  background: #e5f6eb;
   color: #16834a;
 }
 
-.leaderboard-lobby .outcome-negative {
+.leaderboard-lobby .leaderboard-balance.outcome-negative {
+  background: #fee7e7;
   color: #c62828;
 }
 
-.leaderboard-lobby .outcome-neutral {
+.leaderboard-lobby .leaderboard-balance.outcome-neutral {
+  background: #edf0f4;
   color: #64748b;
 }
 
@@ -1240,7 +1251,7 @@
   gap: 12px;
   min-width: 0;
   padding: 18px;
-  border: 1px solid #e1e8f0;
+  border: 2px solid #d4a72c;
   border-radius: 12px;
   background: #f7f9fc;
   box-shadow: 0 2px 6px rgba(15, 40, 70, 0.04);
@@ -1862,23 +1873,13 @@
   letter-spacing: 0.1em;
 }
 
+/* PLAYER CURRENT MONEY BALANCE */
 .player-balance-amount {
   color: #123b69;
   font-size: clamp(1.8rem, 6vw, 2.5rem);
   font-weight: 850;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
-}
-
-.player-balance-caption {
-  color: #64748b;
-  font-size: 0.8rem;
-}
-
-
-/* PLAYER MONEY CHANGE ANIMATIONS */
-
-.player-balance-amount {
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
@@ -1890,6 +1891,11 @@
 .player-balance-amount.loss {
   color: #dc2626;
   animation: moneyLoss 0.7s ease;
+}
+
+.player-balance-caption {
+  color: #64748b;
+  font-size: 0.8rem;
 }
 
 @keyframes moneyGain {
@@ -1921,4 +1927,101 @@
   .player-balance-amount.loss {
     animation: none;
   }
+}
+
+.coin-result-card {
+  padding: 22px;
+  border-radius: 16px;
+  text-align: center;
+  border: 2px solid transparent;
+  animation: coinResultAppear 0.5s ease-out;
+}
+
+.coin-result-gain {
+  background: #ecfdf3;
+  border-color: #22a05a;
+  color: #166534;
+}
+
+.coin-result-loss {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+
+.coin-result-neutral {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #334155;
+}
+
+.coin-result-amount {
+  font-size: clamp(1.8rem, 7vw, 2.5rem);
+  font-weight: 850;
+  margin: 12px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.coin-result-arrow {
+  font-size: 1.3em;
+  margin-right: 8px;
+}
+
+.coin-result-description {
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+@keyframes coinResultAppear {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-result-card {
+    animation: none;
+  }
+}
+
+.player-standing-card {
+  background: #f8fafc;
+  border: 2px solid #d4a72c;
+  border-radius: 18px;
+  padding: 24px 18px;
+}
+
+.player-standing-rank {
+  color: #b88922;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 850;
+  margin: 12px 0;
+}
+
+.player-standing-balance {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin: 12px 0;
+}
+
+/* Player name and career title */
+.leaderboard-player-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.player-career-title {
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.2;
+  opacity: 0.75;
 }
