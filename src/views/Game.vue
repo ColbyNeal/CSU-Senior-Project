@@ -3,7 +3,7 @@
 // IMPORTS
 // Vue reactivity and the Join Game component
 // ============================================
-import { computed, inject, onMounted, ref, watch } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
 import JoinGame from "./JoinGame.vue";
 import QuestionCard from "../components/QuestionCard.vue";
 import { API_BASE_URL, WS_BASE_URL } from "../utils/apiConfig.js";
@@ -322,7 +322,6 @@ const mealOptions = [
       "Restaurant meals most days",
       "Multiple meals out per week",
       "Fast food, casual dining, and sit-down restaurants",
-      "Highest cost option",
     ],
   },
 ];
@@ -409,7 +408,6 @@ const preparednessOptions = [
       "New vehicle, toys, or hobbies",
       "Enjoy the things you've always wanted",
       "Personal fun and adventure",
-      "Live life now",
     ],
   },
 ];
@@ -604,6 +602,57 @@ function continueAfterCompoundInterest() {
   showCompoundInterest.value = false;
   nextQuestion();
 }
+
+// ============================================
+// HOST KEYBOARD CONTROLS
+// Spacebar advances the game just like clicking
+// the current Next / Continue button.
+// ============================================
+
+function handleHostKeyboard(event) {
+  if (event.code !== "Space" || event.repeat) return;
+
+  // Only allow keyboard controls during active gameplay.
+  if (!gameStarted.value) return;
+
+  // Don't interfere with typing or other editable fields.
+  const target = event.target;
+
+  if (
+    target instanceof HTMLElement &&
+    target.closest("input, textarea, select, [contenteditable='true']")
+  ) {
+    return;
+  }
+
+  // Prevent the page from scrolling when Space is pressed.
+  event.preventDefault();
+
+  if (gamePhase.value === "question") {
+    if (showCompoundInterest.value) {
+      continueAfterCompoundInterest();
+    } else {
+      handleHostNext();
+    }
+    return;
+  }
+
+  if (
+    gamePhase.value === "coinflip" ||
+    gamePhase.value === "leaderboard"
+  ) {
+    nextQuestion();
+  }
+}
+
+// Register and clean up the keyboard listener.
+onMounted(() => {
+  window.addEventListener("keydown", handleHostKeyboard);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleHostKeyboard);
+});
 
 // Return the host to the home screen after the game finishes.
 async function returnToHome() {
