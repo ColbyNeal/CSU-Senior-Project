@@ -1574,8 +1574,6 @@
   }
 }
 
-
-
 /* =========================================================
    DESKTOP QUESTION SCREENS - FIT WITHIN ONE VIEWPORT
    Compact card and spacing scale for standard laptop/desktop
@@ -1805,7 +1803,6 @@
   color: #17365b;
 }
 
-
 /* PLAYER QUESTION PROGRESS */
 .player-question-progress {
   width: 100%;
@@ -2024,4 +2021,215 @@
   font-weight: 400;
   line-height: 1.2;
   opacity: 0.75;
+}
+
+/* =========================================================
+   BLS CAREER EXPLORER
+   FINAL OPTION C - BALANCED FULL-SCREEN QUESTION LAYOUT
+   Questions 1–8
+   ========================================================= */
+
+@media (min-width: 901px) {
+
+  /* Main host question screen */
+  .host-game-screen {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 10px 2.5%;
+  }
+
+  /* Question heading and spacing */
+  .host-game-screen .game-heading {
+    flex: 0 0 auto;
+    margin-bottom: 2px;
+  }
+
+  .host-game-screen .game-divider {
+    flex: 0 0 auto;
+  }
+
+  .host-game-screen .host-question {
+    flex: 0 0 auto;
+    margin: 8px 0;
+  }
+
+  .host-game-screen .game-description {
+    color: #ffffff !important;
+    flex: 0 0 auto;
+  }
+
+  /* All eight card grids */
+  .host-game-screen .housing-image-grid,
+  .host-game-screen .transportation-image-grid,
+  .host-game-screen .retirement-image-grid,
+  .host-game-screen .savings-image-grid,
+  .host-game-screen .technology-image-grid,
+  .host-game-screen .meals-image-grid,
+  .host-game-screen .clothing-image-grid,
+  .host-game-screen .preparedness-image-grid {
+    display: grid;
+    width: 100%;
+    max-width: 1500px;
+    flex: 1 1 0;
+    min-height: 0;
+    margin: 12px auto;
+    padding: 0;
+    gap: 16px;
+    align-items: stretch;
+    box-sizing: border-box;
+  }
+
+  /* Preserve three-card questions */
+  .host-game-screen .housing-image-grid,
+  .host-game-screen .retirement-image-grid,
+  .host-game-screen .savings-image-grid,
+  .host-game-screen .clothing-image-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Preserve four-card questions */
+  .host-game-screen .transportation-image-grid,
+  .host-game-screen .technology-image-grid,
+  .host-game-screen .meals-image-grid,
+  .host-game-screen .preparedness-image-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  /* Equal-height cards */
+  .host-game-screen .housing-image-card,
+  .host-game-screen .question-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Images occupy the upper portion of the cards */
+  .host-game-screen .housing-image,
+  .host-game-screen .question-card-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 1 1 0;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* Consistent title bars */
+  .host-game-screen .housing-image-card h3,
+  .host-game-screen .question-card-title {
+    flex: 0 0 auto;
+    padding: 10px 8px;
+    font-size: 1rem;
+  }
+
+  /* Consistent price bars */
+  .host-game-screen .housing-expense,
+  .host-game-screen .question-card-price {
+    flex: 0 0 auto;
+    padding: 10px 6px;
+    font-size: 1.05rem;
+  }
+
+  /* Descriptions use the remaining content area */
+  .host-game-screen .housing-image-card ul,
+  .host-game-screen .question-card-details {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 12px 14px 16px 30px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  /* Keep the Next button visible */
+  .host-game-screen .game-button-primary {
+    flex: 0 0 auto;
+    margin: 8px 0;
+  }
+}
+
+/* FIX: Keep the host Next button on the right */
+.host-game-screen > .game-button-primary {
+  align-self: flex-end;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* FIX: Leaderboard and results text readability */
+.leaderboard-lobby,
+.event-lobby,
+.final-results-lobby {
+  color: #17365b;
+}
+
+.leaderboard-lobby p,
+.leaderboard-lobby span,
+.leaderboard-lobby strong,
+.leaderboard-lobby small,
+.leaderboard-lobby li,
+.event-lobby p,
+.event-lobby span,
+.event-lobby strong,
+.event-lobby small,
+.final-results-lobby p,
+.final-results-lobby span,
+.final-results-lobby strong,
+.final-results-lobby small {
+  color: #17365b;
+}
+
+/* Preserve the green, red, and neutral balance colors */
+.leaderboard-lobby .outcome-positive,
+.final-results-lobby .outcome-positive {
+  color: #16834a;
+}
+
+.leaderboard-lobby .outcome-negative,
+.final-results-lobby .outcome-negative {
+  color: #c62828;
+}
+
+.leaderboard-lobby .outcome-neutral,
+.final-results-lobby .outcome-neutral {
+  color: #64748b;
+}
+
+/* Preserve player status colors */
+.event-lobby .career-status-confirmed {
+  color: #176b3a;
+}
+
+.event-lobby .career-status-pending {
+  color: #8a5a00;
+}
+
+/* FIX: READABLE EVENT AND LEADERBOARD TEXT */
+.event-lobby .game-description,
+.event-lobby .event-instruction,
+.event-lobby p,
+.leaderboard-lobby p,
+.leaderboard-lobby .player-name,
+.leaderboard-lobby .player-career-title,
+.leaderboard-lobby .leaderboard-rank {
+  color: #17365b !important;
+}
+
+/* FIX: BUTTON BOTTOM RIGHT */
+.event-lobby .event-continue-button,
+.leaderboard-lobby .leaderboard-next-button {
+  display: block;
+  width: fit-content;
+  min-width: 220px;
+  margin: 24px 0 0 auto !important;
+  align-self: flex-end;
 }
